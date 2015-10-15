@@ -26,6 +26,7 @@ data_store/*
 
 # Text Files #
 ##############
-lists_runs/*.txt
+#lists_runs/*.txt
 !README.txt
 !lists_runs/RunList_2015.txt
+*.txt
