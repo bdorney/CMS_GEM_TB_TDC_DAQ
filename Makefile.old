@@ -1,0 +1,69 @@
+##
+##
+##
+
+CC	=	g++
+COPTS	=	-fPIC -DLINUX -Wall -O2  -march=i386
+FLAGS	=	-Wall -s
+LIBS	= -L ./lib -lCAENVME -lpthread -lm -ldl -rdynamic
+
+INCLUDEDIR = ./include
+TESTDIR = ./test
+SRCDIR := ./src
+OBJSDIR := Linux
+BINSDIR := Linux
+INC = -I $(INCLUDEDIR)
+
+INCS = ${INCLUDEDIR}/IDaqVmeInterface.hh
+OBJS = $(OBJSDIR)/IDaqVmeInterface.o
+TESTS := $(TESTDIR)/TestVmeInterface
+#########################################################################
+
+all	:	lib tests
+
+
+lib : $(OBJS) 
+	
+test : $(TESTS)
+	$(CC) $(FLAGS) $(INC) $(COPTS) $(OBJS) $(LIBS) -o $@ $< 
+
+	
+
+clean	:
+		/bin/rm -f $(OBJS) $(TESTS) 
+
+$(OBJSDIR)/%.o	:	$(SRCDIR)/%.cxx  $(INCLUDEDIR)/%.h Makefile
+		$(CC) ${FLAGS} ${INC} ${COPTS} ${LIBS} -o $@ $<
+		
+${OBJSDIR}/%.o 	: ${SRC_DIR}/%.cxx Makefile
+	${CC} ${FLAGS}  ${INC} ${COPTS} ${LIBS} -c $< -o $@
+
+
+#sis	:	$(AOBJS) $(MOBJS) MDtestAcq.o MDbtfAcq.o
+#		/bin/rm -f sis
+#		$(CC)  $(FLAGS) -o sis MDtestAcq.o MDbtfAcq.o $(AOBJS) $(MOBJS) $(DEPLIBS) 
+
+#mon	:	$(AOBJS) MDbtfMon.o 
+#		/bin/rm -f mon
+#		$(CC)  $(FLAGS) -o mon MDbtfMon.o $(AOBJS) $(ROOTLIBS) 
+
+#monSIS	:	$(AOBJS) MDbtfSISMon.o 
+#		/bin/rm -f monSIS
+#		$(CC)  $(FLAGS) -o monSIS MDbtfSISMon.o $(AOBJS) $(ROOTLIBS) 
+
+
+#checkMon	:	$(AOBJS) MDbtfCheckMon.o 
+#		/bin/rm -f checkMon
+#		$(CC)  $(FLAGS) -o checkMon MDbtfCheckMon.o $(AOBJS) 
+
+#runCtrl	:	$(RCOBJS) $(MOBJS) $(AOBJS)
+#		/bin/rm -f runCtrl
+#		 $(CC)  $(FLAGS) -o runCtrl $(RCOBJS) $(AOBJS) $(MOBJS) $(DEPLIBS) $(HE_LIBS)
+
+#$(AOBJS)	:	$(INCLDW) Makefile
+
+#$(MOBJS)	:	$(INCLMOD) Makefile
+
+#$(RCOBJS)	:	$(INCLRC) 
+
+

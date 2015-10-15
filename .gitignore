@@ -1,0 +1,30 @@
+# Back-Up Files #
+#################
+*~
+
+# Binary Files #
+################
+*.DS_Store
+
+# Compiled source #
+###################
+*.o
+*TestDAQ
+*TestIO
+*TestTDC
+*TestTDC1200ns
+*TestTDC500ns
+*TestTDC_Stop
+
+# ROOT Files #
+##############
+*.root
+data/
+data/*
+data_store/
+data_store/*
+
+# Text Files #
+##############
+lists_runs/*.txt
+!README.txt
