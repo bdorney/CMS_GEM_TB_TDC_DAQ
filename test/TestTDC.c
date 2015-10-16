@@ -112,7 +112,11 @@ int main( int argc, char **argv ){
     hStripProf = new TH1I( "hStripProf", "Strips Profile;Channels;Count", 32, 0, 32 );
     hClusterSize = new TH1I( "hClusSize", "Cluster Size;TDC Hits per Event;Count", 32, 0, 32 );
 
-    vmeInt = new IDaqVmeInterface();
+    //VME Intercace Constructor
+    //IDaqVmeInterface(IDaqVmeModuleType aModule = idmV2718, short aLink = 0, short aBoardNum = 0, long aBaseAddress = 0 );
+    //vmeInt = new IDaqVmeInterface();
+    vector<short> vec_vmeBridgeInfo = GetVmeInterfaceInfo();
+    vmeInt = new IDaqVmeInterface(idmV2718, vec_vmeBridgeInfo[0], vec_vmeBridgeInfo[1], 0 );
     vmeInt->Connect();
     vmeInt->Reset();
     sleep( 1 );
@@ -344,6 +348,40 @@ std::string GetRunListForWriting(){
     
     return strRunList;
 } //End GetRunListForWriting()
+
+/*
+ vmebridge.conf -> first line aLink
+ vmebridge.conf -> second line aBoardNum
+ */
+//Base address of the bridge should always be 0
+//ret_vector[0] -> aLink; ret_vector[1] -> aBoardNum
+//This is designed to tell the code at runtime what board it should connect to
+vector< short > GetVmeInterfaceInfo(){
+    ifstream ifile( "vmebridge.conf");
+    
+    vector<short> ret_vector;
+    
+    short sInput;
+    
+    if( ifile.is_open() ){
+        while( ifile.good() ){
+            if(ret_vector.size() > 2){
+                cout<<"vmebridge.conf does not have the expected structure\n";
+                cout<<"vmebridge.conf should have only two lines: 1) optical link number, 2) number of board on the link\n";
+                cout<<"please cross-check vmebridge.conf\n";
+                
+                break;
+            }
+            
+            ifile >> sInput;
+            
+            ret_vector.push_back( sInput );
+        }
+        ifile.close();
+    }
+    
+    return ret_vector;
+}
 
 vector< int > DisableChannels(){
   ifstream ifile( "killch.conf" );
