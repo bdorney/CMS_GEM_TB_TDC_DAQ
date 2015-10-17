@@ -168,10 +168,12 @@ struct PARAMETERS_TRACKER{
         fTracker1_HV=fTracker2_HV=fTracker3_HV=-1;
     }
 };
+
 int32_t ReadEvents( vector< uint32_t >, TH1F* );
 //int ReadQDC( IDaqV792 * q );
 
 //Getters
+bool GetParsedBool(std::string strInputParam, std::string strInputVal, std::string strInputFileName);
 float GetParsedFloat(std::string strInputParam, std::string strInputVal, std::string strInputFileName);
 int GetNumberOfTriggers();
 int GetRunNumber();
@@ -219,11 +221,16 @@ int main( int argc, char **argv ){
     std::cin >> fName;
     outputRunList<< ( fName + ".root\n" ).c_str();
     
+    //Load the Run Parameters List
+    PARAMETERS_DUT param_dut;       SetParametersDUT(param_dut);
+    PARAMETERS_PMT param_pmt;       SetParametersPMT(param_pmt);
+    PARAMETERS_TRACKER param_trk;   SetParametersTracker(param_trk);
+    
     fName = "./data/" + fName + ".root";
     f.Open( fName.c_str(), "RECREATE" );
     //fTree = new TTree( "CMS_RPC_TREE", "CMS RPC TEST RAW DATA" );
     fTree = new TTree( "CMS_GEM_TREE", "CMS GEM TEST RAW DATA" );
-
+    
     // Create TDC and trig - channel (ToF) histograms for 8 channels
     for( unsigned int i = 0; i < 33; ++i ){
         stringstream hName;
@@ -237,6 +244,12 @@ int main( int argc, char **argv ){
         hName.str("");
 
     }
+    
+    //Create the Parameter Branches
+    fTree->Branch("ParamDUT",&param_dut,"fHV_Det1_Drift/F:fHV_Det1_G1Top/F:fHV_Det1_G1Bot/F:fHV_Det1_G2Top/F:fHV_Det1_G2Bot/F:fHV_Det1_G3Top/F:fHV_Det1_G3Bot/F:fHV_Det2_Drift/F:fHV_Det2_G1Top/F:fHV_Det2_G1Bot/F:fHV_Det2_G2Top/F:fHV_Det2_G2Bot/F:fHV_Det2_G3Top/F:fHV_Det2_G3Bot/F:fReadout_Amp_Gain_Coarse/F:fReadout_Amp_Gain_Fine/F:fReadout_Amp_Time_Diff/F:fReadout_Amp_Time_Int/F:bReadout_Disc_CFD/B:fReadout_Disc_Threshold/F:fReadout_Disc_WalkAdj/F:fReadout_Disc_ExtDly/F:fDrift_Amp_Gain_Coarse/F:fDrift_Amp_Gain_Fine/F:fDrift_Amp_Time_Diff/F:fDrift_Amp_Time_Int/F:bDrift_Disc_CFD/B:fDrift_Disc_Threshold/F:fDrift_Disc_WalkAdj/F:fDrift_Disc_ExtDly/F");
+    fTree->Branch("ParamPMT",&param_pmt,"bPMT1_Disc_CFD/B:fPMT1_HV/F:fPMT1_Threshold/F:fPMT1_WalkAdj/F:fPMT1_Disc_ExtDly/F:fPMT1_Disc_CoinDly/F:bPMT2_Disc_CFD/B:fPMT2_HV/F:fPMT2_Threshold/F:fPMT2_WalkAdj/F:fPMT2_Disc_ExtDly/F:fPMT2_Disc_CoinDly/F:bPMT3_Disc_CFD/B:fPMT3_HV/F:fPMT3_Threshold/F:fPMT3_WalkAdj/F:fPMT3_Disc_ExtDly/F:fPMT3_Disc_CoinDly/F:bPMTDUT_Disc_CFD/B:fPMTDUT_HV/F:fPMTDUT_Threshold/F:fPMTDUT_WalkAdj/F:fPMTDUT_Disc_ExtDly/F:fPMTDUT_Disc_CoinDly/F");
+    fTree->Branch("ParamTRK",&param_trk,"fTracker1_HV/F:fTracker2_HV/F:fTracker3_HV/F");
+    
     //  hTrig = new TH1F( "hTrig", "hTrig", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
     // hTrig1 = new TH1F( "hCh18", "hCh18", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
     hStripProf = new TH1I( "hStripProf", "Strips Profile;Channels;Count", 32, 0, 32 );
@@ -482,6 +495,24 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
     } //End Loop Improper Entry
 } //End GetPosEquals()
 
+bool GetParsedBool(std::string strInputParam, std::string strInputVal, std::string strInputFileName){
+    transform(strInputVal.begin(),strInputVal.end(),toupper);
+    
+    if (0 == strInputVal.compare("TRUE") || 0 == strInputVal.compare("T") || 0 == strInputVal.compare("1") ) {
+        return true;
+    }
+    else if (0 == strInputVal.compare("FALSE") || 0 == strInputVal.compare("F") || 0 == strInputVal.compare("0") ) {
+        return false;
+    }
+    else {
+        cout<<"GetParsedBool() - Parsing " << strInputParam.c_str() << endl;
+        cout<<"\tReceived " << strInputVal.c_str()<< endl;
+        cout<<"\tExpected {TRUE,T,1,FALSE,F,0}, Please Cross Check Input File: " << strInputFileName.c_str() <<endl;
+        cout<<"\tTHE VALUE OF FALSE HAS BEEN SET!\n";
+        return false;
+    }
+} //End GetParsedBool()
+
 float GetParsedFloat(std::string strInputParam, std::string strInputVal, std::string strInputFileName){
     if ( std::string::npos == strInputVal.find_first_not_of("0123456789.") ) { //Case: Only Numeric Data Present
         return atof( strInputVal.c_str() );
@@ -629,164 +660,49 @@ void SetParametersDUT( PARAMETERS_DUT &param){
                 param.fReadout_Amp_Gain_Coarse = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Amp_Gain_Fine" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fReadout_Amp_Gain_Fine = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fReadout_Amp_Gain_Fine = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Amp_Time_Diff" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fReadout_Amp_Time_Diff = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fReadout_Amp_Time_Diff = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Amp_Time_Int" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fReadout_Amp_Time_Int = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fReadout_Amp_Time_Int = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Disc_CFD" ) ){
-                transform(strParamVal.begin(),strParamVal.end(),toupper);
-                
-                if (0 == strParamVal.compare("TRUE") || 0 == strParamVal.compare("T") || 0 == strParamVal.compare("1") ) {
-                    param.bReadout_Disc_CFD = true;
-                }
-                else if (0 == strParamVal.compare("FALSE") || 0 == strParamVal.compare("F") || 0 == strParamVal.compare("0") ) {
-                    param.bReadout_Disc_CFD = false;
-                }
-                else {
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected {TRUE,T,1,FALSE,F,0}, Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.bReadout_Disc_CFD = GetParsedBool(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Disc_Thresh" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fReadout_Disc_Threshold = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fReadout_Disc_Threshold = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Disc_WalkAdj" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fReadout_Disc_WalkAdj = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fReadout_Disc_WalkAdj = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Disc_ExtDly" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fReadout_Disc_ExtDly = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fReadout_Disc_ExtDly = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Amp_Gain_Coarse" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Amp_Gain_Coarse = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Amp_Gain_Coarse = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Amp_Gain_Fine" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Amp_Gain_Fine = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Amp_Gain_Fine = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Amp_Time_Diff" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Amp_Time_Diff = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Amp_Time_Diff = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Amp_Time_Int" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Amp_Time_Int = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Amp_Time_Int = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Disc_CFD" ) ){
-                transform(strParamVal.begin(),strParamVal.end(),toupper);
-                
-                if (0 == strParamVal.compare("TRUE") || 0 == strParamVal.compare("T") || 0 == strParamVal.compare("1") ) {
-                    param.bDrift_Disc_CFD = true;
-                }
-                else if (0 == strParamVal.compare("FALSE") || 0 == strParamVal.compare("F") || 0 == strParamVal.compare("0") ) {
-                    param.bDrift_Disc_CFD = false;
-                }
-                else {
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected {TRUE,T,1,FALSE,F,0}, Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.bDrift_Disc_CFD = GetParsedBool(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Disc_Thresh" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Disc_Threshold = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Disc_Threshold = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Disc_WalkAdj" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Disc_WalkAdj = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Disc_WalkAdj = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Drift_Disc_ExtDly" ) ){
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fDrift_Disc_ExtDly = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersDUT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fDrift_Disc_ExtDly = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else { //Case: Unrecognized Line
                 cout<<"SetParametersDUT() - Parameter Pair";
@@ -869,8 +785,28 @@ void SetParametersTracker( PARAMETERS_TRACKER &param){
             
             //compare strParamName to accepted inputs:
             
+            if ( 0 == strParamName.compare( "Trk1_HV" ) ) {
+                param.fTracker1_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "Trk2_HV" ) ) {
+                param.fTracker2_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "Trk3_HV" ) ) {
+                param.fTracker3_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else { //Case: Unrecognized Line
+                cout<<"SetParametersPMT() - Parameter Pair";
+                cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
+                cout<<"\tNot Undestood. Please Cross Check Input File: " << strFilename.c_str() <<endl;
+            } //End Case: Unrecognized Line
         } // End Loop Through File
     } //End File is Open
+    
+    cout<<"SetParametersPMT() - Loaded Parameter List:\n";
+    
+    cout<<"param.fTracker1_HV = " << param.fTracker1_HV << endl;
+    cout<<"param.fTracker2_HV = " << param.fTracker2_HV << endl;
+    cout<<"param.fTracker3_HV = " << param.fTracker3_HV << endl;
     
     return;
 } //End SetParametersTracker()
@@ -907,43 +843,115 @@ void SetParametersPMT( PARAMETERS_PMT &param){
             
             //compare strParamName to accepted inputs:
             if( 0 == strParamName.compare( "PMT1_Disc_CFD" ) ){
-                transform(strParamVal.begin(),strParamVal.end(),toupper);
-                
-                if (0 == strParamVal.compare("TRUE") || 0 == strParamVal.compare("T") || 0 == strParamVal.compare("1") ) {
-                    param.bPMT1_Disc_CFD = true;
-                }
-                else if (0 == strParamVal.compare("FALSE") || 0 == strParamVal.compare("F") || 0 == strParamVal.compare("0") ) {
-                    param.bPMT1_Disc_CFD = false;
-                }
-                else {
-                    cout<<"SetParametersPMT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected {TRUE,T,1,FALSE,F,0}, Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.bPMT1_Disc_CFD = GetParsedBool(strParamName, strParamVal, strFilename);
             }
             else if ( 0 == strParamName.compare( "PMT1_HV" ) ) {
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fPMT1_HV = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersPMT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fPMT1_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if ( 0 == strParamName.compare( "PMT1_Disc_Thresh" ) ) {
-                if ( std::string::npos == strParamVal.find_first_not_of("0123456789.") ) {
-                    param.fPMT1_Threshold = atof( strParamVal.c_str() );
-                }
-                else{
-                    cout<<"SetParametersPMT() - Parsing " << strParamName.c_str() << endl;
-                    cout<<"\tReceived " << strParamVal.c_str()<< endl;
-                    cout<<"\tExpected Numeric Input Please Cross Check Input File: " << strFilename.c_str() <<endl;
-                }
+                param.fPMT1_Threshold = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
-            
+            else if ( 0 == strParamName.compare( "PMT1_Disc_WalkAdj" ) ) {
+                param.fPMT1_WalkAdj = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT1_Disc_ExtDly" ) ) {
+                param.fPMT1_Disc_ExtDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT1_Disc_CoinDly" ) ) {
+                param.fPMT1_Disc_CoinDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if( 0 == strParamName.compare( "PMT2_Disc_CFD" ) ){
+                param.bPMT2_Disc_CFD = GetParsedBool(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT2_HV" ) ) {
+                param.fPMT2_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT2_Disc_Thresh" ) ) {
+                param.fPMT2_Threshold = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT2_Disc_WalkAdj" ) ) {
+                param.fPMT2_WalkAdj = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT2_Disc_ExtDly" ) ) {
+                param.fPMT2_Disc_ExtDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT2_Disc_CoinDly" ) ) {
+                param.fPMT2_Disc_CoinDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if( 0 == strParamName.compare( "PMT3_Disc_CFD" ) ){
+                param.bPMT3_Disc_CFD = GetParsedBool(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT3_HV" ) ) {
+                param.fPMT3_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT3_Disc_Thresh" ) ) {
+                param.fPMT3_Threshold = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT3_Disc_WalkAdj" ) ) {
+                param.fPMT3_WalkAdj = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT3_Disc_ExtDly" ) ) {
+                param.fPMT3_Disc_ExtDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMT3_Disc_CoinDly" ) ) {
+                param.fPMT3_Disc_CoinDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if( 0 == strParamName.compare( "PMTDUT_Disc_CFD" ) ){
+                param.bPMTDUT_Disc_CFD = GetParsedBool(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMTDUT_HV" ) ) {
+                param.fPMTDUT_HV = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMTDUT_Disc_Thresh" ) ) {
+                param.fPMTDUT_Threshold = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMTDUT_Disc_WalkAdj" ) ) {
+                param.fPMTDUT_WalkAdj = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMTDUT_Disc_ExtDly" ) ) {
+                param.fPMTDUT_Disc_ExtDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if ( 0 == strParamName.compare( "PMTDUT_Disc_CoinDly" ) ) {
+                param.fPMTDUT_Disc_CoinDly = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else { //Case: Unrecognized Line
+                cout<<"SetParametersPMT() - Parameter Pair";
+                cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
+                cout<<"\tNot Undestood. Please Cross Check Input File: " << strFilename.c_str() <<endl;
+            } //End Case: Unrecognized Line
         } // End Loop Through File
     } //End File is Open
+    
+    //Debugging
+    cout<<"SetParametersPMT() - Loaded Parameter List:\n";
+    
+    cout<<"param.bPMT1_Disc_CFD = " << param.bPMT1_Disc_CFD << endl;
+    cout<<"parma.fPMT1_HV = " << parma.fPMT1_HV << endl;
+    cout<<"parma.fPMT1_Threshold = " << parma.fPMT1_Threshold << endl;
+    cout<<"parma.fPMT1_WalkAdj = " << parma.fPMT1_WalkAdj << endl;
+    cout<<"parma.fPMT1_Disc_ExtDly = " << parma.fPMT1_Disc_ExtDly << endl;
+    cout<<"parma.fPMT1_Disc_CoinDly = " << parma.fPMT1_Disc_CoinDly << endl;
+    
+    cout<<"param.bPMT2_Disc_CFD = " << param.bPMT2_Disc_CFD << endl;
+    cout<<"parma.fPMT2_HV = " << parma.fPMT2_HV << endl;
+    cout<<"parma.fPMT2_Threshold = " << parma.fPMT2_Threshold << endl;
+    cout<<"parma.fPMT2_WalkAdj = " << parma.fPMT2_WalkAdj << endl;
+    cout<<"parma.fPMT2_Disc_ExtDly = " << parma.fPMT2_Disc_ExtDly << endl;
+    cout<<"parma.fPMT2_Disc_CoinDly = " << parma.fPMT2_Disc_CoinDly << endl;
+    
+    cout<<"param.bPMT3_Disc_CFD = " << param.bPMT3_Disc_CFD << endl;
+    cout<<"parma.fPMT3_HV = " << parma.fPMT3_HV << endl;
+    cout<<"parma.fPMT3_Threshold = " << parma.fPMT3_Threshold << endl;
+    cout<<"parma.fPMT3_WalkAdj = " << parma.fPMT3_WalkAdj << endl;
+    cout<<"parma.fPMT3_Disc_ExtDly = " << parma.fPMT3_Disc_ExtDly << endl;
+    cout<<"parma.fPMT3_Disc_CoinDly = " << parma.fPMT3_Disc_CoinDly << endl;
+    
+    cout<<"param.bPMTDUT_Disc_CFD = " << param.bPMTDUT_Disc_CFD << endl;
+    cout<<"parma.fPMTDUT_HV = " << parma.fPMTDUT_HV << endl;
+    cout<<"parma.fPMTDUT_Threshold = " << parma.fPMTDUT_Threshold << endl;
+    cout<<"parma.fPMTDUT_WalkAdj = " << parma.fPMTDUT_WalkAdj << endl;
+    cout<<"parma.fPMTDUT_Disc_ExtDly = " << parma.fPMTDUT_Disc_ExtDly << endl;
+    cout<<"parma.fPMTDUT_Disc_CoinDly = " << parma.fPMTDUT_Disc_CoinDly << endl;
     
     return;
 } //End SetParametersPMT()
