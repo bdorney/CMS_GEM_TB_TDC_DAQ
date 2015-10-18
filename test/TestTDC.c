@@ -253,6 +253,9 @@ int main( int argc, char **argv ){
     tree_RunParam->Branch("ParamPMT",&param_pmt,"bPMT1_Disc_CFD/B:fPMT1_HV/F:fPMT1_Threshold/F:fPMT1_WalkAdj/F:fPMT1_Disc_ExtDly/F:fPMT1_Disc_CoinDly/F:bPMT2_Disc_CFD/B:fPMT2_HV/F:fPMT2_Threshold/F:fPMT2_WalkAdj/F:fPMT2_Disc_ExtDly/F:fPMT2_Disc_CoinDly/F:bPMT3_Disc_CFD/B:fPMT3_HV/F:fPMT3_Threshold/F:fPMT3_WalkAdj/F:fPMT3_Disc_ExtDly/F:fPMT3_Disc_CoinDly/F:bPMTDUT_Disc_CFD/B:fPMTDUT_HV/F:fPMTDUT_Threshold/F:fPMTDUT_WalkAdj/F:fPMTDUT_Disc_ExtDly/F:fPMTDUT_Disc_CoinDly/F");
     tree_RunParam->Branch("ParamTRK",&param_trk,"fTracker1_HV/F:fTracker2_HV/F:fTracker3_HV/F");
     
+    //Fill the run parameters
+    tree_RunParam->Fill();
+    
     //  hTrig = new TH1F( "hTrig", "hTrig", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
     // hTrig1 = new TH1F( "hCh18", "hCh18", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
     hStripProf = new TH1I( "hStripProf", "Strips Profile;Channels;Count", 32, 0, 32 );
