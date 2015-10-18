@@ -499,12 +499,12 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
 } //End GetPosEquals()
 
 bool GetParsedBool(std::string strInputParam, std::string strInputVal, std::string strInputFileName){
-    std::transform(strInputVal.begin(),strInputVal.end(),strInputVal.begin(),toupper);
+    //std::transform(strInputVal.begin(),strInputVal.end(),strInputVal.begin(),toupper);
     
-    if (0 == strInputVal.compare("TRUE") || 0 == strInputVal.compare("T") || 0 == strInputVal.compare("1") ) {
+    if (0 == strInputVal.compare("true") || 0 == strInputVal.compare("t") || 0 == strInputVal.compare("TRUE") || 0 == strInputVal.compare("T") || 0 == strInputVal.compare("1") ) {
         return true;
     }
-    else if (0 == strInputVal.compare("FALSE") || 0 == strInputVal.compare("F") || 0 == strInputVal.compare("0") ) {
+    else if (0 == strInputVal.compare("false") || 0 == strInputVal.compare("f") || 0 == strInputVal.compare("FALSE") || 0 == strInputVal.compare("F") || 0 == strInputVal.compare("0") ) {
         return false;
     }
     else {
