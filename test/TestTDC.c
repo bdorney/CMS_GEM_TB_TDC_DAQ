@@ -812,11 +812,11 @@ void SetParametersTracker( PARAMETERS_TRACKER &param){
         } // End Loop Through File
     } //End File is Open
     
-    cout<<"SetParametersPMT() - Loaded Parameter List:\n";
+    cout<<"SetParametersTracker() - Loaded Parameter List:\n";
     
-    cout<<"param.fTracker1_HV = " << param.fTracker1_HV << endl;
-    cout<<"param.fTracker2_HV = " << param.fTracker2_HV << endl;
-    cout<<"param.fTracker3_HV = " << param.fTracker3_HV << endl;
+    cout<<"\tparam.fTracker1_HV = " << param.fTracker1_HV << endl;
+    cout<<"\tparam.fTracker2_HV = " << param.fTracker2_HV << endl;
+    cout<<"\tparam.fTracker3_HV = " << param.fTracker3_HV << endl;
     
     return;
 } //End SetParametersTracker()
@@ -937,33 +937,33 @@ void SetParametersPMT( PARAMETERS_PMT &param){
     //Debugging
     cout<<"SetParametersPMT() - Loaded Parameter List:\n";
     
-    cout<<"param.bPMT1_Disc_CFD = " << param.bPMT1_Disc_CFD << endl;
-    cout<<"param.fPMT1_HV = " << param.fPMT1_HV << endl;
-    cout<<"param.fPMT1_Threshold = " << param.fPMT1_Threshold << endl;
-    cout<<"param.fPMT1_WalkAdj = " << param.fPMT1_WalkAdj << endl;
-    cout<<"param.fPMT1_Disc_ExtDly = " << param.fPMT1_Disc_ExtDly << endl;
-    cout<<"param.fPMT1_Disc_CoinDly = " << param.fPMT1_Disc_CoinDly << endl;
+    cout<<"\tparam.bPMT1_Disc_CFD = " << param.bPMT1_Disc_CFD << endl;
+    cout<<"\tparam.fPMT1_HV = " << param.fPMT1_HV << endl;
+    cout<<"\tparam.fPMT1_Threshold = " << param.fPMT1_Threshold << endl;
+    cout<<"\tparam.fPMT1_WalkAdj = " << param.fPMT1_WalkAdj << endl;
+    cout<<"\tparam.fPMT1_Disc_ExtDly = " << param.fPMT1_Disc_ExtDly << endl;
+    cout<<"\tparam.fPMT1_Disc_CoinDly = " << param.fPMT1_Disc_CoinDly << endl;
     
-    cout<<"param.bPMT2_Disc_CFD = " << param.bPMT2_Disc_CFD << endl;
-    cout<<"param.fPMT2_HV = " << param.fPMT2_HV << endl;
-    cout<<"param.fPMT2_Threshold = " << param.fPMT2_Threshold << endl;
-    cout<<"param.fPMT2_WalkAdj = " << param.fPMT2_WalkAdj << endl;
-    cout<<"param.fPMT2_Disc_ExtDly = " << param.fPMT2_Disc_ExtDly << endl;
-    cout<<"param.fPMT2_Disc_CoinDly = " << param.fPMT2_Disc_CoinDly << endl;
+    cout<<"\tparam.bPMT2_Disc_CFD = " << param.bPMT2_Disc_CFD << endl;
+    cout<<"\tparam.fPMT2_HV = " << param.fPMT2_HV << endl;
+    cout<<"\tparam.fPMT2_Threshold = " << param.fPMT2_Threshold << endl;
+    cout<<"\tparam.fPMT2_WalkAdj = " << param.fPMT2_WalkAdj << endl;
+    cout<<"\tparam.fPMT2_Disc_ExtDly = " << param.fPMT2_Disc_ExtDly << endl;
+    cout<<"\tparam.fPMT2_Disc_CoinDly = " << param.fPMT2_Disc_CoinDly << endl;
     
-    cout<<"param.bPMT3_Disc_CFD = " << param.bPMT3_Disc_CFD << endl;
-    cout<<"param.fPMT3_HV = " << param.fPMT3_HV << endl;
-    cout<<"param.fPMT3_Threshold = " << param.fPMT3_Threshold << endl;
-    cout<<"param.fPMT3_WalkAdj = " << param.fPMT3_WalkAdj << endl;
-    cout<<"param.fPMT3_Disc_ExtDly = " << param.fPMT3_Disc_ExtDly << endl;
-    cout<<"param.fPMT3_Disc_CoinDly = " << param.fPMT3_Disc_CoinDly << endl;
+    cout<<"\tparam.bPMT3_Disc_CFD = " << param.bPMT3_Disc_CFD << endl;
+    cout<<"\tparam.fPMT3_HV = " << param.fPMT3_HV << endl;
+    cout<<"\tparam.fPMT3_Threshold = " << param.fPMT3_Threshold << endl;
+    cout<<"\tparam.fPMT3_WalkAdj = " << param.fPMT3_WalkAdj << endl;
+    cout<<"\tparam.fPMT3_Disc_ExtDly = " << param.fPMT3_Disc_ExtDly << endl;
+    cout<<"\tparam.fPMT3_Disc_CoinDly = " << param.fPMT3_Disc_CoinDly << endl;
     
-    cout<<"param.bPMTDUT_Disc_CFD = " << param.bPMTDUT_Disc_CFD << endl;
-    cout<<"param.fPMTDUT_HV = " << param.fPMTDUT_HV << endl;
-    cout<<"param.fPMTDUT_Threshold = " << param.fPMTDUT_Threshold << endl;
-    cout<<"param.fPMTDUT_WalkAdj = " << param.fPMTDUT_WalkAdj << endl;
-    cout<<"param.fPMTDUT_Disc_ExtDly = " << param.fPMTDUT_Disc_ExtDly << endl;
-    cout<<"param.fPMTDUT_Disc_CoinDly = " << param.fPMTDUT_Disc_CoinDly << endl;
+    cout<<"\tparam.bPMTDUT_Disc_CFD = " << param.bPMTDUT_Disc_CFD << endl;
+    cout<<"\tparam.fPMTDUT_HV = " << param.fPMTDUT_HV << endl;
+    cout<<"\tparam.fPMTDUT_Threshold = " << param.fPMTDUT_Threshold << endl;
+    cout<<"\tparam.fPMTDUT_WalkAdj = " << param.fPMTDUT_WalkAdj << endl;
+    cout<<"\tparam.fPMTDUT_Disc_ExtDly = " << param.fPMTDUT_Disc_ExtDly << endl;
+    cout<<"\tparam.fPMTDUT_Disc_CoinDly = " << param.fPMTDUT_Disc_CoinDly << endl;
     
     return;
 } //End SetParametersPMT()
