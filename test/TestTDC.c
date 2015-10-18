@@ -179,6 +179,7 @@ int GetNumberOfTriggers();
 int GetRunNumber();
 std::string GetRunListForWriting();
 std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool & bInputLineSkip);
+std::vector< short > GetVmeInterfaceInfo();
 
 //Setters
 void SetParametersDUT( PARAMETERS_DUT &param);
@@ -467,7 +468,7 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
     std::string strManEntry = "";
     
     //Find the "=" symbole (separates parameter name from parameter value)
-    ret_PosEquals = strLine.find_first_of("=");
+    ret_PosEquals = strInput.find_first_of("=");
     
     //Loop Improper Parameter Entry
     while ( std::string::npos == ret_PosEquals ) { //Loop Improper Entry
@@ -475,11 +476,11 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
         cout<<"\tParsing line:\n";
         cout<<"\t\t"<<strInput.c_str()<<endl;
         cout<<"\tNo '=' symbole found\n";
-        cout<<"\tWould you like manual entry? (y/N)"
+        cout<<"\tWould you like manual entry? (y/N)";
         cin>>strManEntry;
         
         if ( 0 == strManEntry.compare("y") || 0 == strManEntry.compare("Y") ) { //Case: User Gives Manual Entry
-            cout<<"\tOkay Please Give Manual Entry"
+            cout<<"\tOkay Please Give Manual Entry";
             cin>>strInput;
         } //End Case: User Gives Manual Entry
         else if ( 0 == strManEntry.compare("n") || 0 == strManEntry.compare("N") ) { //Case: User Declines Manual Entry
@@ -493,10 +494,12 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
         
         ret_PosEquals = strLine.find_first_of("=");
     } //End Loop Improper Entry
+    
+    return ret_PosEquals;
 } //End GetPosEquals()
 
 bool GetParsedBool(std::string strInputParam, std::string strInputVal, std::string strInputFileName){
-    transform(strInputVal.begin(),strInputVal.end(),toupper);
+    std::transform(strInputVal.begin(),strInputVal.end(),toupper);
     
     if (0 == strInputVal.compare("TRUE") || 0 == strInputVal.compare("T") || 0 == strInputVal.compare("1") ) {
         return true;
@@ -926,32 +929,32 @@ void SetParametersPMT( PARAMETERS_PMT &param){
     cout<<"SetParametersPMT() - Loaded Parameter List:\n";
     
     cout<<"param.bPMT1_Disc_CFD = " << param.bPMT1_Disc_CFD << endl;
-    cout<<"parma.fPMT1_HV = " << parma.fPMT1_HV << endl;
-    cout<<"parma.fPMT1_Threshold = " << parma.fPMT1_Threshold << endl;
-    cout<<"parma.fPMT1_WalkAdj = " << parma.fPMT1_WalkAdj << endl;
-    cout<<"parma.fPMT1_Disc_ExtDly = " << parma.fPMT1_Disc_ExtDly << endl;
-    cout<<"parma.fPMT1_Disc_CoinDly = " << parma.fPMT1_Disc_CoinDly << endl;
+    cout<<"param.fPMT1_HV = " << param.fPMT1_HV << endl;
+    cout<<"param.fPMT1_Threshold = " << param.fPMT1_Threshold << endl;
+    cout<<"param.fPMT1_WalkAdj = " << param.fPMT1_WalkAdj << endl;
+    cout<<"param.fPMT1_Disc_ExtDly = " << param.fPMT1_Disc_ExtDly << endl;
+    cout<<"param.fPMT1_Disc_CoinDly = " << param.fPMT1_Disc_CoinDly << endl;
     
     cout<<"param.bPMT2_Disc_CFD = " << param.bPMT2_Disc_CFD << endl;
-    cout<<"parma.fPMT2_HV = " << parma.fPMT2_HV << endl;
-    cout<<"parma.fPMT2_Threshold = " << parma.fPMT2_Threshold << endl;
-    cout<<"parma.fPMT2_WalkAdj = " << parma.fPMT2_WalkAdj << endl;
-    cout<<"parma.fPMT2_Disc_ExtDly = " << parma.fPMT2_Disc_ExtDly << endl;
-    cout<<"parma.fPMT2_Disc_CoinDly = " << parma.fPMT2_Disc_CoinDly << endl;
+    cout<<"param.fPMT2_HV = " << param.fPMT2_HV << endl;
+    cout<<"param.fPMT2_Threshold = " << param.fPMT2_Threshold << endl;
+    cout<<"param.fPMT2_WalkAdj = " << param.fPMT2_WalkAdj << endl;
+    cout<<"param.fPMT2_Disc_ExtDly = " << param.fPMT2_Disc_ExtDly << endl;
+    cout<<"param.fPMT2_Disc_CoinDly = " << param.fPMT2_Disc_CoinDly << endl;
     
     cout<<"param.bPMT3_Disc_CFD = " << param.bPMT3_Disc_CFD << endl;
-    cout<<"parma.fPMT3_HV = " << parma.fPMT3_HV << endl;
-    cout<<"parma.fPMT3_Threshold = " << parma.fPMT3_Threshold << endl;
-    cout<<"parma.fPMT3_WalkAdj = " << parma.fPMT3_WalkAdj << endl;
-    cout<<"parma.fPMT3_Disc_ExtDly = " << parma.fPMT3_Disc_ExtDly << endl;
-    cout<<"parma.fPMT3_Disc_CoinDly = " << parma.fPMT3_Disc_CoinDly << endl;
+    cout<<"param.fPMT3_HV = " << param.fPMT3_HV << endl;
+    cout<<"param.fPMT3_Threshold = " << param.fPMT3_Threshold << endl;
+    cout<<"param.fPMT3_WalkAdj = " << param.fPMT3_WalkAdj << endl;
+    cout<<"param.fPMT3_Disc_ExtDly = " << param.fPMT3_Disc_ExtDly << endl;
+    cout<<"param.fPMT3_Disc_CoinDly = " << param.fPMT3_Disc_CoinDly << endl;
     
     cout<<"param.bPMTDUT_Disc_CFD = " << param.bPMTDUT_Disc_CFD << endl;
-    cout<<"parma.fPMTDUT_HV = " << parma.fPMTDUT_HV << endl;
-    cout<<"parma.fPMTDUT_Threshold = " << parma.fPMTDUT_Threshold << endl;
-    cout<<"parma.fPMTDUT_WalkAdj = " << parma.fPMTDUT_WalkAdj << endl;
-    cout<<"parma.fPMTDUT_Disc_ExtDly = " << parma.fPMTDUT_Disc_ExtDly << endl;
-    cout<<"parma.fPMTDUT_Disc_CoinDly = " << parma.fPMTDUT_Disc_CoinDly << endl;
+    cout<<"param.fPMTDUT_HV = " << param.fPMTDUT_HV << endl;
+    cout<<"param.fPMTDUT_Threshold = " << param.fPMTDUT_Threshold << endl;
+    cout<<"param.fPMTDUT_WalkAdj = " << param.fPMTDUT_WalkAdj << endl;
+    cout<<"param.fPMTDUT_Disc_ExtDly = " << param.fPMTDUT_Disc_ExtDly << endl;
+    cout<<"param.fPMTDUT_Disc_CoinDly = " << param.fPMTDUT_Disc_CoinDly << endl;
     
     return;
 } //End SetParametersPMT()
