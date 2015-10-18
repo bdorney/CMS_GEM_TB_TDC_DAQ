@@ -471,7 +471,7 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
     ret_PosEquals = strInput.find_first_of("=");
     
     //Loop Improper Parameter Entry
-    while ( std::string::npos == ret_PosEquals ) { //Loop Improper Entry
+    while ( std::string::npos == ret_PosEquals && strInput.compare("") !=0 ) { //Loop Improper Entry
         cout<<"GetPosEquals() - Parsing: " <<  strFilename.c_str() << endl;
         cout<<"\tParsing line:\n";
         cout<<"\t\t"<<strInput.c_str()<<endl;
@@ -610,7 +610,8 @@ void SetParametersDUT( PARAMETERS_DUT &param){
             if ( bSkipLine ) continue;
             
             //Okay Check input File
-            strParamName = strLine.substr(0, iPosEquals-1);
+            //strParamName = strLine.substr(0, iPosEquals-1);
+            strParamName = strLine.substr(0, iPosEquals);
             strParamVal = strLine.substr(iPosEquals+1,strLine.length() - iPosEquals);
             
             cout<<"SetParametersDUT() - I found (strParamName,strParamVal):\n";
@@ -780,7 +781,8 @@ void SetParametersTracker( PARAMETERS_TRACKER &param){
             if ( bSkipLine ) continue;
             
             //Okay Check input File
-            strParamName = strLine.substr(0, iPosEquals-1);
+            //strParamName = strLine.substr(0, iPosEquals-1);
+            strParamName = strLine.substr(0, iPosEquals);
             strParamVal = strLine.substr(iPosEquals+1,strLine.length() - iPosEquals);
             
             cout<<"SetParametersTracker() - I found (strParamName,strParamVal):\n";
@@ -838,7 +840,8 @@ void SetParametersPMT( PARAMETERS_PMT &param){
             if ( bSkipLine ) continue;
             
             //Okay Check input File
-            strParamName = strLine.substr(0, iPosEquals-1);
+            //strParamName = strLine.substr(0, iPosEquals-1);
+            strParamName = strLine.substr(0, iPosEquals);
             strParamVal = strLine.substr(iPosEquals+1,strLine.length() - iPosEquals);
             
             cout<<"SetParametersPMT() - I found (strParamName,strParamVal):\n";
