@@ -492,14 +492,14 @@ std::size_t GetPosEquals(std::string strFilename, std::string & strInput, bool &
             cin>>strManEntry;
         } //End Case: User Input Not Understood
         
-        ret_PosEquals = strLine.find_first_of("=");
+        ret_PosEquals = strInput.find_first_of("=");
     } //End Loop Improper Entry
     
     return ret_PosEquals;
 } //End GetPosEquals()
 
 bool GetParsedBool(std::string strInputParam, std::string strInputVal, std::string strInputFileName){
-    std::transform(strInputVal.begin(),strInputVal.end(),toupper);
+    std::transform(strInputVal.begin(),strInputVal.end(),strInputVal.begin(),toupper);
     
     if (0 == strInputVal.compare("TRUE") || 0 == strInputVal.compare("T") || 0 == strInputVal.compare("1") ) {
         return true;
