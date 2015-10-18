@@ -39,7 +39,7 @@ TH1F * hTrig;
 TH1F * hTrig1;
 TH1I * hStripProf;
 TH1I * hClusterSize;
-TTree * fTree;
+TTree * tree_RawData;
 int fData[ 32 ];
 int Run;
 double timeBin = 0.0;
@@ -229,8 +229,9 @@ int main( int argc, char **argv ){
     
     fName = "./data/" + fName + ".root";
     f.Open( fName.c_str(), "RECREATE" );
-    //fTree = new TTree( "CMS_RPC_TREE", "CMS RPC TEST RAW DATA" );
-    fTree = new TTree( "CMS_GEM_TREE", "CMS GEM TEST RAW DATA" );
+    //tree_RawData = new TTree( "CMS_RPC_TREE", "CMS RPC TEST RAW DATA" );
+    tree_RawData = new TTree( "CMS_GEM_RAW_DATA", "CMS GEM TEST RAW DATA" );
+    tree_RunParam = new TTree( "CMS_GEM_RUN_PARAM","Run Parameters");
     
     // Create TDC and trig - channel (ToF) histograms for 8 channels
     for( unsigned int i = 0; i < 33; ++i ){
@@ -241,15 +242,15 @@ int main( int argc, char **argv ){
         hDescr << "TDC Channel " << i <<";Time [ns];Count";
         TH1F * h1 = new TH1F( hName.str().c_str(), hDescr.str().c_str(), FULL_SCALE, 0, FULL_SCALE ); 
         hTDC.push_back( h1 );
-        if( i < 32 ) fTree->Branch( hName.str().c_str(), &fData[ i ] );
+        if( i < 32 ) tree_RawData->Branch( hName.str().c_str(), &fData[ i ] );
         hName.str("");
 
     }
     
     //Create the Parameter Branches
-    fTree->Branch("ParamDUT",&param_dut,"fHV_Det1_Drift/F:fHV_Det1_G1Top/F:fHV_Det1_G1Bot/F:fHV_Det1_G2Top/F:fHV_Det1_G2Bot/F:fHV_Det1_G3Top/F:fHV_Det1_G3Bot/F:fHV_Det2_Drift/F:fHV_Det2_G1Top/F:fHV_Det2_G1Bot/F:fHV_Det2_G2Top/F:fHV_Det2_G2Bot/F:fHV_Det2_G3Top/F:fHV_Det2_G3Bot/F:fReadout_Amp_Gain_Coarse/F:fReadout_Amp_Gain_Fine/F:fReadout_Amp_Time_Diff/F:fReadout_Amp_Time_Int/F:bReadout_Disc_CFD/B:fReadout_Disc_Threshold/F:fReadout_Disc_WalkAdj/F:fReadout_Disc_ExtDly/F:fDrift_Amp_Gain_Coarse/F:fDrift_Amp_Gain_Fine/F:fDrift_Amp_Time_Diff/F:fDrift_Amp_Time_Int/F:bDrift_Disc_CFD/B:fDrift_Disc_Threshold/F:fDrift_Disc_WalkAdj/F:fDrift_Disc_ExtDly/F");
-    fTree->Branch("ParamPMT",&param_pmt,"bPMT1_Disc_CFD/B:fPMT1_HV/F:fPMT1_Threshold/F:fPMT1_WalkAdj/F:fPMT1_Disc_ExtDly/F:fPMT1_Disc_CoinDly/F:bPMT2_Disc_CFD/B:fPMT2_HV/F:fPMT2_Threshold/F:fPMT2_WalkAdj/F:fPMT2_Disc_ExtDly/F:fPMT2_Disc_CoinDly/F:bPMT3_Disc_CFD/B:fPMT3_HV/F:fPMT3_Threshold/F:fPMT3_WalkAdj/F:fPMT3_Disc_ExtDly/F:fPMT3_Disc_CoinDly/F:bPMTDUT_Disc_CFD/B:fPMTDUT_HV/F:fPMTDUT_Threshold/F:fPMTDUT_WalkAdj/F:fPMTDUT_Disc_ExtDly/F:fPMTDUT_Disc_CoinDly/F");
-    fTree->Branch("ParamTRK",&param_trk,"fTracker1_HV/F:fTracker2_HV/F:fTracker3_HV/F");
+    tree_RunParam->Branch("ParamDUT",&param_dut,"fHV_Det1_Drift/F:fHV_Det1_G1Top/F:fHV_Det1_G1Bot/F:fHV_Det1_G2Top/F:fHV_Det1_G2Bot/F:fHV_Det1_G3Top/F:fHV_Det1_G3Bot/F:fHV_Det2_Drift/F:fHV_Det2_G1Top/F:fHV_Det2_G1Bot/F:fHV_Det2_G2Top/F:fHV_Det2_G2Bot/F:fHV_Det2_G3Top/F:fHV_Det2_G3Bot/F:fReadout_Amp_Gain_Coarse/F:fReadout_Amp_Gain_Fine/F:fReadout_Amp_Time_Diff/F:fReadout_Amp_Time_Int/F:bReadout_Disc_CFD/B:fReadout_Disc_Threshold/F:fReadout_Disc_WalkAdj/F:fReadout_Disc_ExtDly/F:fDrift_Amp_Gain_Coarse/F:fDrift_Amp_Gain_Fine/F:fDrift_Amp_Time_Diff/F:fDrift_Amp_Time_Int/F:bDrift_Disc_CFD/B:fDrift_Disc_Threshold/F:fDrift_Disc_WalkAdj/F:fDrift_Disc_ExtDly/F");
+    tree_RunParam->Branch("ParamPMT",&param_pmt,"bPMT1_Disc_CFD/B:fPMT1_HV/F:fPMT1_Threshold/F:fPMT1_WalkAdj/F:fPMT1_Disc_ExtDly/F:fPMT1_Disc_CoinDly/F:bPMT2_Disc_CFD/B:fPMT2_HV/F:fPMT2_Threshold/F:fPMT2_WalkAdj/F:fPMT2_Disc_ExtDly/F:fPMT2_Disc_CoinDly/F:bPMT3_Disc_CFD/B:fPMT3_HV/F:fPMT3_Threshold/F:fPMT3_WalkAdj/F:fPMT3_Disc_ExtDly/F:fPMT3_Disc_CoinDly/F:bPMTDUT_Disc_CFD/B:fPMTDUT_HV/F:fPMTDUT_Threshold/F:fPMTDUT_WalkAdj/F:fPMTDUT_Disc_ExtDly/F:fPMTDUT_Disc_CoinDly/F");
+    tree_RunParam->Branch("ParamTRK",&param_trk,"fTracker1_HV/F:fTracker2_HV/F:fTracker3_HV/F");
     
     //  hTrig = new TH1F( "hTrig", "hTrig", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
     // hTrig1 = new TH1F( "hCh18", "hCh18", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
@@ -392,7 +393,8 @@ int main( int argc, char **argv ){
     //hTrig1->Write();
     //delete hTrig1;
     cout << "Done." << endl;
-    fTree->Write(); delete fTree;
+    tree_RawData->Write(); delete tree_RawData;
+    tree_RunParam->Write(); delete tree_RunParam;
     f.Close();
     cout << "Vme dsiconnect.." << endl;
     vmeInt->Disconnect();
@@ -440,7 +442,7 @@ int32_t ReadEvents( vector< uint32_t > aData, TH1F * histo ){
       }
   }
 
-  fTree->Fill();
+  tree_RawData->Fill();
   if( isData ) hClusterSize->Fill( hits );
 #ifdef SHOW_HISTO
   hStripProf->Draw();
@@ -614,8 +616,9 @@ void SetParametersDUT( PARAMETERS_DUT &param){
             strParamName = strLine.substr(0, iPosEquals);
             strParamVal = strLine.substr(iPosEquals+1,strLine.length() - iPosEquals);
             
-            cout<<"SetParametersDUT() - I found (strParamName,strParamVal):\n";
-            cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
+            //Debugging
+            //cout<<"SetParametersDUT() - I found (strParamName,strParamVal):\n";
+            //cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
             
             //compare strParamName to accepted inputs:
             if ( 0 == strParamName.compare( "Det1_HV_Drift" ) ) {
@@ -785,8 +788,9 @@ void SetParametersTracker( PARAMETERS_TRACKER &param){
             strParamName = strLine.substr(0, iPosEquals);
             strParamVal = strLine.substr(iPosEquals+1,strLine.length() - iPosEquals);
             
-            cout<<"SetParametersTracker() - I found (strParamName,strParamVal):\n";
-            cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
+            //Debugging
+            //cout<<"SetParametersTracker() - I found (strParamName,strParamVal):\n";
+            //cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
             
             //compare strParamName to accepted inputs:
             
@@ -844,8 +848,9 @@ void SetParametersPMT( PARAMETERS_PMT &param){
             strParamName = strLine.substr(0, iPosEquals);
             strParamVal = strLine.substr(iPosEquals+1,strLine.length() - iPosEquals);
             
-            cout<<"SetParametersPMT() - I found (strParamName,strParamVal):\n";
-            cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
+            //Debugging
+            //cout<<"SetParametersPMT() - I found (strParamName,strParamVal):\n";
+            //cout<<"\t("<<strParamName.c_str()<<","<<strParamVal.c_str()<<")\n";
             
             //compare strParamName to accepted inputs:
             if( 0 == strParamName.compare( "PMT1_Disc_CFD" ) ){
