@@ -40,6 +40,7 @@ TH1F * hTrig1;
 TH1I * hStripProf;
 TH1I * hClusterSize;
 TTree * tree_RawData;
+TTree * tree_RunParam;
 int fData[ 32 ];
 int Run;
 double timeBin = 0.0;
