@@ -55,15 +55,20 @@ double timeBin = 0.0;
 //Container for Detector Parameters
 struct PARAMETERS_DUT{
     //HV
+    float fHV_Det1_DividerCurrent;       //Micro-Amps
     float fHV_Det1_Drift;                //Volts
     float fHV_Det1_G1Top, fHV_Det1_G1Bot;
     float fHV_Det1_G2Top, fHV_Det1_G2Bot;
     float fHV_Det1_G3Top, fHV_Det1_G3Bot;
     
+    float fHV_Det2_DividerCurrent;       //Micro-Amps
     float fHV_Det2_Drift;                //Volts
     float fHV_Det2_G1Top, fHV_Det2_G1Bot;
     float fHV_Det2_G2Top, fHV_Det2_G2Bot;
     float fHV_Det2_G3Top, fHV_Det2_G3Bot;
+    
+    int iHV_Det1_nFilters;  //Drift + X External Filters
+    int iHV_Det2_nFilters;  //Drift + X External Filters
     
     //FTM Specific
     float fReadout_Amp_Gain_Coarse; //Arbitrary Units
@@ -91,8 +96,10 @@ struct PARAMETERS_DUT{
     
     //Initial Values
     PARAMETERS_DUT(){
-        fHV_Det1_Drift=fHV_Det1_G1Top=fHV_Det1_G1Bot=fHV_Det1_G2Top=fHV_Det1_G2Bot=fHV_Det1_G3Top=fHV_Det1_G3Bot=-1;   //Volts
-        fHV_Det2_Drift=fHV_Det2_G1Top=fHV_Det2_G1Bot=fHV_Det2_G2Top=fHV_Det2_G2Bot=fHV_Det2_G3Top=fHV_Det2_G3Bot=-1;   //Volts
+        fHV_Det1_DividerCurrent=fHV_Det1_Drift=fHV_Det1_G1Top=fHV_Det1_G1Bot=fHV_Det1_G2Top=fHV_Det1_G2Bot=fHV_Det1_G3Top=fHV_Det1_G3Bot=-1;   //Volts
+        fHV_Det2_DividerCurrent=fHV_Det2_Drift=fHV_Det2_G1Top=fHV_Det2_G1Bot=fHV_Det2_G2Top=fHV_Det2_G2Bot=fHV_Det2_G3Top=fHV_Det2_G3Bot=-1;   //Volts
+        
+        iHV_Det1_nFilters=iHV_Det2_nFilters=-1
         
         //FTM Specific
         fReadout_Amp_Gain_Coarse=fReadout_Amp_Gain_Fine=-1; //Arbitrary units
@@ -646,6 +653,12 @@ void SetParametersDUT( PARAMETERS_DUT &param){
             else if( 0 == strParamName.compare( "Det1_HV_G3Bot" ) ){
                 param.fHV_Det1_G3Bot = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
+            else if( 0 == strParamName.compare( "Det1_HV_DividerCurrent" ) ){
+                param.fHV_Det1_DividerCurrent = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if( 0 == strParamName.compare( "Det1_HV_nFilters" ) ){
+                param.iHV_Det1_nFilters = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
             else if ( 0 == strParamName.compare( "Det2_HV_Drift" ) ) {
                 param.fHV_Det2_Drift = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
@@ -666,6 +679,12 @@ void SetParametersDUT( PARAMETERS_DUT &param){
             }
             else if( 0 == strParamName.compare( "Det2_HV_G3Bot" ) ){
                 param.fHV_Det2_G3Bot = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if( 0 == strParamName.compare( "Det2_HV_DividerCurrent" ) ){
+                param.fHV_Det2_DividerCurrent = GetParsedFloat(strParamName, strParamVal, strFilename);
+            }
+            else if( 0 == strParamName.compare( "Det2_HV_nFilters" ) ){
+                param.iHV_Det2_nFilters = GetParsedFloat(strParamName, strParamVal, strFilename);
             }
             else if( 0 == strParamName.compare( "Det1_Readout_Amp_Gain_Coarse" ) ){
                 param.fReadout_Amp_Gain_Coarse = GetParsedFloat(strParamName, strParamVal, strFilename);
@@ -727,6 +746,7 @@ void SetParametersDUT( PARAMETERS_DUT &param){
     
     //Debugging
     cout<<"SetParametersDUT() - Loaded Parameter List:\n";
+    cout<<"\tparam.fHV_Det1_DividerCurrent = " << param.fHV_Det1_DividerCurrent << endl;
     cout<<"\tparam.fHV_Det1_Drift = " << param.fHV_Det1_Drift << endl;
     cout<<"\tparam.fHV_Det1_G1Top = " << param.fHV_Det1_G1Top << endl;
     cout<<"\tparam.fHV_Det1_G1Bot = " << param.fHV_Det1_G1Bot << endl;
@@ -734,7 +754,9 @@ void SetParametersDUT( PARAMETERS_DUT &param){
     cout<<"\tparam.fHV_Det1_G2Bot = " << param.fHV_Det1_G2Bot << endl;
     cout<<"\tparam.fHV_Det1_G3Top = " << param.fHV_Det1_G3Top << endl;
     cout<<"\tparam.fHV_Det1_G3Bot = " << param.fHV_Det1_G3Bot << endl;
+    cout<<"\tparam.iHV_Det1_nFilters = " << param.iHV_Det1_nFilters << endl;
     
+    cout<<"\tparam.fHV_Det2_DividerCurrent = " << param.fHV_Det2_DividerCurrent << endl;
     cout<<"\tparam.fHV_Det2_Drift = " << param.fHV_Det2_Drift << endl;
     cout<<"\tparam.fHV_Det2_G1Top = " << param.fHV_Det2_G1Top << endl;
     cout<<"\tparam.fHV_Det2_G1Bot = " << param.fHV_Det2_G1Bot << endl;
@@ -742,6 +764,7 @@ void SetParametersDUT( PARAMETERS_DUT &param){
     cout<<"\tparam.fHV_Det2_G2Bot = " << param.fHV_Det2_G2Bot << endl;
     cout<<"\tparam.fHV_Det2_G3Top = " << param.fHV_Det2_G3Top << endl;
     cout<<"\tparam.fHV_Det2_G3Bot = " << param.fHV_Det2_G3Bot << endl;
+    cout<<"\tparam.iHV_Det2_nFilters = " << param.iHV_Det2_nFilters << endl;
     
     cout<<"\tparam.fReadout_Amp_Gain_Coarse = " << param.fReadout_Amp_Gain_Coarse << endl;
     cout<<"\tparam.fReadout_Amp_Gain_Fine = " << param.fReadout_Amp_Gain_Fine << endl;
