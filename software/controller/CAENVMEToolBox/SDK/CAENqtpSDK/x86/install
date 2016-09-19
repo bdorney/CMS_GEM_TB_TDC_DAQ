@@ -1,0 +1,15 @@
+#!/bin/sh
+#=============================================================================
+#
+#             --- CAEN SpA - Computing Systems Division ---
+#
+#  Library installation script.
+#
+#
+#  March  2004 :   Created.
+#
+#=============================================================================
+
+install libCAENqtpSDK.so.1.1 /usr/lib
+ln -sf /usr/lib/libCAENqtpSDK.so.1.1 /usr/lib/libCAENqtpSDK
+/sbin/ldconfig
