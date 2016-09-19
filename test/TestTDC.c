@@ -99,7 +99,7 @@ struct PARAMETERS_DUT{
         fHV_Det1_DividerCurrent=fHV_Det1_Drift=fHV_Det1_G1Top=fHV_Det1_G1Bot=fHV_Det1_G2Top=fHV_Det1_G2Bot=fHV_Det1_G3Top=fHV_Det1_G3Bot=-1;   //Volts
         fHV_Det2_DividerCurrent=fHV_Det2_Drift=fHV_Det2_G1Top=fHV_Det2_G1Bot=fHV_Det2_G2Top=fHV_Det2_G2Bot=fHV_Det2_G3Top=fHV_Det2_G3Bot=-1;   //Volts
         
-        iHV_Det1_nFilters=iHV_Det2_nFilters=-1
+        iHV_Det1_nFilters=iHV_Det2_nFilters=-1;
         
         //FTM Specific
         fReadout_Amp_Gain_Coarse=fReadout_Amp_Gain_Fine=-1; //Arbitrary units
