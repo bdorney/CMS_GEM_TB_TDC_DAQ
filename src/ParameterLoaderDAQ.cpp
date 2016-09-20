@@ -91,7 +91,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParametersRun(std::ifstream
     string strLine = "";
     
     if (bVerboseMode) { //Case: User Requested Verbose Error Messages - I/O
-        printClassMethodMsg("ParameterLoaderDAQ","loadParametersRun", "Found Run Heading");
+        printClassMethodMsg("QualityControl::Timing::ParameterLoaderDAQ","loadParametersRun", "Found Run Heading");
     } //End Case: User Requested Verbose Error Messages - I/O
     
     //Set Defaults
@@ -173,7 +173,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParametersHw(std::ifstream 
     string strLine = "";
     
     if (bVerboseMode) { //Case: User Requested Verbose Error Messages - I/O
-        printClassMethodMsg("ParameterLoaderDAQ","loadParametersCompare", "Found Compare Heading");
+        printClassMethodMsg("QualityControl::Timing::ParameterLoaderDAQ","loadParametersHw", "Found Hardware Heading");
     } //End Case: User Requested Verbose Error Messages - I/O
     
     //Set Defaults
@@ -230,7 +230,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParametersBoardVME(std::ifs
     Timing::HwVMEBoard setupBoardVME;
     
     if (bVerboseMode) { //Case: User Requested Verbose Error Messages - I/O
-        printClassMethodMsg("ParameterLoaderDAQ","loadParametersCompare", "Found Compare Heading");
+        printClassMethodMsg("QualityControl::Timing::ParameterLoaderDAQ","loadParametersBoardVME", "Found VME Board Heading");
     } //End Case: User Requested Verbose Error Messages - I/O
     
     //Set Defaults
