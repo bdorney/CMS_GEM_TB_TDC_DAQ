@@ -29,9 +29,7 @@
 
 //#define SHOW_HISTO 
 // Full Scale in ns
-//const unsigned FULL_SCALE = 500;
 const unsigned FULL_SCALE = 400;
-//const unsigned FULL_SCALE = 1200;
 
 IDaqVmeInterface * vmeInt;
 vector<TH1F *> hTDC;
@@ -42,7 +40,6 @@ TH1I * hStripProf;
 TH1I * hClusterSize;
 TTree * tree_RawData;
 //TTree * tree_RunParam;
-//int fData[ 32 ];
 float fData[ 32 ];
 int Run;
 double timeBin = 0.0;
@@ -196,7 +193,6 @@ struct PARAMETERS_TRACKER{
 };
 
 int32_t ReadEvents( vector< uint32_t >, TH1F* );
-//int ReadQDC( IDaqV792 * q );
 
 //Getters
 bool GetParsedBool(std::string strInputParam, std::string strInputVal, std::string strInputFileName);
@@ -219,20 +215,16 @@ vector< int > DisableChannels();
 int main( int argc, char **argv ){
 #ifdef SHOW_HISTO	
   gROOT->SetStyle("Plain");
-  //	gStyle->SetPalette(1);
   c = new TCanvas( "c1", "c1", 800, 600 );
-  //  hCh0 = new TH1F( "TDC", "Data", FULL_SCALE + 101, 0, FULL_SCALE + 100 );
   c->Draw();
 #endif
 
     TFile f;
     timespec rt;//, at;
     rt.tv_sec = 0;
-    //  rt.tv_nsec = 100000;
     rt.tv_nsec = 10; // timeout in nsec
     int maxEvents = GetNumberOfTriggers();
     // Calculate the FullScale Register Setting
-    //int FullScaleSet = (int)36454.4/FULL_SCALE;
     //int FullScaleSet = 0x1E;	// 1200ns window
     int FullScaleSet = 0x5A;	// 400ns window
     //int FullScaleSet = 0xFF;	// 140ns window
@@ -246,7 +238,6 @@ int main( int argc, char **argv ){
     std::ofstream outputRunList(strRunList.c_str(), std::ios::app);
     
     std::string fName;
-    //fName << "./data/Run_" << Run << ".root";
     std::cout << "Please enter file name: ";
     std::cin >> fName;
     outputRunList<< ( fName + ".root\n" ).c_str();
@@ -254,13 +245,9 @@ int main( int argc, char **argv ){
     //Load the Run Parameters List
     PARAMETERS_DUT param_dut;       SetParametersDUT(param_dut);
     PARAMETERS_PMT param_pmt;       SetParametersPMT(param_pmt);
-    //PARAMETERS_TRACKER param_trk;   SetParametersTracker(param_trk);
-    
-    //fName = "./data/" + fName + ".root";
-    //fName = "./data/2015/GE11/" + fName + ".root";
+
     fName = "./data/2016/Cosmic_Stand/" + fName + ".root";
     f.Open( fName.c_str(), "RECREATE" );
-    //tree_RawData = new TTree( "CMS_RPC_TREE", "CMS RPC TEST RAW DATA" );
     tree_RawData = new TTree( "CMS_GEM_RAW_DATA", "CMS GEM TEST RAW DATA" );
     TTree * tree_RunParam = new TTree( "CMS_GEM_RUN_PARAM","Run Parameters");
     
@@ -271,34 +258,19 @@ int main( int argc, char **argv ){
         
         hName << "TDC_Ch" <<  i;
         hDescr << "TDC Channel " << i <<";Time [ns];Count";
-        //TH1F * h1 = new TH1F( hName.str().c_str(), hDescr.str().c_str(), FULL_SCALE, 0, FULL_SCALE ); 
-        //TH1F * h1 = new TH1F( hName.str().c_str(), hDescr.str().c_str(), 4000, 0, FULL_SCALE ); 
-	TH1F * h1 = new TH1F( hName.str().c_str(), hDescr.str().c_str(), 4096, 0, FULL_SCALE ); 
+        TH1F * h1 = new TH1F( hName.str().c_str(), hDescr.str().c_str(), 4096, 0, FULL_SCALE );
         hTDC.push_back( h1 );
         if( i < 32 ) tree_RawData->Branch( hName.str().c_str(), &fData[ i ] );
         hName.str("");
 
     }
-
-    //Create the Parameter Branches
-    //tree_RunParam->Branch("ParamDUT",&param_dut,"fHV_Det1_DividerCurrent/F:fHV_Det1_Drift/F:fHV_Det1_G1Top/F:fHV_Det1_G1Bot/F:fHV_Det1_G2Top/F:fHV_Det1_G2Bot/F:fHV_Det1_G3Top/F:fHV_Det1_G3Bot/F:iHV_Det1_nFilters/F:fHV_Det2_DividerCurrent/F:fHV_Det2_Drift/F:fHV_Det2_G1Top/F:fHV_Det2_G1Bot/F:fHV_Det2_G2Top/F:fHV_Det2_G2Bot/F:fHV_Det2_G3Top/F:fHV_Det2_G3Bot/F:iHV_Det2_nFilters/F:fReadout_Amp_Gain_Coarse/F:fReadout_Amp_Gain_Fine/F:fReadout_Amp_Time_Diff/F:fReadout_Amp_Time_Int/F:bReadout_Disc_CFD/O:fReadout_Disc_Threshold/F:fReadout_Disc_WalkAdj/F:fReadout_Disc_ExtDly/F:fDrift_Amp_Gain_Coarse/F:fDrift_Amp_Gain_Fine/F:fDrift_Amp_Time_Diff/F:fDrift_Amp_Time_Int/F:bDrift_Disc_CFD/O:fDrift_Disc_Threshold/F:fDrift_Disc_WalkAdj/F:fDrift_Disc_ExtDly/F");
-    //tree_RunParam->Branch("ParamDUT",&param_dut,"fHV_Det1_Drift/F:fHV_Det1_G1Top:fHV_Det1_G1Bot:fHV_Det1_G2Top:fHV_Det1_G2Bot:fHV_Det1_G3Top:fHV_Det1_G3Bot:fHV_Det2_DividerCurrent:fHV_Det2_nFilters");
-
-    //tree_RunParam->Branch("ParamPMT",&param_pmt,"bPMT1_Disc_CFD/O:fPMT1_HV/F:fPMT1_Threshold/F:fPMT1_WalkAdj/F:fPMT1_Disc_ExtDly/F:fPMT1_Disc_CoinDly/F:bPMT2_Disc_CFD/O:fPMT2_HV/F:fPMT2_Threshold/F:fPMT2_WalkAdj/F:fPMT2_Disc_ExtDly/F:fPMT2_Disc_CoinDly/F:bPMT3_Disc_CFD/O:fPMT3_HV/F:fPMT3_Threshold/F:fPMT3_WalkAdj/F:fPMT3_Disc_ExtDly/F:fPMT3_Disc_CoinDly/F:bPMTDUT_Disc_CFD/O:fPMTDUT_HV/F:fPMTDUT_Threshold/F:fPMTDUT_WalkAdj/F:fPMTDUT_Disc_ExtDly/F:fPMTDUT_Disc_CoinDly/F");
-    //tree_RunParam->Branch("ParamTRK",&param_trk,"fTracker1_HV/F:fTracker2_HV/F:fTracker3_HV/F");
-
+    
     tree_RunParam->Branch("ParamDUT",&param_dut, (param_dut.tostring() ).c_str() );
     tree_RunParam->Branch("ParamPMT",&param_pmt, (param_pmt.tostring() ).c_str() );
-
-    //tree_RunParam->Branch("ParamDUT",&param_dut,8000,1);
-    //tree_RunParam->Branch("ParamPMT",&param_pmt,8000,1);
-    //tree_RunParam->Branch("ParamTRK",&param_trk,8000,1);
 
     //Fill the run parameters
     tree_RunParam->Fill();
     
-    //  hTrig = new TH1F( "hTrig", "hTrig", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
-    // hTrig1 = new TH1F( "hCh18", "hCh18", FULL_SCALE + 100, 0, FULL_SCALE + 100 );
     hStripProf = new TH1I( "hStripProf", "Strips Profile;Channels;Count", 32, 0, 32 );
     hClusterSize = new TH1I( "hClusSize", "Cluster Size;TDC Hits per Event;Count", 32, 0, 32 );
 

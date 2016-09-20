@@ -1,3 +1,9 @@
+# Archives #
+############
+*.tar
+*.zip
+!CAEN_Control_Software.zip
+
 # Back-Up Files #
 #################
 *~
@@ -5,16 +11,25 @@
 # Binary Files #
 ################
 *.DS_Store
-
-# Compiled source #
-###################
-*.o
 *TestDAQ
 *TestIO
 *TestTDC
 *TestTDC1200ns
 *TestTDC500ns
 *TestTDC_Stop
+*a.out
+
+# Compiled source #
+###################
+*.o
+
+# Misc #
+########
+Makefile.old
+
+# PDF FILES #
+#############
+*.pdf
 
 # ROOT Files #
 ##############
