@@ -1,9 +1,16 @@
 #ifndef __IDAQV513_H_
 #define __IDAQV513_H_
 
-#include <IDaqVmeTypes.hh>
-#include <IDaqVmeModule.hh>
+//C++ Includes
 #include <bitset>
+#include <chrono>
+#include <thread>
+
+//Framework Includes
+#include <IDaqVmeTypes.h>
+#include <IDaqVmeModule.h>
+
+//ROOT Includes
 
 class IDaqV513 : public IDaqVmeModule< uint32_t, uint16_t >
 {

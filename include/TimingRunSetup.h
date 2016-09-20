@@ -32,9 +32,34 @@ namespace QualityControl {
         };
         
         struct HwVMEBoard{
-            Timing::VMETypes m_vme_type;    //Type of Board
+            int m_iNumLink;     //Bridge - Link number (if relevant)
+            int m_iNumBoard;    //Bridge - Board number (if relevant)
             
-            std::string m_strBaseAddress;   //Base Address
+            Timing::VMETypes m_vme_type;        //All - Type of Board
+            
+            std::string m_strBaseAddress;       //All - Base Address
+            std::string m_strFullScaleRange;    //TDC - Full Scale Range (e.g. resolution)
+            
+            //Default Constructor
+            HwVMEBoard(){
+                m_iNumLink = m_iNumBoard = 0;
+                
+                m_vme_type = kVMEUnrecognized;
+                
+                m_strBaseAddress = "0x0";
+                m_strFullScaleRange = "0x5A"; //400ns window
+            }; //End Default Constructor
+            
+            //Copy Constructor
+            HwVMEBoard(const HwVMEBoard & other){
+                m_iNumLink  = other.m_iNumLink;
+                m_iNumBoard = other.m_iNumBoard;
+                
+                m_vme_type  = other.m_vme_type;
+                
+                m_strBaseAddress = other.m_strBaseAddress;
+                m_strFullScaleRange = other.m_strFullScaleRange;
+            }; //End Copy Constructor
         };
         
         struct RunSetup{

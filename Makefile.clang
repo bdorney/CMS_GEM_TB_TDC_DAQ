@@ -6,6 +6,7 @@ CC = clang++ #For Mac OSX > 10.9 ???
 ROOTCONFIG = $(ROOTSYS)/bin/root-config
 
 # Define any compile-time flags
+#CFLAGS = -Dlong32="int" -Dlong64="long long"
 CFLAGS = -g3 -O0 `$(ROOTCONFIG) --cflags --glibs --libs` -std=c++11
 
 # Define any directories containing header files other than "/usr/include"
@@ -18,7 +19,16 @@ LPATHS = -L $(ROOTSYS)/lib/
 #LIBS = -lSpectrum
 
 # Define source files
-SOURCES = src/QualityControlUtilityFunctions.cpp src/ParameterLoader.cpp src/ParameterLoaderDAQ.cpp src/cosmicStandTDCDAQ.cpp
+SOURCES =   src/QualityControlUtilityFunctions.cpp \
+            src/ParameterLoader.cpp \
+            src/ParameterLoaderDAQ.cpp \
+            src/IDaqVmeInterface.cpp \
+            src/IDaqVmeModule.cpp \
+            src/IDaqV513.cpp \
+            src/IDaqV775.cpp \
+            src/HardwareCrateVME.cpp \
+            src/ManagerDAQ.cpp \
+            src/cosmicStandTDCDAQ.cpp
 
 # Define object files
 #	We use Suffix Replacement

@@ -14,6 +14,7 @@
 #include <vector>
 
 //Framework Includes
+#include "ManagerDAQ.h"
 #include "ParameterLoaderDAQ.h"
 #include "TimingRunSetup.h"
 
@@ -31,6 +32,7 @@ using QualityControl::convert2bool;
 using QualityControl::printStreamStatus;
 
 //QualityControl::Timing namespace objects
+using QualityControl::Timing::ManagerDAQ;
 using QualityControl::Timing::ParameterLoaderDAQ;
 
 int main( int argc_, char * argv_[] ){
@@ -103,6 +105,18 @@ int main( int argc_, char * argv_[] ){
         cout<<"Type = " << (*iterVMEBoard).second.m_vme_type << endl;
         cout<<"Address = " << (*iterVMEBoard).second.m_strBaseAddress.c_str() << endl;
     } //End Loop Over Defined VME Boards
+    
+    //Start the DAQ Manager
+    //------------------------------------------------------
+    ManagerDAQ daqManager;
+    
+    daqManager.setRunSetup(rSetup);
+    daqManager.initialize();
+    daqManager.configure();
+    
+    //Run the DAQ Manager
+    //------------------------------------------------------
+    daqManager.startRun();
     
     return 0;
 } //End main()

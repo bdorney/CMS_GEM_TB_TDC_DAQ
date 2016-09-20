@@ -1,7 +1,7 @@
 #ifndef __IDAQVMEINTERFACE_H_
 #define __IDAQVMEINTERFACE_H_
 
-#include "IDaqVmeTypes.hh"
+#include "IDaqVmeTypes.h"
 
 class IDaqVmeInterface {
 	public:
@@ -15,23 +15,23 @@ class IDaqVmeInterface {
 		void Reset();
 		
 		// Read functions
-		virtual void Read( uint32_t aAddress, uint32_t &aData);
-  	virtual void Read( uint32_t aAddress, uint16_t &aData);
-  virtual void ReadBLT( uint32_t aAddress, uint16_t &aData, const uint16_t nData, uint16_t &nDataRead){};
-	  virtual void ReadBLT( uint32_t aAddress, uint32_t &aData, const uint16_t nData, uint16_t &nDataRead);
-	  virtual void ReadBLT( uint32_t aAddress, uint64_t &aData, const uint16_t nData, uint16_t &nDataRead);
+        virtual void Read( uint32_t aAddress, uint32_t &aData);
+        virtual void Read( uint32_t aAddress, uint16_t &aData);
+        virtual void ReadBLT( uint32_t aAddress, uint16_t &aData, const uint16_t nData, uint16_t &nDataRead){};
+        virtual void ReadBLT( uint32_t aAddress, uint32_t &aData, const uint16_t nData, uint16_t &nDataRead);
+        virtual void ReadBLT( uint32_t aAddress, uint64_t &aData, const uint16_t nData, uint16_t &nDataRead);
 		
 		// Write functions
-  	virtual void Write( uint32_t aAddress, const uint32_t &aData);
-  	virtual void Write( uint32_t aAddress, const uint16_t &aData);
-  virtual void WriteA24(uint32_t, const uint16_t&);
+        virtual void Write( uint32_t aAddress, const uint32_t &aData);
+        virtual void Write( uint32_t aAddress, const uint16_t &aData);
+        virtual void WriteA24(uint32_t, const uint16_t&);
 		//Status
 		virtual IDaqVmeCode GetStatus(){ return status; };
-  virtual void ResetStatus(){ status = IDaqSuccess; };
+        virtual void ResetStatus(){ status = IDaqSuccess; };
   
 		//Connection
 		virtual void Connect();
-  	virtual void Disconnect();
+        virtual void Disconnect();
 		
 		//Registers
 		virtual void CheckRegister( CVRegisters reg );
@@ -48,7 +48,7 @@ class IDaqVmeInterface {
 		virtual void DisableScaler();
 		
 		virtual uint16_t GetInputLevel( int aInput ) { return inputLevel[ aInput ]; }
-  	virtual void CheckInputLevel();
+        virtual void CheckInputLevel();
 		virtual void SetInputConf( int aInput, bool aPolarity );
 		virtual void GetInputConf( int aInput, int &aPol, int &aLedPol ){ aPol = inPol[ aInput ]; aLedPol = inLedPol[ aInput ]; };
 		virtual void CheckInputConf( int aInput = 0 );
@@ -63,10 +63,10 @@ class IDaqVmeInterface {
 		bool isConnected;
 		IDaqVmeCode status;
 		uint16_t       inputLevel[ 3 ];
-  	uint16_t       internalReg[ 44 ];
-  	CVIOPolarity   outPol[ 5 ];
-  	CVLEDPolarity  outLedPol[ 5 ];
-  	CVIOSources    outSource[ 5 ];
+        uint16_t       internalReg[ 44 ];
+        CVIOPolarity   outPol[ 5 ];
+        CVLEDPolarity  outLedPol[ 5 ];
+        CVIOSources    outSource[ 5 ];
 		CVIOPolarity   inPol[ 2 ];
 		CVLEDPolarity  inLedPol[ 2 ];
 		unsigned short scaler;

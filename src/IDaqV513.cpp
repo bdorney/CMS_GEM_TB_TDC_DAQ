@@ -1,4 +1,10 @@
-#include "IDaqV513.hh"
+#include "IDaqV513.h"
+
+using std::bitset;
+using std::cout;
+using std::dec;
+using std::endl;
+using std::hex;
 
 IDaqV513::IDaqV513(){
 	IOReg.reset();
@@ -26,7 +32,8 @@ void IDaqV513::Reset(){
 	addr = ba + V513_MODULE_RESET;
 	vmeInt->Write( addr, dummy );
 	status = vmeInt->GetStatus();
-	sleep( 1 );
+	//sleep( 1 );
+    std::this_thread::sleep_for (std::chrono::seconds(1));
 	if( status == 0 ) cout << " Done." << endl;
 }
 

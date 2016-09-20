@@ -21,6 +21,7 @@
 
 # Compiled source #
 ###################
+cosmicStandTDCDAQ
 *.o
 
 # Misc #

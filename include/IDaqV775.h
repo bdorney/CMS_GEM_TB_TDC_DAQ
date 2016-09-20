@@ -1,8 +1,15 @@
 #ifndef __IDAQV775_H_
 #define __IDAQV775_H_
 
-#include <IDaqVmeTypes.hh>
-#include <IDaqVmeModule.hh>
+//C++ Includes
+#include <chrono>
+#include <thread>
+
+//Framework Includes
+#include <IDaqVmeTypes.h>
+#include <IDaqVmeModule.h>
+
+//ROOT Includes
 
 class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 {
@@ -38,7 +45,7 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		
 		virtual void Arm();
 		virtual int Readout( FILE *fp, uint64_t &fs );
-		virtual int Readout( vector<uint32_t>& aData );
+        virtual int Readout( std::vector<uint32_t>& aData );
 		
 		void CheckBitReg1();
   		uint16_t GetBitReg1();
@@ -115,8 +122,8 @@ class DataWordV775 : public DataWord< uint32_t > {
 
 };
 
-ostream &operator<< ( ostream &s, DataWordV775 &dw );
-istream &operator>> ( istream &s, DataWordV775 &dw );
+std::ostream &operator<< ( std::ostream &s, DataWordV775 &dw );
+std::istream &operator>> ( std::istream &s, DataWordV775 &dw );
 
 #endif
 

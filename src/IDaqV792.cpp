@@ -1,4 +1,4 @@
-#include "IDaqV792.hh"
+#include "IDaqV792.h"
 
 IDaqV792::IDaqV792(){
 	moduleType = idmV792;

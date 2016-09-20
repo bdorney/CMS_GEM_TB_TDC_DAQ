@@ -1,5 +1,16 @@
 
-#include "IDaqV775.hh"
+#include "IDaqV775.h"
+
+using std::cerr;
+using std::cout;
+using std::dec;
+using std::endl;
+using std::flush;
+using std::hex;
+using std::istream;
+using std::ostream;
+using std::showbase;
+using std::vector;
 
 IDaqV775::IDaqV775(){
 	moduleType = idmV775;
@@ -56,14 +67,16 @@ void IDaqV775::SoftwareReset(){
 	addr = ba + V775_BIT_SET1;
 	vmeInt->Write( addr, (uint16_t)V775_BS1_SoftReset );
 	status = vmeInt->GetStatus();
-	sleep( 1 );
-	if( status == IDaqSuccess ){ 
+	//sleep( 1 );
+    std::this_thread::sleep_for (std::chrono::seconds(1));
+	if( status == IDaqSuccess ){
 		addr = ba + V775_BIT_CLEAR1;
 		vmeInt->Write( addr, (uint16_t)V775_BS1_SoftReset );
 		status = vmeInt->GetStatus();
 	}
-	sleep( 1 );
-	cout << " Done." << endl;
+	//sleep( 1 );
+    std::this_thread::sleep_for (std::chrono::seconds(1));
+    cout << " Done." << endl;
 	/*
 	SetBitReg1( V775_BS1_SoftReset, IDaqEnable );
   CheckBitReg1();
@@ -257,7 +270,8 @@ void IDaqV775::Initialize( V775AcqMode am, V775ReadoutMode rm, uint16_t ped, uns
 	cout << "[V775] Start initialization (be patient) ..." << flush;
   // Reset Module 
 	SoftwareReset();
-  sleep( 1 );
+  //sleep( 1 );
+    std::this_thread::sleep_for (std::chrono::seconds(1));
   if ( status != IDaqSuccess) return;
   cout << "."<< flush;
   //Initialize Pedestal Value

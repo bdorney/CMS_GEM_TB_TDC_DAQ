@@ -7,35 +7,34 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
-using namespace std;
+
+//using namespace std;
 
 typedef signed char 	        int8_t ;
 typedef unsigned char 	        uint8_t ;
 typedef signed short int        int16_t ;
 typedef unsigned short int      uint16_t ;
-typedef signed int 	        int32_t;
-typedef unsigned int    	uint32_t ;
+typedef signed int              int32_t;
+typedef unsigned int            uint32_t ;
 typedef signed long long int 	int64_t ;
 typedef unsigned long long int 	uint64_t ;
 
 template <typename DataType> 
 class DataWord {
 	public:
-  	DataWord( DataType d = 0 ) { data = d; }
-  	DataWord( const DataWord& dw ) { data = dw.GetData(); }
+        DataWord( DataType d = 0 ) { data = d; }
+        DataWord( const DataWord& dw ) { data = dw.GetData(); }
 
-  	virtual ~DataWord(){}
+        virtual ~DataWord(){}
 
-  	DataType GetData() const { return data; }
-  	void SetData( DataType d ){ data = d; }
+        DataType GetData() const { return data; }
+        void SetData( DataType d ){ data = d; }
   
   protected:
-  	DataType data;
+        DataType data;
 };
 
-template < typename DataType > istream &operator>>( istream &s, DataWord< DataType > &dw );
-
-
+template < typename DataType > std::istream &operator>>( std::istream &s, DataWord< DataType > &dw );
 
 typedef enum IDaqVmeModuleType{
 	idmGenericModule	= 0x0,
@@ -216,26 +215,26 @@ typedef enum DWV792DataType {
 
 /* =================================================== V755 ====================================================================*/
 
-#define V775_DATAWORDSIZE					4
+#define V775_DATAWORDSIZE			4
 
-#define V775_OUTPUTBUFFER					0x0000
-#define V775_OUTPUTBUFFER_LAST		0x0FFC
-#define V775_GEO_ADDRESS					0x1002
-#define V775_BIT_SET1							0x1006
-#define V775_BIT_CLEAR1						0x1008
-#define V775_STATUS_REGISTER1			0x100E
-#define V775_CONTROL_REGISTER1		0x1010
-#define V775_STATUS_REGISTER2			0x1022
+#define V775_OUTPUTBUFFER			0x0000
+#define V775_OUTPUTBUFFER_LAST      0x0FFC
+#define V775_GEO_ADDRESS			0x1002
+#define V775_BIT_SET1				0x1006
+#define V775_BIT_CLEAR1				0x1008
+#define V775_STATUS_REGISTER1       0x100E
+#define V775_CONTROL_REGISTER1      0x1010
+#define V775_STATUS_REGISTER2		0x1022
 #define V775_EVENT_COUNTER_LOW		0x1024
 #define V775_EVENT_COUNTER_HIGH		0x1026
-#define V775_INCREMENT_EVENT			0x1028
-#define V775_INCREMENT_OFFSET			0x102A
-#define V775_BIT_SET2							0x1032
-#define V775_BIT_CLEAR2						0x1034
+#define V775_INCREMENT_EVENT		0x1028
+#define V775_INCREMENT_OFFSET		0x102A
+#define V775_BIT_SET2				0x1032
+#define V775_BIT_CLEAR2				0x1034
 #define V775_EVENT_COUNTER_RESET	0x1040
-#define V775_FULL_SCALE_RANGE			0x1060
-#define V775_THRESHOLDS						0x1080
-#define V775_THRESHOLDS_END				0x10BE
+#define V775_FULL_SCALE_RANGE		0x1060
+#define V775_THRESHOLDS				0x1080
+#define V775_THRESHOLDS_END			0x10BE
 
 
 typedef enum  V775BitSet1Mask {
@@ -343,16 +342,16 @@ typedef enum DWV775MeasurementStatus {
 
 /* =================================================== V513 ====================================================================*/
 
-#define V513_DATAWORDSIZE					2
-#define V513_VERSION_AND_SERIES							0xFE
+#define V513_DATAWORDSIZE                       2
+#define V513_VERSION_AND_SERIES					0xFE
 #define V513_MANIFACTURER_AND_MODULE_TYPE		0xFC
-#define V513_FIXED_CODE											0xFA
+#define V513_FIXED_CODE							0xFA
 //============= 0x50 - 0xF8 RESERVED
-#define V513_CLEAR_INPUT_REGISTER						0x48
+#define V513_CLEAR_INPUT_REGISTER				0x48
 #define V513_INITIALIZE_STATUS_REGISTERS		0x46
-#define V513_CLEAR_STROBE_BIT								0x44
-#define V513_MODULE_RESET										0x42
-#define V513_CLEAR_VME_INTERRUPT						0x40
+#define V513_CLEAR_STROBE_BIT					0x44
+#define V513_MODULE_RESET						0x42
+#define V513_CLEAR_VME_INTERRUPT				0x40
 //============= 0x30 - 0x3E RESERVED
 #define V513_CHANNEL15_STATUS_REGISTER			0x2E
 #define V513_CHANNEL14_STATUS_REGISTER			0x2C
@@ -370,13 +369,13 @@ typedef enum DWV775MeasurementStatus {
 #define V513_CHANNEL02_STATUS_REGISTER			0x14
 #define V513_CHANNEL01_STATUS_REGISTER			0x12
 #define V513_CHANNEL00_STATUS_REGISTER			0x10
-#define V513_CHANNEL_STATUS_REG_START				0x10
+#define V513_CHANNEL_STATUS_REG_START			0x10
 //============= 0x0E - 0x0A RESERVED
-#define V513_INT_MASK_REGISTER							0x08
-#define V513_STROBE_REGISTER								0x06
-#define V513_INPUT_REGISTER									0x04
-#define V513_OUTPUT_REGISTER								0x04
-#define V513_INTERRUPT_LEVEL_REGISTER				0x02
+#define V513_INT_MASK_REGISTER					0x08
+#define V513_STROBE_REGISTER					0x06
+#define V513_INPUT_REGISTER						0x04
+#define V513_OUTPUT_REGISTER					0x04
+#define V513_INTERRUPT_LEVEL_REGISTER			0x02
 #define V513_INTERRUPT_VECTOR_REGISTER			0x00
 
 typedef enum  V513ChannelDirection {

@@ -1,4 +1,4 @@
-#include "IDaqManager.hh"
+#include "IDaqManager.h"
 
 IDaqManager::IDaqManager(){
 	maxEventCount = 2;

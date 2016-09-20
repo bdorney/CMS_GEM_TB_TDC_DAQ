@@ -1,4 +1,7 @@
-#include "IDaqVmeInterface.hh"
+#include "IDaqVmeInterface.h"
+
+using std::cerr;
+using std::endl;
 
 IDaqVmeInterface::IDaqVmeInterface( IDaqVmeModuleType aModule, short aLink, short aBoardNum, long aBaseAddress ){
 	isConnected = false;

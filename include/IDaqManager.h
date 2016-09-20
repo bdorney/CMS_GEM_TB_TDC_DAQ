@@ -18,9 +18,7 @@
 #include "IDaqVmeInterface.hh"
 #include "IDaqVmeModule.hh"
 
-
-using namespace std;
-
+//using namespace std;
 
 typedef enum IDaqAcqStatusMask {
   DAQ_NOTREADY       = 0x00,

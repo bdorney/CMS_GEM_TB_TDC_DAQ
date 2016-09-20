@@ -293,7 +293,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParametersBoardVME(std::ifs
     }
 
     //Store this VME Board if the User Properly Entered a Base Address
-    if ( setupBoardVME.m_strBaseAddress.length() > 0 ) { //Case: VME Base Address non-null
+    if ( setupBoardVME.m_vme_type != kVMEUnrecognized ) { //Case: VME Base Address non-null
         if ( inputRunSetup.m_map_vmeBoards.count(setupBoardVME.m_strBaseAddress) > 0 ) { //Case: VME Base Address Already Exists!
             cout<<"QualityControl::Timing::ParameterLoaderDAQ::loadParametersBoardVME() - Error: You have defined two boards with the same base address\n";
             cout<<"QualityControl::Timing::ParameterLoaderDAQ::loadParametersBoardVME() - The second will be ignored\n";

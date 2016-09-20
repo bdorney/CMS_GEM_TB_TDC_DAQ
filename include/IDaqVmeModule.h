@@ -1,17 +1,18 @@
 #ifndef __IDAQVMEMODULE_H_
 #define __IDAQVMEMODULE_H_
 
-#include "IDaqVmeTypes.hh"
-#include "IDaqVmeInterface.hh"
+#include "IDaqVmeTypes.h"
+#include "IDaqVmeInterface.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <iostream>
 #include <fstream>
+#include <iostream>
+#include <memory>
+#include <stdio.h>
+#include <stdlib.h>
 #include <string>
 #include <vector>
 
-using namespace std;
+//using namespace std;
 
 class IDaqVmeVirtualModule{
 	public:
@@ -19,44 +20,45 @@ class IDaqVmeVirtualModule{
 		virtual ~IDaqVmeVirtualModule(){};	
 		virtual void Initialize(){ status = IDaqGenericError; }
 		virtual void Arm(){ status = IDaqGenericError; };	
-  	virtual int Readout(FILE *fp, uint64_t &fs){ return 0; }
-		virtual int Readout( vector<uint32_t>& aData ){ return 0; };
+        virtual int Readout(FILE *fp, uint64_t &fs){ return 0; }
+		virtual int Readout( std::vector<uint32_t>& aData ){ return 0; };
 		virtual bool IsInitialized(){ return initStatus; }
   	
-  	virtual IDaqVmeModuleType GetModuleType(){ return moduleType; }
-  	virtual void SetModuleType( IDaqVmeModuleType mt ){ moduleType = mt;}
-  	
-  	virtual uint16_t GetWordSize() { return 0; }
-  	
-  	virtual IDaqVmeCode GetStatus(){ return status; };
-  	virtual string GetName(){ return name; }
-  	virtual void SetName( string aName ="Unknown Module" ){ name = aName; }
-  	virtual void Connect( IDaqVmeInterface *vi ){
-    	vmeInt = vi ;
-    	status = IDaqCommError;
-    	if ( vmeInt) {
-      	if ( ( status = vmeInt->GetStatus() ) == IDaqSuccess )  connectStatus = true;
-    	}
-  	}
+        virtual IDaqVmeModuleType GetModuleType(){ return moduleType; }
+        virtual void SetModuleType( IDaqVmeModuleType mt ){ moduleType = mt;}
+        
+        virtual uint16_t GetWordSize() { return 0; }
+        
+        virtual IDaqVmeCode GetStatus(){ return status; };
+        virtual std::string GetName(){ return name; }
+        virtual void SetName( std::string aName ="Unknown Module" ){ name = aName; }
+        virtual void Connect( std::shared_ptr<IDaqVmeInterface> vi ){
+            vmeInt = vi ;
+            status = IDaqCommError;
+            if ( vmeInt) {
+                if ( ( status = vmeInt->GetStatus() ) == IDaqSuccess )  connectStatus = true;
+            }
+        }
 
-  	virtual bool IsConnected(){
-    	connectStatus = false;
-    	if ( vmeInt ) {
-      	if ( vmeInt->GetStatus() == IDaqSuccess ) connectStatus = true;
-    	} else { 
-      	cout << " VME Interface is not defined " << endl;
-    	}
-    	return connectStatus;
-  	}
+        virtual bool IsConnected(){
+            connectStatus = false;
+            if ( vmeInt ) {
+            if ( vmeInt->GetStatus() == IDaqSuccess ) connectStatus = true;
+            } else { 
+                std::cout << " VME Interface is not defined " << std::endl;
+            }
+            return connectStatus;
+        }
 
-  protected:
-		IDaqVmeModuleKind moduleKind;
-  	IDaqVmeModuleType moduleType;
-  	IDaqVmeInterface * vmeInt;
-  	IDaqVmeCode status;
-  	string name;
-  	bool connectStatus;
-  	bool initStatus;
+    protected:
+        IDaqVmeModuleKind moduleKind;
+        IDaqVmeModuleType moduleType;
+        //IDaqVmeInterface * vmeInt;
+        std::shared_ptr<IDaqVmeInterface> vmeInt;
+        IDaqVmeCode status;
+        std::string name;
+        bool connectStatus;
+        bool initStatus;
 };
 
 template <typename AddressType, typename DataType >
@@ -71,21 +73,22 @@ class IDaqVmeModule : public IDaqVmeVirtualModule {
 		
 		virtual ~IDaqVmeModule(){};
 		
-		void SetVmeInterface( IDaqVmeInterface * aVmeInt ) { vmeInt = aVmeInt; }
-		
+		//void SetVmeInterface( IDaqVmeInterface * aVmeInt ) { vmeInt = aVmeInt; }
+        void SetVmeInterface( std::shared_ptr<IDaqVmeInterface> aVmeInt ) { vmeInt = aVmeInt; }
+    
 		virtual void SetBaseAddress( AddressType aBaseAddress ){ ba = aBaseAddress; }
 		virtual AddressType GetBaseAddress(){ return ba; }
 		
 		DataType * GetData() {return data;}
-  	uint16_t   GetDataSize() { return bufferSize;}
-  	uint16_t   GetBufferCapacity() { return bufferSize / sizeof( DataType ); }
-  	uint16_t   GetWordSize() { return sizeof( DataType ); }
-  	uint16_t   GetNByteRead(){ return nWordRead * sizeof( DataType ); }
-  	uint16_t   GetNWordRead(){ return nWordRead; } 
+        uint16_t   GetDataSize() { return bufferSize;}
+        uint16_t   GetBufferCapacity() { return bufferSize / sizeof( DataType ); }
+        uint16_t   GetWordSize() { return sizeof( DataType ); }
+        uint16_t   GetNByteRead(){ return nWordRead * sizeof( DataType ); }
+        uint16_t   GetNWordRead(){ return nWordRead; } 
   	
-  	DataType GetWord( uint16_t iw = 0 ){
-  		if ( iw < nWordRead) { return  data[ iw ]; }
-  		else return 0;
+        DataType GetWord( uint16_t iw = 0 ){
+            if ( iw < nWordRead) { return  data[ iw ]; }
+            else return 0;
 		};
   	
   	
@@ -135,9 +138,9 @@ class IDaqVmeModule : public IDaqVmeVirtualModule {
 		
 		
 		
-		void PrintOutputBuffer( ostream &os = cout ){
+        void PrintOutputBuffer( std::ostream &os = std::cout ){
 			for (uint16_t iw = 0; iw < nWordRead; ++iw ) {
-				os << endl << showbase << hex << data[ iw ];
+                os << std::endl << std::showbase << std::hex << data[ iw ];
 			}
 		};
 		
@@ -152,10 +155,10 @@ class IDaqVmeModule : public IDaqVmeVirtualModule {
   	
 		virtual void ReadAndWriteOutputBuffer( std::vector<uint32_t> &aData, uint16_t nw = 1 ){
 			ReadOutputBuffer( nw );
-			cout << "nWordsRead = " << nWordRead << endl;
+            std::cout << "nWordsRead = " << nWordRead << std::endl;
 			aData.assign( data, data + nWordRead );
 			for( int i=0; i < nWordRead; ++i ){
-				cout << "data[ " << i << " ] = " << data[ i ] << endl; 
+                std::cout << "data[ " << i << " ] = " << data[ i ] << std::endl;
 			}
 			
 		};
@@ -164,7 +167,7 @@ class IDaqVmeModule : public IDaqVmeVirtualModule {
 		AddressType ba;
 		DataType *  data;	
 		uint16_t    bufferSize;       // number of bytes in the buffer
-  	uint16_t    nWordRead;        // number of DataType words read
+        uint16_t    nWordRead;        // number of DataType words read
   	
 };
 
