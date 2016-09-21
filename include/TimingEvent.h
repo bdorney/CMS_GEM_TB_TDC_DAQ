@@ -21,7 +21,7 @@
 
 namespace QualityControl {
     namespace Timing {
-        struct TDCData {
+        struct TDCDataDigi {
             std::map<int, float> m_map_fTime;   //Key -> Chan #; Val -> Time
             
             //Default Constructor
@@ -37,7 +37,7 @@ namespace QualityControl {
             }
         }; //End TDCData;
         
-        struct EventRAW{
+        struct EventDigi{
             std::map<std::string, Timing::DataTDC> m_map_TDCData; //Key -> Hex Board Address; Val -> Data
         }; //End EventRAW
     } //End namespace Timing

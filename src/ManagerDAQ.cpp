@@ -57,6 +57,8 @@ void QualityControl::Timing::ManagerDAQ::startRun(){
             //Set the busy
             crate_VME.m_vmeIO->SetOutput( 1, 0 );
             
+            cout<<"============New Trigger============\n";
+            
             //Get Data from Each TDC
             for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard) { //Loop Over Defined TDC's
                 //Sleep if TDC is not ready
@@ -67,7 +69,7 @@ void QualityControl::Timing::ManagerDAQ::startRun(){
                 
                 //Readout TDC
                 (*iterVMEBoard).second->Readout( vec_DataWord );
-                m_map_vecDataWords[(*iterVMEBoard).second->GetBaseAddress()]=vec_DataWord;
+                m_map_vecTDCData[(*iterVMEBoard).second->GetBaseAddress()]=vec_DataWord;
                 
                 //Reset TDC for next trigger
                 (*iterVMEBoard).second->DataReset();
@@ -77,10 +79,20 @@ void QualityControl::Timing::ManagerDAQ::startRun(){
                 vec_DataWord.clear();
             } //End Loop Over Defined TDC's
             
-            //Print number of data words
-            for (auto iterWords = m_map_vecDataWords.begin(); iterWords != m_map_vecDataWords.end(); ++iterWords) {
-                cout<<(*iterWords).first<<"\t"<<(*iterWords).second.size()<<endl;
-            }
+            //Print Data for Each TDC
+            for (auto iterTDCData = m_map_vecTDCData.begin(); iterTDCData != m_map_vecTDCData.end(); ++iterTDCData) {
+                cout<<(*iterTDCData).first<<"\t"<<(*iterTDCData).second.size()<<endl;
+                
+                cout<<"------------New TDC------------\n";
+                cout<<"Data Words of TDC: "<< (*iterTDCData).first <<endl;
+                
+                //std::hex;
+                
+                for (auto iterWord = (*iterTDCData).second.begin(); iterWord != (*iterTDCData).second.end(); ++iterWord) {
+                    //cout<<(*iterWord)<<endl;
+                    cout<< std::showbase << std::hex << (*iterWord) << std::dec << endl;
+                } //End Loop Over Data for This TDC
+            } //End Loop Over TDCs
             
             //Drop the busy
             crate_VME.m_vmeIO->SetOutput( 1, 1 );

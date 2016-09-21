@@ -87,7 +87,7 @@ namespace QualityControl {
             
             QualityControl::Timing::HardwareCrateVME crate_VME;
             
-            std::map<uint32_t, std::vector<uint32_t> > m_map_vecDataWords; //Key -> Base Addr; Value -> Word
+            std::map<uint32_t, std::vector<uint32_t> > m_map_vecTDCData; //Key -> Base Addr; Value -> Vector of Data Words
             
         }; //End Class ManagerDAQ
     } //End namespace Timing
