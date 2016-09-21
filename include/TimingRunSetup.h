@@ -60,12 +60,18 @@ namespace QualityControl {
                 m_strBaseAddress = other.m_strBaseAddress;
                 m_strFullScaleRange = other.m_strFullScaleRange;
             }; //End Copy Constructor
+
+            //Destructor
+            /*~HwVMEBoard(){
+                m_strBaseAddress.clear();
+                m_strFullScaleRange.clear();
+            };*/ //End Copy Constructor
         };
         
         struct RunSetup{
             bool m_bLoadSuccess;
             
-            int m_iEvtNum;    //Acquire this many events
+            unsigned int m_uiEvtNum;    //Acquire this many events
             
             std::string m_strFile_Output_Name;      //Name of output TFile
             std::string m_strFile_Output_Option;    //Option for TFile: CREATE, RECREATE, UPDATE, etc...
@@ -75,7 +81,15 @@ namespace QualityControl {
             //Default Constructor
             RunSetup(){
                 m_bLoadSuccess = false;
-            }
+            };
+
+            //Destructor
+            /*~RunSetup(){
+		m_strFile_Output_Name.clear();
+		m_strFile_Output_Option.clear();
+
+		m_map_vmeBoards.clear();
+            };*/
         };
     } //End namespace Timing
 } //End namespace QualityControl

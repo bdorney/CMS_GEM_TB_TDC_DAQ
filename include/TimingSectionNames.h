@@ -51,6 +51,23 @@ namespace QualityControl {
                 m_strSecEnd_InfoHw      = "[END_HW_INFO]";
                 m_strSecEnd_InfoRun     = "[END_RUN_INFO]";
             } //End Default Constructor
+
+            //Destructor
+            /*~SecNamesDAQ(){
+                //Section Header Beginnings
+                m_strSecBegin_BoardVME.clear();
+                
+                m_strSecBegin_InfoCond.clear();
+                m_strSecBegin_InfoHw.clear();
+                m_strSecBegin_InfoRun.clear();
+                
+                //Section Header Endings
+                m_strSecEnd_BoardVME.clear();
+                
+                m_strSecEnd_InfoCond.clear();
+                m_strSecEnd_InfoHw.clear();
+                m_strSecEnd_InfoRun.clear();
+            }*/ //End Destructor
         }; //End SecNamesDAQ
     } //End namespace Timing
 } //End namespace QualityControl

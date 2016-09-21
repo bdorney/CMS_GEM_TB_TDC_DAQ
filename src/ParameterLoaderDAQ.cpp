@@ -127,7 +127,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParametersRun(std::ifstream
             pair_strParam.first = strTmp;
             
             if ( pair_strParam.first.compare("EVENTS_TOTAL") == 0 ) {
-                inputRunSetup.m_iEvtNum = stoiSafe(pair_strParam.first, pair_strParam.second);
+                inputRunSetup.m_uiEvtNum = stoiSafe(pair_strParam.first, pair_strParam.second);
             }
             else if ( pair_strParam.first.compare("OUTPUT_FILE_NAME") == 0 ) {
                 inputRunSetup.m_strFile_Output_Name = pair_strParam.second;

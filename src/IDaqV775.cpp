@@ -24,9 +24,10 @@ IDaqV775::IDaqV775(){
 	readoutMode = V775_D32;
 }
 
-IDaqV775::~IDaqV775(){
-	delete[] data;
-}
+//IDaqV775::~IDaqV775(){
+	//delete[] data;
+	//delete data;
+//}
 
 void IDaqV775::SetGeoAddress( uint16_t aGeo ){
 	uint32_t  addr = ba + V775_GEO_ADDRESS;

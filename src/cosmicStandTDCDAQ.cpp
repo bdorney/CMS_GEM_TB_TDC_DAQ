@@ -96,7 +96,7 @@ int main( int argc_, char * argv_[] ){
     
     //Check rSetup
     cout<<"rSetup.m_bLoadSuccess = " << ( (rSetup.m_bLoadSuccess) ? "true" : "false" ) << endl;
-    cout<<"rSetup.m_iEvtNum = " << rSetup.m_iEvtNum << endl;
+    cout<<"rSetup.m_uiEvtNum = " << rSetup.m_uiEvtNum << endl;
     cout<<"rSetup.m_strFile_Output_Name = " << rSetup.m_strFile_Output_Name << endl;
     cout<<"rSetup.m_strFile_Output_Option = " << rSetup.m_strFile_Output_Option << endl;
     
@@ -116,7 +116,10 @@ int main( int argc_, char * argv_[] ){
     
     //Run the DAQ Manager
     //------------------------------------------------------
+	cout<<"Starting DAQ LOOP"<<endl;
     daqManager.daqStartRun();
+
+	cout<<"DAQ LOOP ENDED"<<endl;
     
     return 0;
 } //End main()

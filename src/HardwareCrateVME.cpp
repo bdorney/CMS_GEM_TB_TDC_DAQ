@@ -40,15 +40,6 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
     m_vmeIO->Clear();
     m_vmeIO->SetOutput( 1, 0 ); //Set busy
     
-    /*for (auto iterVMEBoard = m_map_vmeIO.begin(); iterVMEBoard != m_map_vmeIO.end(); ++iterVMEBoard) {
-        (*iterVMEBoard).second->Reset();
-        (*iterVMEBoard).second->SetChannelStatusReg( 0, V513_Input, V513_Negative, V513_Glitched, V513_Transparent );
-        (*iterVMEBoard).second->SetChannelStatusReg( 1, V513_Output, V513_Negative, V513_Glitched, V513_Transparent );
-        (*iterVMEBoard).second->SetChannelStatusReg( 2, V513_Input, V513_Negative, V513_Glitched, V513_Transparent );
-        (*iterVMEBoard).second->Clear();
-        (*iterVMEBoard).second->SetOutput( 1, 0 ); //Set busy
-    }*/
-    
     //Configure - TDC
     //------------------------------------------------------
     for (auto iterVMEBoard = m_map_vmeTDC.begin(); iterVMEBoard != m_map_vmeTDC.end(); ++iterVMEBoard) {
@@ -58,11 +49,11 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
         (*iterVMEBoard).second->SetBitReg2( V775_BS2_StartStop, IDaqEnable );
         
 	//Set All Trig Mode
-        (*iterVMEBoard).second->SetBitReg2( V775_BS2_AllTrg, IDaqEnable );
+        //(*iterVMEBoard).second->SetBitReg2( V775_BS2_AllTrg, IDaqEnable );
 
         //Set Full Scale Range
 	    //int FullScaleSet = 0x5A;
-        //(*iterVMEBoard).second->SetFullScaleRange( FullScaleSet ); //400ns window
+        (*iterVMEBoard).second->SetFullScaleRange( std::stol( m_rSetup.m_map_vmeBoards[(*iterVMEBoard).first].m_strFullScaleRange, nullptr, 0 ) ); //400ns window
         
         (*iterVMEBoard).second->DataReset();
         (*iterVMEBoard).second->ClearEventCount();

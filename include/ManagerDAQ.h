@@ -24,6 +24,7 @@
 #include "IDaqVmeTypes.h"
 #include "IDaqV775.h"
 #include "QualityControlUtilityFunctions.h"
+#include "TimingEvent.h"
 #include "TimingRunSetup.h"
 
 //ROOT Includes
@@ -39,16 +40,18 @@ namespace QualityControl {
             
             //Actions - Methods that Do Something
             //------------------------------------------------------------------------------------------------------------------------------------------            
-            virtual void daqConfigure();					//Configure DAQ chain
-            virtual void daqInitialize();					//Initialize DAQ chain
-            virtual void daqRelease();						//Release DAQ chain
-            virtual void daqStartRun();						//start taking Data
-            virtual bool daqStopRun(int iAcquiredEvt, int iRequestedEvt);	//stop taking data
+            virtual void daqConfigure();	//Configure DAQ chain
+            virtual void daqInitialize();	//Initialize DAQ chain
+            virtual void daqRelease();		//Release DAQ chain
+            virtual void daqStartRun();		//start taking Data
+
+            //stop taking data
+            virtual bool daqStopRun(unsigned int uiAcquiredEvt, unsigned int uiRequestedEvt);
             
             //Getters - Methods that Get (i.e. Return) Something
             //------------------------------------------------------------------------------------------------------------------------------------------
             //Converts Data Words to time stamps
-            virtual std::map<std::string, std::vector<std::pair<int, float> > > getConvertedDataRAW2DIGI(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
+            virtual std::vector<QualityControl::Timing::EventDigi> getConvertedDataRAW2DIGI(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
 
             //Printers - Methods that Print Something
             //------------------------------------------------------------------------------------------------------------------------------------------
@@ -83,7 +86,8 @@ namespace QualityControl {
             QualityControl::Timing::RunSetup m_rSetup;
             
             QualityControl::Timing::HardwareCrateVME crate_VME;
-            
+
+            std::map<std::string, double > m_map_TDCTimeLSB; //Key -> Base Addr; Value -> timeLSB for each TDC            
             std::map<std::string, std::vector<uint32_t> > m_map_vecTDCData; //Key -> Base Addr; Value -> Vector of Data Words
 
             

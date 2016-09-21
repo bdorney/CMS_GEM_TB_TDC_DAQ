@@ -15,7 +15,7 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 {
 	public:
 		IDaqV775();
-		virtual ~IDaqV775();
+		//virtual ~IDaqV775();
 		
 		void DataReset();
   		void SoftwareReset();
