@@ -16,18 +16,19 @@ TEST_DIR := test
 CFLAGS   := -Dlong32="int" -Dlong64="long long" 
 CFLAGS   := ${CFLAGS} -I${INC_DIR}
 CFLAGS   := ${CFLAGS} -fPIC -O -O2 -O3 -Wall -I/home/tdcdaq/root/include
+#CFLAGS	 := ${CFLAGS} -std=c++0x
 
 LDFLAGS   := -shared-libgcc -L/home/tdcdaq/root/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic
 
 LOADLIBES := -L/home/tdcdaq/root/lib -lCore -lCint -lRIO -lNet -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lMathCore -lThread -pthread -lm -ldl -rdynamic
 
-INCS := 	${INC_DIR}/IDaqVmeTypes.hh \
-					${INC_DIR}/IDaqVmeInterface.hh \
-					${INC_DIR}/IDaqVmeModule.hh \
-					${INC_DIR}/IDaqV792.hh \
-					${INC_DIR}/IDaqV775.hh \
-					${INC_DIR}/IDaqV513.hh \
-					${INC_DIR}/IDaqManager.hh
+INCS := 	${INC_DIR}/IDaqVmeTypes.h \
+					${INC_DIR}/IDaqVmeInterface.h \
+					${INC_DIR}/IDaqVmeModule.h \
+					${INC_DIR}/IDaqV792.h \
+					${INC_DIR}/IDaqV775.h \
+					${INC_DIR}/IDaqV513.h \
+					${INC_DIR}/IDaqManager.h
 
 OBJS   :=	${OBJS_DIR}/IDaqVmeInterface.o \
 					${OBJS_DIR}/IDaqVmeModule.o \

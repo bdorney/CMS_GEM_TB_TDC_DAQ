@@ -16,6 +16,14 @@ using std::make_shared;
 //QualityControl::Timing namespace objects
 using QualityControl::Timing::VMETypes;
 
+//Default Constructor
+QualityControl::Timing::HardwareCrateVME::HardwareCrateVME(){
+    m_vmeBridge = make_shared<IDaqVmeInterface>( IDaqVmeInterface(idmV2718, 0, 0, 0x0 ) );
+
+    IDaqV513 vmeIOBoard;
+    m_vmeIO	= make_shared<IDaqV513>( vmeIOBoard );
+} //End Default Constructor
+
 //Configure All VME Boards Initialized in initializeCrate()
 void QualityControl::Timing::HardwareCrateVME::configureCrate(){
     //Configure - Bridge
@@ -49,8 +57,12 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
         //Set Common Stop Mode
         (*iterVMEBoard).second->SetBitReg2( V775_BS2_StartStop, IDaqEnable );
         
+	//Set All Trig Mode
+        (*iterVMEBoard).second->SetBitReg2( V775_BS2_AllTrg, IDaqEnable );
+
         //Set Full Scale Range
-        (*iterVMEBoard).second->SetFullScaleRange( 0x5A ); //400ns window
+	    //int FullScaleSet = 0x5A;
+        //(*iterVMEBoard).second->SetFullScaleRange( FullScaleSet ); //400ns window
         
         (*iterVMEBoard).second->DataReset();
         (*iterVMEBoard).second->ClearEventCount();
@@ -93,19 +105,24 @@ void QualityControl::Timing::HardwareCrateVME::initializeCrate(){
 
 //Add VME Bridge to the Crate, note this will over-write any pre-existing interface
 void QualityControl::Timing::HardwareCrateVME::addVMEBridge( Timing::HwVMEBoard &inputBoard ){
-    m_vmeBridge = make_shared<IDaqVmeInterface>( IDaqVmeInterface(idmV2718, inputBoard.m_iNumLink, inputBoard.m_iNumBoard, std::stol( inputBoard.m_strBaseAddress ) ) );
-    
+    m_vmeBridge->setBoardNumber( inputBoard.m_iNumBoard );
+    m_vmeBridge->setLinkNumber( inputBoard.m_iNumLink );
+    //m_vmeBridge->setModuleType( idmV2718 )
+    m_vmeBridge->SetBaseAddress( std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) );
+
+	//cout<<"Bridge Address via stol = " << std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) << endl;
+	//cout<<"Bridge Address Converted = " << std::showbase << std::hex << inputBoard.m_strBaseAddress << std::dec << endl;
+
     return;
 } //End QualityControl::Timing::HardwareCrateVME::addVMEBridge()
 
 //Add a VME IO Board to the Crate, note this will over-write any pre-existing interface
 void QualityControl::Timing::HardwareCrateVME::addVMEIO( Timing::HwVMEBoard &inputBoard ){
-    //Declare Board
-    //IDaqV513 vmeBoard;
-    
     //Set Base Address
-    //vmeBoard.SetBaseAddress( std::stol( inputBoard.m_strBaseAddress ) );
-    m_vmeIO->SetBaseAddress( std::stol( inputBoard.m_strBaseAddress ) );
+    m_vmeIO->SetBaseAddress( std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) );
+
+	//cout<<"IO Address via stol = " << std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) << endl;
+	//cout<<"IO Address Converted = " << std::showbase << std::hex << inputBoard.m_strBaseAddress << std::dec << endl;
     
     //m_map_vmeIO[inputBoard.m_strBaseAddress] = make_shared<IDaqV513>( vmeBoard );
     
@@ -118,13 +135,16 @@ void QualityControl::Timing::HardwareCrateVME::addVMETDC( Timing::HwVMEBoard &in
     IDaqV775 vmeBoard;
     
     //Set Base Address
-    vmeBoard.SetBaseAddress( std::stol( inputBoard.m_strBaseAddress ) );
+    vmeBoard.SetBaseAddress( std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) );
     
+	//cout<<"TDC Address via stol = " << std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) << endl;
+	//cout<<"TDC Address Converted = " << std::showbase << std::hex << inputBoard.m_strBaseAddress << std::dec << endl;
+
     //Set Common Stop Mode
     //vmeBoard.SetBitReg2( V775_BS2_StartStop, IDaqEnable );
     
     //Set Full Scale Range
-    //vmeBoard.SetFullScaleRange( std::stoi(inputBoard.m_strFullScaleRange ) );
+    //vmeBoard.SetFullScaleRange( std::stoi(inputBoard.m_strFullScaleRange, nullptr, 0 ) );
     
     m_map_vmeTDC[inputBoard.m_strBaseAddress] = std::make_shared<IDaqV775>( vmeBoard );
     

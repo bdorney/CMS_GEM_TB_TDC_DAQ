@@ -17,25 +17,11 @@
 #define __CAENVMELIB_H
 
 #include <stdio.h>
-// Rev. 2.5
-#ifdef LINUX
-	#include <stdint.h>
-#endif
 #include <stdlib.h>
-#include <malloc.h>
-#include "CAENVMEoslib.h"
+#include <malloc.h> //Linux?
+//#include <malloc/malloc.h> //Max OS X?
+//#include "CAENVMEoslib.h" // Commented out by J.S. Graulich
 #include "CAENVMEtypes.h"
-
-#ifdef WIN32
-	typedef INT8   int8_t;
-	typedef UINT8  uint8_t;
-	typedef INT16  int16_t;
-	typedef UINT16 uint16_t;
-	typedef INT32  int32_t;
-	typedef UINT32 uint32_t;
-	typedef INT64  int64_t;
-	typedef UINT64 uint64_t;
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,7 +73,7 @@ CAENVME_SWRelease(char *SwRel);
                 Permits to read the firmware release loaded into the device.
 */
 CAENVME_API
-CAENVME_BoardFWRelease(int32_t Handle, char *FWRel);
+CAENVME_BoardFWRelease(long Handle, char *FWRel);
 
 /*
         CAENVME_DriverRelease.
@@ -103,24 +89,7 @@ CAENVME_BoardFWRelease(int32_t Handle, char *FWRel);
                 Permits to read the software release of the device driver.
 */
 CAENVME_API
-CAENVME_DriverRelease(int32_t Handle, char *Rel);
-
-/*
-        CAENVME_DeviceReset
-        -----------------------------------------------------------------------------
-        Parameters:
-                [in]  Handle    : The handle that identifies the device.
-        -----------------------------------------------------------------------------
-        Returns:
-                An error code about the execution of the function.
-        -----------------------------------------------------------------------------
-        Description:
-                Permits to reset the device.
-                Implemented for A2818, A2719, V2718 on Linux platform only 
-*/
-CAENVME_API
-CAENVME_DeviceReset(int32_t dev);
-
+CAENVME_DriverRelease(long Handle, char *Rel);
 
 /*
         CAENVME_Init
@@ -142,7 +111,7 @@ CAENVME_DeviceReset(int32_t dev);
                 you can have some A2818 optical link inside the PC.
 */
 CAENVME_API
-CAENVME_Init(CVBoardTypes BdType, short Link, short BdNum, int32_t *Handle);
+CAENVME_Init(CVBoardTypes BdType, short Link, short BdNum, long *Handle);
 
 /*
         CAENVME_End
@@ -158,7 +127,7 @@ CAENVME_Init(CVBoardTypes BdType, short Link, short BdNum, int32_t *Handle);
                 resources.
 */
 CAENVME_API
-CAENVME_End(int32_t Handle);
+CAENVME_End(long Handle);
 
 /*
         CAENVME_ReadCycle
@@ -177,7 +146,7 @@ CAENVME_End(int32_t Handle);
                 The function performs a single VME read cycle.
 */
 CAENVME_API
-CAENVME_ReadCycle(int32_t Handle, uint32_t Address, void *Data,
+CAENVME_ReadCycle(long Handle, unsigned long Address, void *Data,
                   CVAddressModifier AM, CVDataWidth DW);
 
 /*
@@ -199,7 +168,7 @@ CAENVME_ReadCycle(int32_t Handle, uint32_t Address, void *Data,
                 return the value read.
 */
 CAENVME_API
-CAENVME_RMWCycle(int32_t Handle, uint32_t Address,  void *Data,
+CAENVME_RMWCycle(long Handle, unsigned long Address,  void *Data,
                  CVAddressModifier AM, CVDataWidth DW);
 
 /*
@@ -219,7 +188,7 @@ CAENVME_RMWCycle(int32_t Handle, uint32_t Address,  void *Data,
                 The function performs a single VME write cycle.
 */
 CAENVME_API
-CAENVME_WriteCycle(int32_t Handle, uint32_t Address, void *Data,
+CAENVME_WriteCycle(long Handle, unsigned long Address, void *Data,
                    CVAddressModifier AM, CVDataWidth DW);
 
 /*
@@ -241,7 +210,7 @@ CAENVME_WriteCycle(int32_t Handle, uint32_t Address, void *Data,
                 The function performs a block of single VME read cycles.
 */
 CAENVME_API
-CAENVME_MultiRead(int32_t Handle, uint32_t *Addrs, uint32_t *Buffer,
+CAENVME_MultiRead(long Handle, unsigned long *Addrs, unsigned long *Buffer,
         int NCycles, CVAddressModifier *AMs, CVDataWidth *DWs, CVErrorCodes *ECs);
 
 /*
@@ -263,7 +232,7 @@ CAENVME_MultiRead(int32_t Handle, uint32_t *Addrs, uint32_t *Buffer,
                 The function performs a block of single VME write cycles.
 */
 CAENVME_API
-CAENVME_MultiWrite(int32_t Handle, uint32_t *Addrs, uint32_t *Buffer,
+CAENVME_MultiWrite(long Handle, unsigned long *Addrs, unsigned long *Buffer,
         int NCycles, CVAddressModifier *AMs, CVDataWidth *DWs, CVErrorCodes *ECs);
 
 /*
@@ -286,7 +255,7 @@ CAENVME_MultiWrite(int32_t Handle, uint32_t *Addrs, uint32_t *Buffer,
                 perform MBLT transfers using 64 bit data width.
 */
 CAENVME_API
-CAENVME_BLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_BLTReadCycle(long Handle, unsigned long Address, void *Buffer,
                      int Size, CVAddressModifier AM, CVDataWidth DW, int *count);
 
 /*
@@ -312,7 +281,7 @@ CAENVME_BLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 incremented on the VMEBus during the cycle. 
 */
 CAENVME_API
-CAENVME_FIFOBLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_FIFOBLTReadCycle(long Handle, unsigned long Address, void *Buffer,
                          int Size, CVAddressModifier AM, CVDataWidth DW, int *count);
 
 /*
@@ -333,7 +302,7 @@ CAENVME_FIFOBLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 The function performs a VME multiplexed block transfer read cycle.
 */
 CAENVME_API
-CAENVME_MBLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_MBLTReadCycle(long Handle, unsigned long Address, void *Buffer,
                       int Size, CVAddressModifier AM, int *count);
 
 /*
@@ -357,7 +326,7 @@ CAENVME_MBLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 The Address is not incremented on the VMEBus during the cycle. 
 */
 CAENVME_API
-CAENVME_FIFOMBLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_FIFOMBLTReadCycle(long Handle, unsigned long Address, void *Buffer,
                           int Size, CVAddressModifier AM, int *count);
 
 /*
@@ -379,7 +348,7 @@ CAENVME_FIFOMBLTReadCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 The function performs a VME block transfer write cycle.
 */
 CAENVME_API
-CAENVME_BLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_BLTWriteCycle(long Handle, unsigned long Address, void *Buffer,
                       int size, CVAddressModifier AM, CVDataWidth DW, int *count);
 
 /*
@@ -404,7 +373,7 @@ CAENVME_BLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 is not incremented during the cycle.
 */
 CAENVME_API
-CAENVME_FIFOBLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_FIFOBLTWriteCycle(long Handle, unsigned long Address, void *Buffer,
                       int size, CVAddressModifier AM, CVDataWidth DW, int *count);
 
 /*
@@ -425,7 +394,7 @@ CAENVME_FIFOBLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 The function performs a VME multiplexed block transfer write cycle.
 */
 CAENVME_API
-CAENVME_MBLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_MBLTWriteCycle(long Handle, unsigned long Address, void *Buffer,
                        int size, CVAddressModifier AM, int *count);
 
 /*
@@ -449,7 +418,7 @@ CAENVME_MBLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 The address is not incremented during the cycle.
 */
 CAENVME_API
-CAENVME_FIFOMBLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_FIFOMBLTWriteCycle(long Handle, unsigned long Address, void *Buffer,
                            int size, CVAddressModifier AM, int *count);
 
 /*
@@ -468,7 +437,7 @@ CAENVME_FIFOMBLTWriteCycle(int32_t Handle, uint32_t Address, void *Buffer,
                 perform MBLT transfers using 64 bit data width.
 */
 CAENVME_API
-CAENVME_ADOCycle(int32_t Handle, uint32_t Address, CVAddressModifier AM);
+CAENVME_ADOCycle(long Handle, unsigned long Address, CVAddressModifier AM);
 
 /*
         CAENVME_ADOHCycle
@@ -485,7 +454,7 @@ CAENVME_ADOCycle(int32_t Handle, uint32_t Address, CVAddressModifier AM);
                 The function performs a VME address only with handshake cycle.
 */
 CAENVME_API
-CAENVME_ADOHCycle(int32_t Handle, uint32_t Address, CVAddressModifier AM);
+CAENVME_ADOHCycle(long Handle, unsigned long Address, CVAddressModifier AM);
 
 /*
         CAENVME_IACKCycle
@@ -502,7 +471,7 @@ CAENVME_ADOHCycle(int32_t Handle, uint32_t Address, CVAddressModifier AM);
                 The function performs a VME interrupt acknowledge cycle.
 */
 CAENVME_API
-CAENVME_IACKCycle(int32_t Handle, CVIRQLevels Level, void *Vector, CVDataWidth DW);
+CAENVME_IACKCycle(long Handle, CVIRQLevels Level, void *Vector, CVDataWidth DW);
 
 /*
         CAENVME_IRQCheck
@@ -518,7 +487,7 @@ CAENVME_IACKCycle(int32_t Handle, CVIRQLevels Level, void *Vector, CVDataWidth D
                 The function returns a bit mask indicating the active IRQ lines.
 */
 CAENVME_API
-CAENVME_IRQCheck(int32_t Handle, CAEN_BYTE *Mask);
+CAENVME_IRQCheck(long Handle, CAEN_BYTE *Mask);
 
 /*
         CAENVME_IRQEnable
@@ -534,7 +503,7 @@ CAENVME_IRQCheck(int32_t Handle, CAEN_BYTE *Mask);
                 The function enables the IRQ lines specified by Mask.
 */
 CAENVME_API
-CAENVME_IRQEnable(int32_t Handle, uint32_t Mask);
+CAENVME_IRQEnable(long Handle, unsigned long Mask);
 
 /*
         CAENVME_IRQDisable
@@ -550,7 +519,7 @@ CAENVME_IRQEnable(int32_t Handle, uint32_t Mask);
                 The function disables the IRQ lines specified by Mask.
 */
 CAENVME_API
-CAENVME_IRQDisable(int32_t Handle, uint32_t Mask);
+CAENVME_IRQDisable(long Handle, unsigned long Mask);
 
 /*
         CAENVME_IRQWait
@@ -568,7 +537,7 @@ CAENVME_IRQDisable(int32_t Handle, uint32_t Mask);
                 them raise or timeout expires.
 */
 CAENVME_API
-CAENVME_IRQWait(int32_t Handle, uint32_t Mask, uint32_t Timeout);
+CAENVME_IRQWait(long Handle, unsigned long Mask, unsigned long Timeout);
 
 /*
         CAENVME_SetPulserConf
@@ -599,7 +568,7 @@ CAENVME_IRQWait(int32_t Handle, uint32_t Mask, uint32_t Timeout);
                 for pulser B the input signal 1 (cvInputSrc1).
 */
 CAENVME_API
-CAENVME_SetPulserConf(int32_t Handle, CVPulserSelect PulSel, unsigned char Period,
+CAENVME_SetPulserConf(long Handle, CVPulserSelect PulSel, unsigned char Period,
                       unsigned char Width, CVTimeUnits Unit, unsigned char PulseNo,
                       CVIOSources Start, CVIOSources Reset);
 
@@ -628,7 +597,7 @@ CAENVME_SetPulserConf(int32_t Handle, CVPulserSelect PulSel, unsigned char Perio
                 software (cvManualSW) or input signal 1 (cvInputSrc1).
 */
 CAENVME_API
-CAENVME_SetScalerConf(int32_t Handle, short Limit, short AutoReset,
+CAENVME_SetScalerConf(long Handle, short Limit, short AutoReset,
                       CVIOSources Hit, CVIOSources Gate, CVIOSources Reset);
 
 /*
@@ -669,7 +638,7 @@ CAENVME_SetScalerConf(int32_t Handle, short Limit, short AutoReset,
         +---+---+--------------+---------------+---------------+------------+
 */
 CAENVME_API
-CAENVME_SetOutputConf(int32_t Handle, CVOutputSelect OutSel, CVIOPolarity OutPol,
+CAENVME_SetOutputConf(long Handle, CVOutputSelect OutSel, CVIOPolarity OutPol,
                       CVLEDPolarity LEDPol, CVIOSources Source);
 
 /*
@@ -689,7 +658,7 @@ CAENVME_SetOutputConf(int32_t Handle, CVOutputSelect OutSel, CVIOPolarity OutPol
                 ca be specified the polarity for the line and for the LED.
 */
 CAENVME_API
-CAENVME_SetInputConf(int32_t Handle, CVInputSelect InSel, CVIOPolarity InPol,
+CAENVME_SetInputConf(long Handle, CVInputSelect InSel, CVIOPolarity InPol,
                      CVLEDPolarity LEDPol);
 
 /*
@@ -715,7 +684,7 @@ CAENVME_SetInputConf(int32_t Handle, CVInputSelect InSel, CVIOPolarity InPol,
                 The function permits to read the configuration of the pulsers.
 */
 CAENVME_API
-CAENVME_GetPulserConf(int32_t Handle, CVPulserSelect PulSel, unsigned char *Period,
+CAENVME_GetPulserConf(long Handle, CVPulserSelect PulSel, unsigned char *Period,
                       unsigned char *Width, CVTimeUnits *Unit, unsigned char *PulseNo,
                       CVIOSources *Start, CVIOSources *Reset);
 
@@ -739,7 +708,7 @@ CAENVME_GetPulserConf(int32_t Handle, CVPulserSelect PulSel, unsigned char *Peri
                 The function permits to read the configuration of the scaler.
 */
 CAENVME_API
-CAENVME_GetScalerConf(int32_t Handle, short *Limit, short *AutoReset,
+CAENVME_GetScalerConf(long Handle, short *Limit, short *AutoReset,
                       CVIOSources *Hit, CVIOSources *Gate, CVIOSources *Reset);
 
 
@@ -761,7 +730,7 @@ CAENVME_GetScalerConf(int32_t Handle, short *Limit, short *AutoReset,
                 The function permits to read the configuration of the output lines.
 */
 CAENVME_API
-CAENVME_GetOutputConf(int32_t Handle, CVOutputSelect OutSel, CVIOPolarity *OutPol,
+CAENVME_GetOutputConf(long Handle, CVOutputSelect OutSel, CVIOPolarity *OutPol,
                       CVLEDPolarity *LEDPol, CVIOSources *Source);
 
 /*
@@ -780,7 +749,7 @@ CAENVME_GetOutputConf(int32_t Handle, CVOutputSelect OutSel, CVIOPolarity *OutPo
                 The function permits to read the configuration of the input lines.
 */
 CAENVME_API
-CAENVME_GetInputConf(int32_t Handle, CVInputSelect InSel, CVIOPolarity *InPol,
+CAENVME_GetInputConf(long Handle, CVInputSelect InSel, CVIOPolarity *InPol,
                      CVLEDPolarity *LEDPol);
 
 /*
@@ -798,7 +767,7 @@ CAENVME_GetInputConf(int32_t Handle, CVInputSelect InSel, CVIOPolarity *InPol,
                 The function permits to read all internal registers.
 */
 CAENVME_API
-CAENVME_ReadRegister(int32_t Handle, CVRegisters Reg, unsigned short *Data);
+CAENVME_ReadRegister(long Handle, CVRegisters Reg, unsigned short *Data);
 
 /*
         CAENVME_WriteRegister
@@ -815,7 +784,7 @@ CAENVME_ReadRegister(int32_t Handle, CVRegisters Reg, unsigned short *Data);
                 The function permits to write to all internal registers.
 */
 CAENVME_API
-CAENVME_WriteRegister(int32_t Handle, CVRegisters Reg, unsigned short Data);
+CAENVME_WriteRegister(long Handle, CVRegisters Reg, unsigned short Data);
 
 /*
         CAENVME_SetOutputRegister
@@ -832,7 +801,7 @@ CAENVME_WriteRegister(int32_t Handle, CVRegisters Reg, unsigned short Data);
                 enum to compose and decoding the bit mask.
 */
 CAENVME_API
-CAENVME_SetOutputRegister(int32_t Handle, unsigned short Mask);
+CAENVME_SetOutputRegister(long Handle, unsigned short Mask);
 
 /*
         CAENVME_ClearOutputRegister
@@ -849,7 +818,7 @@ CAENVME_SetOutputRegister(int32_t Handle, unsigned short Mask);
                 enum to compose and decoding the bit mask.
 */
 CAENVME_API
-CAENVME_ClearOutputRegister(int32_t Handle, unsigned short Mask);
+CAENVME_ClearOutputRegister(long Handle, unsigned short Mask);
 
 /*
         CAENVME_PulseOutputRegister
@@ -867,7 +836,7 @@ CAENVME_ClearOutputRegister(int32_t Handle, unsigned short Mask);
                 decoding the bit mask.
 */
 CAENVME_API
-CAENVME_PulseOutputRegister(int32_t Handle, unsigned short Mask);
+CAENVME_PulseOutputRegister(long Handle, unsigned short Mask);
 
 /*
         CAENVME_ReadDisplay
@@ -885,7 +854,7 @@ CAENVME_PulseOutputRegister(int32_t Handle, unsigned short Mask);
                 value returned.
 */
 CAENVME_API
-CAENVME_ReadDisplay(int32_t Handle, CVDisplay *Value);
+CAENVME_ReadDisplay(long Handle, CVDisplay *Value);
 
 /*
         CAENVME_SetArbiterType
@@ -902,7 +871,7 @@ CAENVME_ReadDisplay(int32_t Handle, CVDisplay *Value);
                 The function sets the behaviour of the VME bus arbiter on the module.
 */
 CAENVME_API
-CAENVME_SetArbiterType(int32_t Handle, CVArbiterTypes Value);
+CAENVME_SetArbiterType(long Handle, CVArbiterTypes Value);
 
 /*
         CAENVME_SetRequesterType
@@ -919,7 +888,7 @@ CAENVME_SetArbiterType(int32_t Handle, CVArbiterTypes Value);
                 The function sets the behaviour of the VME bus requester on the module.
 */
 CAENVME_API
-CAENVME_SetRequesterType(int32_t Handle, CVRequesterTypes Value);
+CAENVME_SetRequesterType(long Handle, CVRequesterTypes Value);
 
 /*
         CAENVME_SetReleaseType
@@ -936,7 +905,7 @@ CAENVME_SetRequesterType(int32_t Handle, CVRequesterTypes Value);
                 The function sets the release policy of the VME bus on the module.
 */
 CAENVME_API
-CAENVME_SetReleaseType(int32_t Handle, CVReleaseTypes Value);
+CAENVME_SetReleaseType(long Handle, CVReleaseTypes Value);
 
 /*
         CAENVME_SetBusReqLevel
@@ -954,7 +923,7 @@ CAENVME_SetReleaseType(int32_t Handle, CVReleaseTypes Value);
                 the module.
 */
 CAENVME_API
-CAENVME_SetBusReqLevel(int32_t Handle, CVBusReqLevels Value);
+CAENVME_SetBusReqLevel(long Handle, CVBusReqLevels Value);
 
 /*
         CAENVME_SetTimeout
@@ -971,7 +940,7 @@ CAENVME_SetBusReqLevel(int32_t Handle, CVBusReqLevels Value);
                 The function sets the specified VME bus timeout on the module.
 */
 CAENVME_API
-CAENVME_SetTimeout(int32_t Handle, CVVMETimeouts Value);
+CAENVME_SetTimeout(long Handle, CVVMETimeouts Value);
 
 /*
         CAENVME_SetLocationMonitor
@@ -991,7 +960,7 @@ CAENVME_SetTimeout(int32_t Handle, CVVMETimeouts Value);
                 The function sets the Location Monitor.
 */
 CAENVME_API
-CAENVME_SetLocationMonitor(int32_t Handle, uint32_t Address, CVAddressModifier Am,
+CAENVME_SetLocationMonitor(long Handle, unsigned long Address, CVAddressModifier Am,
                            short Write, short Lword, short Iack);
 /*
         CAENVME_SetFIFOMode
@@ -1009,7 +978,7 @@ CAENVME_SetLocationMonitor(int32_t Handle, uint32_t Address, CVAddressModifier A
                 addresses are not incremented.
 */
 CAENVME_API
-CAENVME_SetFIFOMode(int32_t Handle, short Value);
+CAENVME_SetFIFOMode(long Handle, short Value);
 
 /*
         CAENVME_GetArbiterType
@@ -1026,7 +995,7 @@ CAENVME_SetFIFOMode(int32_t Handle, short Value);
                 The function get the type of VME bus arbiter implemented on the module.
 */
 CAENVME_API
-CAENVME_GetArbiterType(int32_t Handle, CVArbiterTypes *Value);
+CAENVME_GetArbiterType(long Handle, CVArbiterTypes *Value);
 
 /*
         CAENVME_GetRequesterType
@@ -1043,7 +1012,7 @@ CAENVME_GetArbiterType(int32_t Handle, CVArbiterTypes *Value);
                 The function get the type of VME bus requester implemented on the module.
 */
 CAENVME_API
-CAENVME_GetRequesterType(int32_t Handle, CVRequesterTypes *Value);
+CAENVME_GetRequesterType(long Handle, CVRequesterTypes *Value);
 
 /*
         CAENVME_GetReleaseType
@@ -1060,7 +1029,7 @@ CAENVME_GetRequesterType(int32_t Handle, CVRequesterTypes *Value);
                 The function get the type of VME bus release implemented on the module.
 */
 CAENVME_API
-CAENVME_GetReleaseType(int32_t Handle, CVReleaseTypes *Value);
+CAENVME_GetReleaseType(long Handle, CVReleaseTypes *Value);
 
 /*
         CAENVME_GetBusReqLevel
@@ -1078,7 +1047,7 @@ CAENVME_GetReleaseType(int32_t Handle, CVReleaseTypes *Value);
                 the module.
 */
 CAENVME_API
-CAENVME_GetBusReqLevel(int32_t Handle, CVBusReqLevels *Value);
+CAENVME_GetBusReqLevel(long Handle, CVBusReqLevels *Value);
 
 /*
         CAENVME_GetTimeout
@@ -1094,7 +1063,7 @@ CAENVME_GetBusReqLevel(int32_t Handle, CVBusReqLevels *Value);
                 The function sets the specified VME bus timeout on the module.
 */
 CAENVME_API
-CAENVME_GetTimeout(int32_t Handle, CVVMETimeouts *Value);
+CAENVME_GetTimeout(long Handle, CVVMETimeouts *Value);
 
 /*
         CAENVME_GetFIFOMode
@@ -1111,7 +1080,7 @@ CAENVME_GetTimeout(int32_t Handle, CVVMETimeouts *Value);
                 block transfer cycles is enabled (0) or disabled (!=0).
 */
 CAENVME_API
-CAENVME_GetFIFOMode(int32_t Handle, short *Value);
+CAENVME_GetFIFOMode(long Handle, short *Value);
 
 /*
         CAENVME_SystemReset
@@ -1126,7 +1095,7 @@ CAENVME_GetFIFOMode(int32_t Handle, short *Value);
                 The function performs a system reset on the module.
 */
 CAENVME_API
-CAENVME_SystemReset(int32_t Handle);
+CAENVME_SystemReset(long Handle);
 
 /*
         CAENVME_ResetScalerCount
@@ -1141,7 +1110,7 @@ CAENVME_SystemReset(int32_t Handle);
                 The function resets the counter of the scaler..
 */
 CAENVME_API
-CAENVME_ResetScalerCount(int32_t Handle);
+CAENVME_ResetScalerCount(long Handle);
 
 /*
         CAENVME_EnableScalerGate
@@ -1156,7 +1125,7 @@ CAENVME_ResetScalerCount(int32_t Handle);
                 The function enables the gate of the scaler.
 */
 CAENVME_API
-CAENVME_EnableScalerGate(int32_t Handle);
+CAENVME_EnableScalerGate(long Handle);
 
 /*
         CAENVME_DisableScalerGate
@@ -1171,7 +1140,7 @@ CAENVME_EnableScalerGate(int32_t Handle);
                 The function disables the gate of the scaler.
 */
 CAENVME_API
-CAENVME_DisableScalerGate(int32_t Handle);
+CAENVME_DisableScalerGate(long Handle);
 
 /*
         CAENVME_StartPulser
@@ -1188,7 +1157,7 @@ CAENVME_DisableScalerGate(int32_t Handle);
                 pulser is configured for manual/software operation.
 */
 CAENVME_API
-CAENVME_StartPulser(int32_t Handle, CVPulserSelect PulSel);
+CAENVME_StartPulser(long Handle, CVPulserSelect PulSel);
 
 /*
         CAENVME_StopPulser
@@ -1205,7 +1174,7 @@ CAENVME_StartPulser(int32_t Handle, CVPulserSelect PulSel);
                 pulser is configured for manual/software operation.
 */
 CAENVME_API
-CAENVME_StopPulser(int32_t Handle, CVPulserSelect PulSel);
+CAENVME_StopPulser(long Handle, CVPulserSelect PulSel);
 
 /*
         CAENVME_WriteFlashPage
@@ -1222,7 +1191,7 @@ CAENVME_StopPulser(int32_t Handle, CVPulserSelect PulSel);
                 The function writes the data into the specified flash page.
 */
 CAENVME_API
-CAENVME_WriteFlashPage(int32_t Handle, unsigned char *Data, int PageNum);
+CAENVME_WriteFlashPage(long Handle, unsigned char *Data, int PageNum);
 
 /*
         CAENVME_ReadFlashPage
@@ -1239,7 +1208,7 @@ CAENVME_WriteFlashPage(int32_t Handle, unsigned char *Data, int PageNum);
                 The function reads the data from the specified flash page.
 */
 CAENVME_API
-CAENVME_ReadFlashPage(int32_t Handle, unsigned char *Data, int PageNum);
+CAENVME_ReadFlashPage(long Handle, unsigned char *Data, int PageNum);
 
 /*
         CAENVME_EraseFlashPage
@@ -1255,7 +1224,7 @@ CAENVME_ReadFlashPage(int32_t Handle, unsigned char *Data, int PageNum);
                 The function erases the specified flash page.
 */
 CAENVME_API
-CAENVME_EraseFlashPage(int32_t Handle, int Pagenum);
+CAENVME_EraseFlashPage(long Handle, int Pagenum);
 
 #ifdef LINUX
 /*
@@ -1281,7 +1250,7 @@ CAENVME_EraseFlashPage(int32_t Handle, int Pagenum);
                 call to a CAENVMElib function with the same handle.
 */
 CAENVME_API
-CAENVME_BLTReadAsync(int32_t Handle, uint32_t Address, void *Buffer,
+CAENVME_BLTReadAsync(long Handle, unsigned long Address, void *Buffer,
                      int Size, CVAddressModifier AM, CVDataWidth DW);
 
 /*
@@ -1301,7 +1270,7 @@ CAENVME_BLTReadAsync(int32_t Handle, uint32_t Address, void *Buffer,
                 This function can be used only on Linux platforms.
 */
 CAENVME_API
-CAENVME_BLTReadWait(int32_t Handle, int *Count);
+CAENVME_BLTReadWait(long Handle, int *Count);
 
 #endif
 

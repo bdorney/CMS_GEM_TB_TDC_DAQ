@@ -18,19 +18,13 @@
 #ifndef __CAENVMETYPES_H
 #define __CAENVMETYPES_H
 
-/* Commented out by J.S. Graulich
-  #ifdef LINUX
-  #define CAEN_BYTE       unsigned char
-  #define CAEN_BOOL       int
-  #else
-  #define CAEN_BYTE       byte
-  #define CAEN_BOOL       VARIANT_BOOL
-  #endif
-*/
-
+//#ifdef LINUX
 #define CAEN_BYTE       unsigned char
 #define CAEN_BOOL       int
-
+//#else
+//#define CAEN_BYTE       byte
+//#define CAEN_BOOL       VARIANT_BOOL
+//#endif
 
 /*
         CAEN VME bridges.
@@ -111,7 +105,8 @@ typedef enum CVErrorCodes {
         cvBusError      = -1,           /* VME bus error during the cycle               */
         cvCommError     = -2,           /* Communication error                          */
         cvGenericError  = -3,           /* Unspecified error                            */
-        cvInvalidParam  = -4            /* Invalid parameter                            */
+        cvInvalidParam  = -4,           /* Invalid parameter                            */
+        cvTimeoutError  = -5,           /* Timeout error                                */
 } CVErrorCodes;
 
 /*
@@ -336,8 +331,5 @@ typedef struct CVDisplay {
         CAEN_BOOL cvBR;       /* Bus Request signal                           */
         CAEN_BOOL cvBG;       /* Bus Grant signal                             */
 } CVDisplay;
-
-
-#define CAENVME_API CVErrorCodes
 
 #endif // __CAENVMETYPES_H

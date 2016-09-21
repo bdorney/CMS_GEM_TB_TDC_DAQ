@@ -20,17 +20,17 @@
 #ifndef __CAENVMEOSLIB_H
 #define __CAENVMEOSLIB_H
 
-#ifdef WIN32
+//#ifdef WIN32
 
-#include <windows.h>
-#include <winioctl.h>
+//#include <windows.h>
+//#include <winioctl.h>
 
-#define CAENVME_API CVErrorCodes __stdcall
+//#define CAENVME_API CVErrorCodes __stdcall
 
-#else   // WIN32
+//#else   // WIN32
 
 #define CAENVME_API CVErrorCodes
 
-#endif  // WIN32
+//#endif  // WIN32
 
 #endif  // __CAENVMEOSLIB_H

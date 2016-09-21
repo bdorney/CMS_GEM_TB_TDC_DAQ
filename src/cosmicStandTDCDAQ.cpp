@@ -111,12 +111,12 @@ int main( int argc_, char * argv_[] ){
     ManagerDAQ daqManager;
     
     daqManager.setRunSetup(rSetup);
-    daqManager.initialize();
-    daqManager.configure();
+    daqManager.daqInitialize();
+    daqManager.daqConfigure();
     
     //Run the DAQ Manager
     //------------------------------------------------------
-    daqManager.startRun();
+    daqManager.daqStartRun();
     
     return 0;
 } //End main()

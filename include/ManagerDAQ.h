@@ -17,10 +17,12 @@
 #include <string>
 #include <thread>
 #include <time.h>
+#include <utility>
 
 //Framework Includes
 #include "HardwareCrateVME.h"
 #include "IDaqVmeTypes.h"
+#include "IDaqV775.h"
 #include "QualityControlUtilityFunctions.h"
 #include "TimingRunSetup.h"
 
@@ -36,28 +38,23 @@ namespace QualityControl {
             //------------------------------------------------------------------------------------------------------------------------------------------
             
             //Actions - Methods that Do Something
-            //------------------------------------------------------------------------------------------------------------------------------------------
-            //Initialize DAQ chain
-            virtual void initialize();
-            
-            //Configure DAQ chain
-            virtual void configure();
-            
-            //Release DAQ chain
-            virtual void release();
-            
-            //start taking Data
-            virtual void startRun();
-            
-            //Stop taking data
-            virtual bool stopRun(int iAcquiredEvt, int iRequestedEvt);
+            //------------------------------------------------------------------------------------------------------------------------------------------            
+            virtual void daqConfigure();					//Configure DAQ chain
+            virtual void daqInitialize();					//Initialize DAQ chain
+            virtual void daqRelease();						//Release DAQ chain
+            virtual void daqStartRun();						//start taking Data
+            virtual bool daqStopRun(int iAcquiredEvt, int iRequestedEvt);	//stop taking data
             
             //Getters - Methods that Get (i.e. Return) Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-            
+            //Converts Data Words to time stamps
+            virtual std::map<std::string, std::vector<std::pair<int, float> > > getConvertedDataRAW2DIGI(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
+
             //Printers - Methods that Print Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-            
+	    template<typename DataType>
+	    void printData(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex);
+
             //Setters - Methods that Set Something
             //------------------------------------------------------------------------------------------------------------------------------------------
             virtual void setRunSetup(Timing::RunSetup inputRunSetup){
@@ -74,7 +71,7 @@ namespace QualityControl {
             
             //Getters - Methods that Get (i.e. Return) Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-            
+
             //Printers - Methods that Print Something
             //------------------------------------------------------------------------------------------------------------------------------------------
             
@@ -87,7 +84,8 @@ namespace QualityControl {
             
             QualityControl::Timing::HardwareCrateVME crate_VME;
             
-            std::map<uint32_t, std::vector<uint32_t> > m_map_vecTDCData; //Key -> Base Addr; Value -> Vector of Data Words
+            std::map<std::string, std::vector<uint32_t> > m_map_vecTDCData; //Key -> Base Addr; Value -> Vector of Data Words
+
             
         }; //End Class ManagerDAQ
     } //End namespace Timing

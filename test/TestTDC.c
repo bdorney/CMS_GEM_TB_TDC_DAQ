@@ -1,8 +1,8 @@
 //CAEN Boards
-//#include "IDaqVmeInterface.hh"
-#include "IDaqV513.hh"
-#include "IDaqV775.hh"
-#include "IDaqV792.hh"
+//#include "IDaqVmeInterface.h"
+#include "IDaqV513.h"
+#include "IDaqV775.h"
+#include "IDaqV792.h"
 
 //C++ Includes
 #include <algorithm>        //transform

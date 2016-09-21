@@ -18,9 +18,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <malloc.h> //Linux?
-#include <malloc/malloc.h> //Max OS X?
-//#include "CAENVMEoslib.h" // Commented out by J.S. Graulich
+#include <malloc.h> //Linux?
+//#include <malloc/malloc.h> //Max OS X?
+#include "CAENVMEoslib.h" // Commented out by J.S. Graulich
 #include "CAENVMEtypes.h"
 
 #ifdef __cplusplus

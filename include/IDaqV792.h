@@ -1,8 +1,8 @@
 #ifndef __IDAQV792_H_
 #define __IDAQV792_H_
 
-#include <IDaqVmeTypes.hh>
-#include <IDaqVmeModule.hh>
+#include <IDaqVmeTypes.h>
+#include <IDaqVmeModule.h>
 
 class IDaqV792 : public IDaqVmeModule< uint32_t, uint32_t >
 {

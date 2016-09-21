@@ -2,6 +2,7 @@
 #define __IDAQVMEINTERFACE_H_
 
 #include "IDaqVmeTypes.h"
+//#include "CAENVMElib.h"
 
 class IDaqVmeInterface {
 	public:
@@ -14,6 +15,11 @@ class IDaqVmeInterface {
 		//Reset I/F
 		void Reset();
 		
+		//Link
+		void setBoardNumber( short aBoardNum = 0 ){ boardNum = aBoardNum; return; };
+		void setLinkNumber( short aLink = 0) { link = aLink; return; };
+		void setModuleType( IDaqVmeModuleType aModule = idmV2718 ){ module = aModule; return; };
+
 		// Read functions
         virtual void Read( uint32_t aAddress, uint32_t &aData);
         virtual void Read( uint32_t aAddress, uint16_t &aData);
