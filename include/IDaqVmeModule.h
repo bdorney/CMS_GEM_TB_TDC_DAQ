@@ -110,7 +110,7 @@ public:
     void CheckRegister( const AddressType &inputAddr, RegSize_t &RegVal ){
         AddressType addr = m_baseAddr + inputAddr;
         RegSize_t tempRegVal;
-        m_vmeInt->Read( addr, RegVal );
+        m_vmeInt->Read<RegSize_t>( addr, RegVal );
         m_vmeStatus = m_vmeInt->GetStatus();
         if ( m_vmeStatus == IDaqSuccess ) RegVal = tempRegVal;
         
@@ -128,7 +128,7 @@ public:
     template<typename RegSize_t>
     void SetRegister( const AddressType &inputAddr, const RegSize_t &RegData, RegSize_t &RegVal ){
         AddressType addr = m_baseAddr + inputAddr;
-        m_vmeInt->Write( addr, RegData );
+        m_vmeInt->Write<RegSize_t>( addr, RegData );
         m_vmeStatus = m_vmeInt->GetStatus();
         if ( m_vmeStatus == IDaqSuccess ) RegVal = RegData;
         
@@ -147,7 +147,7 @@ public:
         m_vmeStatus = IDaqCommError;
         if ( m_vmeInt ) {
             //m_vmeInt->ReadBLT( m_baseAddr + inputAddr, (*m_data)[ 0 ], nw, m_nWordRead );
-            m_vmeInt->ReadBLT( m_baseAddr + inputAddr, (m_data.get())[ 0 ], nw, m_nWordRead );
+            m_vmeInt->ReadBLT<DataType>( m_baseAddr + inputAddr, (m_data.get())[ 0 ], nw, m_nWordRead );
             m_vmeStatus = m_vmeInt->GetStatus();
             //if ( status != IDaqSuccess ) _nWordRead = nw; else _nWordRead = 0;
             //ret = _vmeInt->ReadBLT( _BA + ad, _outputBuffer[0], nw );

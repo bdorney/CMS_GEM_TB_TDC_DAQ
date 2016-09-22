@@ -3,6 +3,7 @@
 
 //C++ Includes
 #include <chrono>
+#include <memory>
 #include <thread>
 
 //Framework Includes
@@ -76,7 +77,8 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		V775ReadoutMode  m_modeReadout;
 		
 		uint16_t m_uiPed;
-		uint16_t m_uiThreshold[ 32 ];
+		//uint16_t m_uiThreshold[ 32 ];
+		std::shared_ptr<uint16_t> m_uiThreshold;
 		uint16_t m_geoAddr;
 		
 		uint16_t m_regCtrl;     //Control Reg

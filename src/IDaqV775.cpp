@@ -13,7 +13,7 @@ using std::showbase;
 using std::vector;
 
 //Relying on m_data to be initialized from base class...we'll see if this is the case
-IDaqV775::IDaqV775(){
+IDaqV775::IDaqV775() : m_uiThreshold(new uint16_t[32]) {
 	m_vmeKind = idmkAdc;
     m_vmeType = idmV775;
 	SetName( "CAEN V775 TDC" );
@@ -35,7 +35,7 @@ IDaqV775::~IDaqV775(){
 void IDaqV775::SetGeoAddress( uint16_t inputAddr ){
 	//uint32_t  addr = m_baseAddr + V775_GEO_ADDRESS;
 	//m_vmeInt->Write( addr, inputAddr );
-    m_vmeInt->Write( m_baseAddr + V775_GEO_ADDRESS, inputAddr );
+    m_vmeInt->Write<uint16_t>( m_baseAddr + V775_GEO_ADDRESS, inputAddr );
     m_vmeStatus = m_vmeInt->GetStatus();
 	if ( m_vmeStatus == IDaqSuccess) CheckGeoAddress();
     
@@ -77,14 +77,14 @@ void IDaqV775::SoftwareReset(){
 	cout << "[V775] Performing software reset. Please wait...";
 	//addr = m_baseAddr + V775_BIT_SET1;
 	//m_vmeInt->Write( addr, (uint16_t)V775_BS1_SoftReset );
-    m_vmeInt->Write( m_baseAddr + V775_BIT_SET1, (uint16_t)V775_BS1_SoftReset );
+    m_vmeInt->Write<uint16_t>( m_baseAddr + V775_BIT_SET1, (uint16_t)V775_BS1_SoftReset );
     m_vmeStatus = m_vmeInt->GetStatus();
 
     std::this_thread::sleep_for (std::chrono::seconds(1));
 	if( m_vmeStatus == IDaqSuccess ){
 		//addr = m_baseAddr + V775_BIT_CLEAR1;
 		//m_vmeInt->Write( addr, (uint16_t)V775_BS1_SoftReset );
-        m_vmeInt->Write( m_baseAddr + V775_BIT_CLEAR1, (uint16_t)V775_BS1_SoftReset );
+        m_vmeInt->Write<uint16_t>( m_baseAddr + V775_BIT_CLEAR1, (uint16_t)V775_BS1_SoftReset );
         m_vmeStatus = m_vmeInt->GetStatus();
 	}
 
@@ -159,7 +159,7 @@ void IDaqV775::ClearEventCount(){
 	uint16_t uiRegData = 0;
 	//uint16_t d2 = 0;
     //SetRegister( V775_EVENT_COUNTER_RESET, d1, d2 );
-    SetRegister( V775_EVENT_COUNTER_RESET, (uint16_t) 0, uiRegData );
+    SetRegister<uint16_t>( V775_EVENT_COUNTER_RESET, (uint16_t) 0, uiRegData );
     
     return;
 }
@@ -225,7 +225,7 @@ void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeRe
             //Enable Berr Mode
             CheckRegister( V775_CONTROL_REGISTER1, m_regCtrl );
             uiRegData = m_regCtrl | V775_Control_BerrEnable;
-            SetRegister( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
+            SetRegister<uint16_t>( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
             
             cout << "Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
             break;
@@ -237,7 +237,7 @@ void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeRe
             //Disable Berr Mode
             CheckRegister( V775_CONTROL_REGISTER1, m_regCtrl );
             uiRegData = m_regCtrl & ~V775_Control_BerrEnable;
-            SetRegister( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
+            SetRegister<uint16_t>( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
             
             cout << "Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
             break;
@@ -288,8 +288,8 @@ void IDaqV775::CheckThresholds(){
 	//uint32_t  addr;
     for ( unsigned int iChIdx = 0; iChIdx < 32; ++iChIdx ) {
         //addr = m_baseAddr + V775_THRESHOLDS + 2 * iChIdx ;
-        //m_vmeInt->Read( addr, m_uiThreshold[ iChIdx ] );
-        m_vmeInt->Read( (m_baseAddr + V775_THRESHOLDS + 2 * iChIdx), m_uiThreshold[ iChIdx ] );
+        //m_vmeInt->Read( addr, (m_uiThreshold.get())[ iChIdx ] );
+        m_vmeInt->Read<uint16_t>( (m_baseAddr + V775_THRESHOLDS + 2 * iChIdx), (m_uiThreshold.get())[ iChIdx ] );
         m_vmeStatus = m_vmeInt->GetStatus();
     }
     
@@ -298,12 +298,12 @@ void IDaqV775::CheckThresholds(){
 
 int16_t IDaqV775::GetThresholdValue( unsigned int uiInputCh ){
 	if ( uiInputCh > 31 ) return -1;
-    return ( int16_t )( m_uiThreshold[ uiInputCh ] & 0x00FF );
+    return ( int16_t )( (m_uiThreshold.get())[ uiInputCh ] & 0x00FF );
 }
 
 IDaqSwitch IDaqV775::GetChannelStatus( unsigned int uiInputCh){
 	if ( uiInputCh > 31 ) return IDaqUndefined;
-    return ( IDaqSwitch )( ~( m_uiThreshold[ uiInputCh ] & 0x0100 ) );
+    return ( IDaqSwitch )( ~( (m_uiThreshold.get())[ uiInputCh ] & 0x0100 ) );
 }
 
 void IDaqV775::SetThresholdValue( unsigned int uiInputCh, unsigned int uiInputThresh ){
@@ -318,12 +318,12 @@ void IDaqV775::SetThresholdValue( unsigned int uiInputCh, unsigned int uiInputTh
     if ( uiInputCh == 32 ) { // all channels
         for( unsigned int iChIdx = 0; iChIdx < 32; ++iChIdx ){
             //addr = m_baseAddr + V775_THRESHOLDS + 2 * iChIdx ;
-            uiRegValThresh = ( ( m_uiThreshold[ iChIdx ] & 0x0100 ) | ( uiInputThresh & 0x00FF ) );
+            uiRegValThresh = ( ( (m_uiThreshold.get())[ iChIdx ] & 0x0100 ) | ( uiInputThresh & 0x00FF ) );
             //m_vmeInt->Write( addr, uiRegValThresh );
-            m_vmeInt->Write( (m_baseAddr + V775_THRESHOLDS + 2 * iChIdx), uiRegValThresh );
+            m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_THRESHOLDS + 2 * iChIdx), uiRegValThresh );
             m_vmeStatus = m_vmeInt->GetStatus();
             if ( m_vmeStatus == IDaqSuccess){
-                m_uiThreshold[ iChIdx ] = uiRegValThresh;
+                (m_uiThreshold.get())[ iChIdx ] = uiRegValThresh;
             }
             else{
                 break;
@@ -332,11 +332,11 @@ void IDaqV775::SetThresholdValue( unsigned int uiInputCh, unsigned int uiInputTh
     }
     else if ( uiInputCh < 32 ){
         //addr = m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh;
-        uiRegValThresh = ( ( m_uiThreshold[ uiInputCh ] & 0x0100 ) | ( uiInputThresh & 0x00FF ) );
+        uiRegValThresh = ( ( (m_uiThreshold.get())[ uiInputCh ] & 0x0100 ) | ( uiInputThresh & 0x00FF ) );
         //m_vmeInt->Write( addr, uiRegValThresh );
-        m_vmeInt->Write( (m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh), uiRegValThresh );
+        m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh), uiRegValThresh );
         m_vmeStatus = m_vmeInt->GetStatus();
-        if ( m_vmeStatus == IDaqSuccess) m_uiThreshold[ uiInputCh ] = uiRegValThresh;
+        if ( m_vmeStatus == IDaqSuccess) (m_uiThreshold.get())[ uiInputCh ] = uiRegValThresh;
     }
     else{
         m_vmeStatus = IDaqInvalidParam;
@@ -355,16 +355,16 @@ void IDaqV775::SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch 
                 for ( unsigned int iChIdx = 0; iChIdx < 32; ++iChIdx ) {
                     //addr = m_baseAddr + V775_THRESHOLDS + 2 * iChIdx;
                     if( inputSwitch == IDaqEnable ) {
-                        uiRegValThresh = ( m_uiThreshold[ iChIdx ] & 0x00FF );
+                        uiRegValThresh = ( (m_uiThreshold.get())[ iChIdx ] & 0x00FF );
                     }
                     else if ( inputSwitch == IDaqDisable ){
-                        uiRegValThresh = ( m_uiThreshold[ iChIdx ] | 0x0100 );
+                        uiRegValThresh = ( (m_uiThreshold.get())[ iChIdx ] | 0x0100 );
                     }
                     //m_vmeInt->Write( addr, uiRegValThresh );
-                    m_vmeInt->Write( (m_baseAddr + V775_THRESHOLDS + 2 * iChIdx), uiRegValThresh );
+                    m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_THRESHOLDS + 2 * iChIdx), uiRegValThresh );
                     m_vmeStatus = m_vmeInt->GetStatus();
                     if ( m_vmeStatus == IDaqSuccess ){
-                        m_uiThreshold[ iChIdx ] = uiRegValThresh;
+                        (m_uiThreshold.get())[ iChIdx ] = uiRegValThresh;
                     }
                     else{
                         //break;
@@ -381,11 +381,11 @@ void IDaqV775::SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch 
 		else if ( ( uiInputCh < 32 ) ) {
 			//addr = m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh;
 			if( inputSwitch == IDaqEnable ){
-				 uiRegValThresh = ( m_uiThreshold[ uiInputCh ] & 0x00FF );
+				 uiRegValThresh = ( (m_uiThreshold.get())[ uiInputCh ] & 0x00FF );
 				 cout << "Enabled channel " << uiInputCh;
 			}
 			else if ( inputSwitch == IDaqDisable ){							
-				uiRegValThresh = ( m_uiThreshold[ uiInputCh ] | 0x0100 );
+				uiRegValThresh = ( (m_uiThreshold.get())[ uiInputCh ] | 0x0100 );
 				cout << "Disabled channel " << uiInputCh;
 			}
             else {
@@ -394,10 +394,10 @@ void IDaqV775::SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch 
 				return;
 			}
 			//m_vmeInt->Write( addr, uiRegValThresh );
-            m_vmeInt->Write( (m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh), uiRegValThresh );
+            m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh), uiRegValThresh );
             m_vmeStatus = m_vmeInt->GetStatus();
             if ( m_vmeStatus == IDaqSuccess){
-                m_uiThreshold[ uiInputCh ] = uiRegValThresh;
+                (m_uiThreshold.get())[ uiInputCh ] = uiRegValThresh;
             }
 			cout << " Done." << endl;
 		} 
@@ -450,7 +450,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
             
 			int evCount = 0;
 			while( evCount < nAdcGate ){
-				m_vmeInt->Read( addr, uiRegValDataWord );
+				m_vmeInt->Read<uint32_t>( addr, uiRegValDataWord );
 				DataWordV775 dw( uiRegValDataWord );
 				if( dw.GetDataType() == (uint32_t)DWV775_EventHeader){
 					vec_uiInputData.push_back( uiRegValDataWord );
@@ -458,7 +458,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
                     //This seems like it is not right... (BLD)
                     unsigned int uiNChan4Readout = dw.GetNChannel() + 1;
 					for( unsigned int iChIdx = 0; iChIdx < uiNChan4Readout; ++iChIdx ){
-						m_vmeInt->Read( addr, uiRegValDataWord );
+						m_vmeInt->Read<uint32_t>( addr, uiRegValDataWord );
 						vec_uiInputData.push_back( uiRegValDataWord );
 					}
 				}
@@ -476,7 +476,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
 			if( nAdcGate > 0 ) {
 				for ( int iNEvt = 0; iNEvt < nAdcGate; ++iNEvt ){
 					ReadAndWriteOutputBuffer( vec_uiInputData, 34 );
-					SetRegister( V775_INCREMENT_EVENT, uiRegValAllZeros, uiRegValAllZeros );
+					SetRegister<uint16_t>( V775_INCREMENT_EVENT, uiRegValAllZeros, uiRegValAllZeros );
 				}
 				ClearEventCount();
 			}
@@ -525,7 +525,7 @@ uint16_t IDaqV775::Readout( FILE *fp, uint64_t &fs ){
             if (nAdcGate>0) {
                 for (int iNEvt=0; iNEvt< nAdcGate; iNEvt++){
                     ReadAndWriteOutputBuffer( fp, 34 );
-                    SetRegister( V775_INCREMENT_EVENT, uiRegValAllZeros, uiRegValAllZeros );
+                    SetRegister<uint16_t>( V775_INCREMENT_EVENT, uiRegValAllZeros, uiRegValAllZeros );
                 }
                 
                 ClearEventCount();
@@ -563,7 +563,7 @@ void IDaqV775::SetBitReg1( V775BitSet1Mask inputBitMask, IDaqSwitch inputSwitch 
         case IDaqEnable:
             //addr = m_baseAddr + V775_BIT_SET1;
             //m_vmeInt->Write( addr, uiRegValBitMask );
-            m_vmeInt->Write( (m_baseAddr + V775_BIT_SET1), uiRegValBitMask );
+            m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_BIT_SET1), uiRegValBitMask );
             m_vmeStatus = m_vmeInt->GetStatus();
             if ( m_vmeStatus == IDaqSuccess){
                 m_regBit1 = ( m_regBit1 | uiRegValBitMask );
@@ -573,7 +573,7 @@ void IDaqV775::SetBitReg1( V775BitSet1Mask inputBitMask, IDaqSwitch inputSwitch 
         case IDaqDisable:
             //addr = m_baseAddr + V775_BIT_CLEAR1;
             //m_vmeInt->Write( addr, uiRegValBitMask );
-            m_vmeInt->Write( (m_baseAddr + V775_BIT_CLEAR1), uiRegValBitMask );
+            m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_BIT_CLEAR1), uiRegValBitMask );
             m_vmeStatus = m_vmeInt->GetStatus();
             if ( m_vmeStatus == IDaqSuccess ){
                 m_regBit1 = ( m_regBit1 & ~uiRegValBitMask ) ;
@@ -604,7 +604,7 @@ void IDaqV775::SetBitReg2( V775BitSet2Mask inputBitMask, IDaqSwitch inputSwitch)
         case IDaqEnable:
             //addr = m_baseAddr + V775_BIT_SET2;
             //m_vmeInt->Write( addr, uiRegValBitMask );
-            m_vmeInt->Write( (m_baseAddr + V775_BIT_SET2), uiRegValBitMask );
+            m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_BIT_SET2), uiRegValBitMask );
             m_vmeStatus = m_vmeInt->GetStatus();
             if ( m_vmeStatus == IDaqSuccess ){
                 m_regBit2 = ( m_regBit2 | uiRegValBitMask );
@@ -614,7 +614,7 @@ void IDaqV775::SetBitReg2( V775BitSet2Mask inputBitMask, IDaqSwitch inputSwitch)
         case IDaqDisable:
             //addr = m_baseAddr + V775_BIT_CLEAR2;
             //m_vmeInt->Write( addr, uiRegValBitMask );
-            m_vmeInt->Write( (m_baseAddr + V775_BIT_CLEAR2), uiRegValBitMask );
+            m_vmeInt->Write<uint16_t>( (m_baseAddr + V775_BIT_CLEAR2), uiRegValBitMask );
             m_vmeStatus = m_vmeInt->GetStatus();
             if ( m_vmeStatus == IDaqSuccess){
                 m_regBit2 = ( m_regBit2 & ~uiRegValBitMask );
@@ -637,7 +637,7 @@ void IDaqV775::SetFullScaleRange( unsigned int uiInputFSR ){
         m_vmeStatus = m_vmeInt->GetStatus();
         
         if( m_vmeStatus == IDaqSuccess ){
-            cout << "[V775] Full Scale Range set to " << showbase << hex << uiInputFSR << dec << " = " << (double) 8.9/uiInputFSR << " [nsec/bin]." << endl;
+            cout << "[V775] Full Scale Range set to " << showbase << hex << GetFullScaleRange() << dec << " = " << (double) 8.9/GetFullScaleRange() << " [nsec/bin]." << endl;
         }
         else{
             cerr << "*** [V775] Full Scale Range error: " << (int) m_vmeStatus << endl;
@@ -653,7 +653,7 @@ void IDaqV775::SetFullScaleRange( unsigned int uiInputFSR ){
 unsigned int IDaqV775::GetFullScaleRange(){
     uint32_t addr = m_baseAddr + V775_FULL_SCALE_RANGE;
     uint16_t uiRegValFSR = 0;
-    m_vmeInt->Read( addr, uiRegValFSR );
+    m_vmeInt->Read<uint16_t>( addr, uiRegValFSR );
     m_vmeStatus = m_vmeInt->GetStatus();
     if ( m_vmeStatus == IDaqSuccess ){
         return uiRegValFSR;

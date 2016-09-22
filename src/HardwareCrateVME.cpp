@@ -17,11 +17,16 @@ using std::make_shared;
 using QualityControl::Timing::VMETypes;
 
 //Default Constructor
-QualityControl::Timing::HardwareCrateVME::HardwareCrateVME(){
-    m_vmeBridge = make_shared<IDaqVmeInterface>( IDaqVmeInterface(idmV2718, 0, 0, 0x0 ) );
+QualityControl::Timing::HardwareCrateVME::HardwareCrateVME() : 
+	m_vmeBridge( new IDaqVmeInterface(idmV2718, 0, 0, 0x0 ) ),
+	m_vmeIO( new IDaqV513){
 
-    IDaqV513 vmeIOBoard;
-    m_vmeIO	= make_shared<IDaqV513>( vmeIOBoard );
+	//placeholder
+
+    //m_vmeBridge = make_shared<IDaqVmeInterface>( IDaqVmeInterface(idmV2718, 0, 0, 0x0 ) );
+
+    //IDaqV513 vmeIOBoard;
+    //m_vmeIO	= make_shared<IDaqV513>( vmeIOBoard );
 } //End Default Constructor
 
 //Configure All VME Boards Initialized in initializeCrate()
@@ -43,9 +48,11 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
     //Configure - TDC
     //------------------------------------------------------
     for (auto iterVMEBoard = m_map_vmeTDC.begin(); iterVMEBoard != m_map_vmeTDC.end(); ++iterVMEBoard) {
+	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Initializing Board\n";
         (*iterVMEBoard).second->Initialize();
         
         //Set Common Stop Mode
+	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Configuring TDC Mode\n";
         (*iterVMEBoard).second->SetBitReg2( V775_BS2_StartStop, IDaqEnable );
         
 	//Set All Trig Mode
@@ -53,11 +60,18 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
 
         //Set Full Scale Range
 	    //int FullScaleSet = 0x5A;
+	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Setting Full Scale Range\n";
         (*iterVMEBoard).second->SetFullScaleRange( std::stol( m_rSetup.m_map_vmeBoards[(*iterVMEBoard).first].m_strFullScaleRange, nullptr, 0 ) ); //400ns window
         
+
+	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Performing Data Reset\n";
         (*iterVMEBoard).second->DataReset();
+
+	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Clearing Event Content\n";
         (*iterVMEBoard).second->ClearEventCount();
     }
+
+    cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - Crate Configured. Ready to use!\n";
     
     return;
 } //End QualityControl::Timing::HardwareCrateVME::configureCrate()

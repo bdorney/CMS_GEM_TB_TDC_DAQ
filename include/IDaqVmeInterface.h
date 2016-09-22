@@ -1,8 +1,14 @@
 #ifndef __IDAQVMEINTERFACE_H_
 #define __IDAQVMEINTERFACE_H_
 
+//C++ Includes
+#include <memory>
+
+//Framework Includes
 #include "IDaqVmeTypes.h"
 //#include "CAENVMElib.h"
+
+//ROOT Includes
 
 class IDaqVmeInterface {
 public:
