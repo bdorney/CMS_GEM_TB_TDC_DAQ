@@ -44,12 +44,15 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
     m_vmeIO->SetChannelStatusReg( 2, V513_Input, V513_Negative, V513_Glitched, V513_Transparent );
     m_vmeIO->Clear();
     m_vmeIO->SetOutput( 1, 0 ); //Set busy
-    
+    //m_vmeIO->SetOutput( 1, 1 ); //Drop busy
+    //m_vmeIO->Clear();
+
     //Configure - TDC
     //------------------------------------------------------
     for (auto iterVMEBoard = m_map_vmeTDC.begin(); iterVMEBoard != m_map_vmeTDC.end(); ++iterVMEBoard) {
 	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Initializing Board\n";
         (*iterVMEBoard).second->Initialize();
+	(*iterVMEBoard).second->SetIterLimit(10);
         
         //Set Common Stop Mode
 	cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Configuring TDC Mode\n";

@@ -26,6 +26,7 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
   		bool Evrdy();
    		bool IsPurged();
   		bool IsFull();
+		bool IsAlive(){ return !m_bIsDead;};
   	
   		uint16_t GetGeoAddress(){ return m_geoAddr; }
 		void SetGeoAddress( uint16_t inputAddr );
@@ -68,6 +69,8 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
   		void SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch );
   	
         int GetIterLimit(){ return m_iIterLimit; }
+	virtual void SetIterLimit(int iInputLim){ m_iIterLimit = iInputLim; return; };
+
         V775ReadoutMode GetReadoutMode(){ return m_modeReadout; }
 		void SetFullScaleRange( unsigned int uiInputFSR );
 		unsigned int GetFullScaleRange();
@@ -87,8 +90,6 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		uint16_t m_regStatus1;  //Status Reg 1
 		uint16_t m_regStatus2;  //Status Reg 2
 		
-		
-		
 		uint16_t m_uiEvtCountLow;
 		uint16_t m_uiEvtCountHigh;
 		
@@ -99,6 +100,7 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		uint16_t m_uiInterruptLevel;
 		uint16_t m_uiInterruptVector;
 		
+		bool m_bIsDead;
 		int m_iIterLimit;
 };
 

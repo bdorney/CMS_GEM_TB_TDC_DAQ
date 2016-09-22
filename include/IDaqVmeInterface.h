@@ -27,33 +27,33 @@ public:
     void setModuleType( IDaqVmeModuleType aModule = idmV2718 ){ m_vmeType = aModule; return; };
     
     // Read functions
-    //virtual void Read( uint32_t aAddress, uint32_t &aData);
-    //virtual void Read( uint32_t aAddress, uint16_t &aData);
-    template<typename RegSize_t>
+    virtual void Read( uint32_t aAddress, uint32_t &aData);
+    virtual void Read( uint32_t aAddress, uint16_t &aData);
+    /*template<typename RegSize_t>
     void Read( uint32_t aAddress, RegSize_t &aData){
         m_vmeStatus = (IDaqVmeCode)CAENVME_ReadCycle( m_lHandle, (unsigned long)aAddress, &aData, cvA32_U_DATA, cvD16);
         return;
-    };
+    };*/
     
-    //virtual void ReadBLT( uint32_t aAddress, uint16_t &aData, const uint16_t nData, uint16_t &nDataRead){};
-    //virtual void ReadBLT( uint32_t aAddress, uint32_t &aData, const uint16_t nData, uint16_t &nDataRead);
-    //virtual void ReadBLT( uint32_t aAddress, uint64_t &aData, const uint16_t nData, uint16_t &nDataRead);
-    template<typename RegSize_t>
+    virtual void ReadBLT( uint32_t aAddress, uint16_t &aData, const uint16_t nData, uint16_t &nDataRead);
+    virtual void ReadBLT( uint32_t aAddress, uint32_t &aData, const uint16_t nData, uint16_t &nDataRead);
+    virtual void ReadBLT( uint32_t aAddress, uint64_t &aData, const uint16_t nData, uint16_t &nDataRead);
+    /*template<typename RegSize_t>
     void ReadBLT( uint32_t aAddress, RegSize_t &aData, const uint16_t nData, uint16_t &nDataRead){
         int nbread( 0 );
         m_vmeStatus = (IDaqVmeCode)CAENVME_BLTReadCycle( m_lHandle, ( unsigned long )aAddress, &aData, nData * 8, cvA32_U_MBLT, cvD64,&nbread );
         nDataRead = nbread/ sizeof( aData );
         return;
-    };
+    };*/
     
     // Write functions
-    //virtual void Write( uint32_t aAddress, const uint32_t &aData);
-    //virtual void Write( uint32_t aAddress, const uint16_t &aData);
-    template<typename RegSize_t>
+    virtual void Write( uint32_t aAddress, const uint32_t &aData);
+    virtual void Write( uint32_t aAddress, const uint16_t &aData);
+    /*template<typename RegSize_t>
     void Write( uint32_t aAddress, const RegSize_t &aData){
         m_vmeStatus = ( IDaqVmeCode ) CAENVME_WriteCycle( m_lHandle, ( unsigned long ) aAddress, ( void* ) &aData, cvA32_U_DATA, cvD16 );
         return;
-    };
+    };*/
     
     virtual void WriteA24(uint32_t, const uint16_t&);
     //Status

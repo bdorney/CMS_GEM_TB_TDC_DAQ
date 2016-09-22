@@ -57,6 +57,9 @@ namespace QualityControl {
             
             //Disconnect from Crate
             virtual void releaseCrate(){
+		m_vmeIO->SetOutput( 1, 0 ); //Drop busy
+		m_vmeIO->Clear();
+
                 m_vmeBridge->Disconnect();
                 
                 return;

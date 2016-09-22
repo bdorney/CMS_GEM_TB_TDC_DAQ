@@ -163,6 +163,7 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
             for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard) { //Loop Over Defined TDC's
                 //Sleep if TDC is not ready
                 while ( !(*iterVMEBoard).second->DReady() || !(*iterVMEBoard).second->IsBusy() ) {
+		//while ( !(*iterVMEBoard).second->IsBusy() ) {
                     //if ( nanosleep( &rt1, &at1 ) != 0 ) cout << "Nanosleep failed" << endl;
                     nanosleep(&tspecSleepInterval, (struct timespec *)NULL);
                 } //End Loop While TDC Not Ready
@@ -209,7 +210,7 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
 
 			//cout<<"vec_GlobalEvt[0].m_map_TDCData.size() = " << vec_GlobalEvt[0].m_map_TDCData.size()<<endl;
 
-			//uiNEvt = uiNEvt + vec_GlobalEvt.size();
+			uiNEvt = uiNEvt + vec_GlobalEvt.size();
 			//uiNEvt++;
 
 			for(auto iterEvt = vec_GlobalEvt.begin(); iterEvt != vec_GlobalEvt.end(); ++iterEvt){

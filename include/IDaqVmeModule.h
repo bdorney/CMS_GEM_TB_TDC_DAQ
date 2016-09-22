@@ -17,7 +17,7 @@
 class IDaqVmeVirtualModule{
 
 public:
-    IDaqVmeVirtualModule() : m_vmeInt(new IDaqVmeInterface){};
+    IDaqVmeVirtualModule();
     virtual ~IDaqVmeVirtualModule(){
         m_vmeInt.reset();
         m_strName.clear();
@@ -39,33 +39,14 @@ public:
     virtual IDaqVmeCode GetStatus(){ return m_vmeStatus; };
     virtual std::string GetName(){ return m_strName; }
     virtual void SetName( std::string strInput ="Unknown Module" ){ m_strName = strInput; return; }
-    virtual void Connect( std::shared_ptr<IDaqVmeInterface> inputVmeInt ){
-        m_vmeInt = inputVmeInt ;
-        m_vmeStatus = IDaqCommError;
-        if ( m_vmeInt != nullptr) {
-            if ( ( m_vmeStatus = m_vmeInt->GetStatus() ) == IDaqSuccess )  m_bConnectStatus = true;
-        }
-        
-        return;
-    }
+    virtual void Connect( std::shared_ptr<IDaqVmeInterface> inputVmeInt );
 
-    virtual bool IsConnected(){
-        m_bConnectStatus = false;
-        if ( m_vmeInt != nullptr ) {
-            if ( m_vmeInt->GetStatus() == IDaqSuccess ) m_bConnectStatus = true;
-        }
-        else {
-            std::cout << " VME Interface is not defined " << std::endl;
-        }
-        
-        return m_bConnectStatus;
-    }
+    virtual bool IsConnected();
 
 protected:
     IDaqVmeCode m_vmeStatus;
     IDaqVmeModuleKind m_vmeKind;
     IDaqVmeModuleType m_vmeType;
-    //std::shared_ptr<IDaqVmeInterface> m_vmeInt(new IDaqVmeInterface() );
     std::shared_ptr<IDaqVmeInterface> m_vmeInt;
     std::string m_strName;
     bool m_bConnectStatus;
@@ -76,9 +57,14 @@ template <typename AddressType, typename DataType >
 class IDaqVmeModule : public IDaqVmeVirtualModule {
 public:
     IDaqVmeModule() : m_data(new DataType) {
-        m_vmeType = idmGenericModule;
-        m_vmeKind = idmkUnknown;
+	m_vmeStatus = IDaqSuccess;
+	m_vmeKind = idmkUnknown;
+    	m_vmeType = idmGenericModule;
+
         SetName();
+
+	m_bConnectStatus = false;
+	m_bInitStatus = false; 
     };
     
     virtual ~IDaqVmeModule(){
@@ -106,26 +92,39 @@ public:
         else return 0;
     };
     
-    template<typename RegSize_t>
+    /*template<typename RegSize_t>
     void CheckRegister( const AddressType &inputAddr, RegSize_t &RegVal ){
         AddressType addr = m_baseAddr + inputAddr;
         RegSize_t tempRegVal;
         m_vmeInt->Read<RegSize_t>( addr, RegVal );
+	//m_vmeInt->Read( addr, RegVal );
         m_vmeStatus = m_vmeInt->GetStatus();
         if ( m_vmeStatus == IDaqSuccess ) RegVal = tempRegVal;
         
         return;
-    };
+    };*/
+
+    void CheckRegister( const AddressType &inputAddr, uint16_t &regval ){
+	AddressType addr = m_baseAddr + inputAddr;
+	uint16_t tempRegVal;
+	m_vmeInt->Read( addr, tempRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+	if ( m_vmeStatus == IDaqSuccess ){ regval = tempRegVal;}
+
+	return;
+     };
     
-    /*void CheckRegister( const AddressType &aAddress, uint32_t &regval ){
-     AddressType addr = ba + aAddress;
-     uint32_t data;
-     vmeInt->Read( addr, data );
-     status = vmeInt->GetStatus();
-     if ( status == IDaqSuccess ) regval = data;
-     };*/
+    void CheckRegister( const AddressType &inputAddr, uint32_t &regval ){
+	AddressType addr = m_baseAddr + inputAddr;
+	uint32_t tempRegVal;
+	m_vmeInt->Read( addr, tempRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+	if ( m_vmeStatus == IDaqSuccess ){ regval = tempRegVal;}
+
+	return;
+     };
     
-    template<typename RegSize_t>
+    /*template<typename RegSize_t>
     void SetRegister( const AddressType &inputAddr, const RegSize_t &RegData, RegSize_t &RegVal ){
         AddressType addr = m_baseAddr + inputAddr;
         m_vmeInt->Write<RegSize_t>( addr, RegData );
@@ -133,21 +132,32 @@ public:
         if ( m_vmeStatus == IDaqSuccess ) RegVal = RegData;
         
         return;
+    };*/
+
+    void SetRegister( const AddressType &inputAddr, const uint16_t &RegData, uint16_t &RegVal ){
+        AddressType addr = m_baseAddr + inputAddr;
+        m_vmeInt->Write( addr, RegData );
+        m_vmeStatus = m_vmeInt->GetStatus();
+        if ( m_vmeStatus == IDaqSuccess ){ RegVal = RegData ;}
+
+	return;
     };
     
-    /*void SetRegister( const AddressType &aAddress, const uint32_t &aData, uint32_t &regval ){
-        AddressType addr = ba + aAddress;
-        vmeInt->Write( addr, aData );
-        status = vmeInt->GetStatus();
-        if ( status == IDaqSuccess ) regval = aData ;
-    };*/
+    void SetRegister( const AddressType &inputAddr, const uint32_t &RegData, uint32_t &RegVal ){
+        AddressType addr = m_baseAddr + inputAddr;
+        m_vmeInt->Write( addr, RegData );
+        m_vmeStatus = m_vmeInt->GetStatus();
+        if ( m_vmeStatus == IDaqSuccess ){ RegVal = RegData ;}
+
+	return;
+    };
     
     virtual void ReadOutputBuffer( const uint16_t &nw, const AddressType &inputAddr = 0 ){
         m_nWordRead = 0;
         m_vmeStatus = IDaqCommError;
         if ( m_vmeInt ) {
-            //m_vmeInt->ReadBLT( m_baseAddr + inputAddr, (*m_data)[ 0 ], nw, m_nWordRead );
-            m_vmeInt->ReadBLT<DataType>( m_baseAddr + inputAddr, (m_data.get())[ 0 ], nw, m_nWordRead );
+            m_vmeInt->ReadBLT( m_baseAddr + inputAddr, (m_data.get())[ 0 ], nw, m_nWordRead );
+            //m_vmeInt->ReadBLT<DataType>( m_baseAddr + inputAddr, (m_data.get())[ 0 ], nw, m_nWordRead );
             m_vmeStatus = m_vmeInt->GetStatus();
             //if ( status != IDaqSuccess ) _nWordRead = nw; else _nWordRead = 0;
             //ret = _vmeInt->ReadBLT( _BA + ad, _outputBuffer[0], nw );
@@ -190,11 +200,9 @@ public:
         return;
     };
 
-protected:
-    
+protected:    
     AddressType m_baseAddr;
     //DataType *  data;
-    //std::shared_ptr<DataType> m_data(new DataType() );
     std::shared_ptr<DataType> m_data;
     uint16_t    m_bufferSize;       // number of bytes in the buffer
     uint16_t    m_nWordRead;        // number of DataType words read

@@ -31,34 +31,39 @@ IDaqVmeInterface::~IDaqVmeInterface(){
     m_cvInLedPol.reset();
 }
 
-/*void IDaqVmeInterface::Read( uint32_t aAddress, uint32_t &aData){
+void IDaqVmeInterface::Read( uint32_t aAddress, uint32_t &aData){
 	m_vmeStatus = (IDaqVmeCode)CAENVME_ReadCycle( m_lHandle, (unsigned long)aAddress, &aData, cvA32_U_DATA, cvD32);
-}*/
+}
 
-/*void IDaqVmeInterface::Read( uint32_t aAddress, uint16_t &aData){
+void IDaqVmeInterface::Read( uint32_t aAddress, uint16_t &aData){
 	m_vmeStatus = (IDaqVmeCode)CAENVME_ReadCycle( m_lHandle, (unsigned long)aAddress, &aData, cvA32_U_DATA, cvD16);
-}*/
+}
 
-
-/*void IDaqVmeInterface::ReadBLT( uint32_t aAddress, uint32_t &aData, const uint16_t nData, uint16_t &nDataRead){
+void IDaqVmeInterface::ReadBLT( uint32_t aAddress, uint16_t &aData, const uint16_t nData, uint16_t &nDataRead){
 	int nbread(0);
   m_vmeStatus = (IDaqVmeCode)CAENVME_BLTReadCycle( m_lHandle, (unsigned long)aAddress, &aData, nData * 4, cvA32_U_BLT, cvD32, &nbread );
   nDataRead = nbread / sizeof( aData );
-}*/
+}
 
-/*void IDaqVmeInterface::ReadBLT( uint32_t aAddress, uint64_t &aData, const uint16_t nData, uint16_t &nDataRead){
+void IDaqVmeInterface::ReadBLT( uint32_t aAddress, uint32_t &aData, const uint16_t nData, uint16_t &nDataRead){
+	int nbread(0);
+  m_vmeStatus = (IDaqVmeCode)CAENVME_BLTReadCycle( m_lHandle, (unsigned long)aAddress, &aData, nData * 4, cvA32_U_BLT, cvD32, &nbread );
+  nDataRead = nbread / sizeof( aData );
+}
+
+void IDaqVmeInterface::ReadBLT( uint32_t aAddress, uint64_t &aData, const uint16_t nData, uint16_t &nDataRead){
 	int nbread( 0 );
   m_vmeStatus = (IDaqVmeCode)CAENVME_BLTReadCycle( m_lHandle, ( unsigned long )aAddress, &aData, nData * 8, cvA32_U_MBLT, cvD64,&nbread );
   nDataRead = nbread/ sizeof( aData );
-}*/
+}
 
-/*void IDaqVmeInterface::Write( uint32_t aAddress, const uint32_t &aData){
+void IDaqVmeInterface::Write( uint32_t aAddress, const uint32_t &aData){
 	m_vmeStatus = ( IDaqVmeCode ) CAENVME_WriteCycle( m_lHandle, ( unsigned long ) aAddress, ( void* ) &aData, cvA32_U_DATA, cvD32 );
-}*/
+}
 
-/*void IDaqVmeInterface::Write( uint32_t aAddress, const uint16_t &aData){
+void IDaqVmeInterface::Write( uint32_t aAddress, const uint16_t &aData){
 	m_vmeStatus = ( IDaqVmeCode ) CAENVME_WriteCycle( m_lHandle, ( unsigned long ) aAddress, ( void* ) &aData, cvA32_U_DATA, cvD16 );
-}*/
+}
 
 void IDaqVmeInterface::WriteA24( uint32_t aAddress, const uint16_t &aData){
   //  cout << "Writing A24 D16 ... " << endl;
