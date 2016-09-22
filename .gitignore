@@ -23,10 +23,12 @@
 ###################
 cosmicStandTDCDAQ
 *.o
+*.so
 
 # Misc #
 ########
 Makefile.old
+scripts/setupCosmicDAQ_local.sh
 
 # PDF FILES #
 #############

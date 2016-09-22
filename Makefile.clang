@@ -1,5 +1,4 @@
 # Define the compiler
-#CC = g++
 CC = clang++ #For Mac OSX > 10.9 ???
 
 # Define root-config 
@@ -14,9 +13,11 @@ INCLUDES = -I include/ -I$(ROOTSYS)/include/
 
 # Define any library paths in addition to "/usr/lib"
 LPATHS = -L $(ROOTSYS)/lib/
+#LPATHS = -L $(ROOTSYS)/lib/ /Users/dorney/Desktop/MyResearch/GitRepos/CMS_GEM_TB_TDC_DAQ/lib/
 
 # Define any libraries to link into executable
 #LIBS = -lSpectrum
+#LIBS = -lCAENVME
 
 # Define source files
 SOURCES =   src/QualityControlUtilityFunctions.cpp \

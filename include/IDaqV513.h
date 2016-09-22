@@ -4,6 +4,7 @@
 //C++ Includes
 #include <bitset>
 #include <chrono>
+#include <cstdio>
 #include <thread>
 
 //Framework Includes
@@ -21,15 +22,18 @@ class IDaqV513 : public IDaqVmeModule< uint32_t, uint16_t >
 		void Clear(); //Clear Input Register
 		void Reset(); //Reset Module
 		int CheckInputRegister();
-		int GetInput( const int aChannel );
-		void SetOutput( const int aChannel, const uint16_t aData );
-		void SetChannelStatusReg( int aChannel, V513ChannelDirection aChDir, V513ChannelPolarity aChPol, V513ChannelInputMode aChInMode, V513ChannelTransferMode  aChTransMode );
-		int GetChannelStatusReg( int aChannel );
-		int GetInputReg(){ CheckInputRegister(); return IOReg.to_ulong(); };
+		int GetInput( const int iInputCh );
+		void SetOutput( const int iInputCh, const uint16_t uiInputRegVal );
+		void SetChannelStatusReg( int iInputCh, V513ChannelDirection inputChDir, V513ChannelPolarity inputChPol, V513ChannelInputMode inputaChInMode, V513ChannelTransferMode inputChTransMode );
+		int GetChannelStatusReg( int iInputCh );
+		int GetInputReg(){
+            CheckInputRegister();
+            return m_IOReg.to_ulong();
+        };
 		void ClearStrobe();
 		
   private:
-    std::bitset<16> IOReg;
+    std::bitset<16> m_IOReg;
 };
 
 #endif

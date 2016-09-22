@@ -4,105 +4,116 @@ using std::bitset;
 using std::cout;
 using std::dec;
 using std::endl;
+using std::fwrite;
 using std::hex;
+using std::showbase;
 
 IDaqV513::IDaqV513(){
-	IOReg.reset();
+	m_IOReg.reset();
 	
 }
 
 IDaqV513::~IDaqV513(){
-	
+    m_vmeInt.reset();
+    m_data.reset();
+    m_strName.clear();
 }
 
 void IDaqV513::Clear(){
 	uint32_t addr;
-	uint16_t dummy( 1 );
-	addr = ba + V513_CLEAR_INPUT_REGISTER;
-	vmeInt->Write( addr, dummy );
-	status = vmeInt->GetStatus();
-	cout << "Status = " << status << endl;
-	IOReg.reset();
+	uint16_t uiRegVal( 1 );
+	addr = m_baseAddr + V513_CLEAR_INPUT_REGISTER;
+	m_vmeInt->Write( addr, uiRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+	cout << "Status = " << m_vmeStatus << endl;
+	m_IOReg.reset();
+    
+    return;
 }
 
 void IDaqV513::Reset(){
 	uint32_t addr;
-	uint16_t dummy( 1 );
+	uint16_t uiRegVal( 1 );
 	cout << "[V513] Performing software reset. Please wait...";
-	addr = ba + V513_MODULE_RESET;
-	vmeInt->Write( addr, dummy );
-	status = vmeInt->GetStatus();
-	//sleep( 1 );
+	addr = m_baseAddr + V513_MODULE_RESET;
+	m_vmeInt->Write( addr, uiRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
     std::this_thread::sleep_for (std::chrono::seconds(1));
-	if( status == 0 ) cout << " Done." << endl;
+	if( m_vmeStatus == 0 ) cout << " Done." << endl;
+    
+    return;
 }
 
 int IDaqV513::CheckInputRegister(){
 	uint32_t addr;
-	uint16_t data( 0 );
-	addr = ba + V513_INPUT_REGISTER;
-	vmeInt->Read( addr, data );
-	status = vmeInt->GetStatus();
-	//cout << "Input reg = 0x" << hex << data << dec << endl;
-	IOReg = data;
-	return data;
+	uint16_t uiRegVal( 0 );
+	addr = m_baseAddr + V513_INPUT_REGISTER;
+	m_vmeInt->Read( addr, uiRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+	m_IOReg = uiRegVal;
+	return uiRegVal;
 }
 
-int IDaqV513::GetInput( const int aChannel ){
+int IDaqV513::GetInput( const int iInputCh ){
 	this->CheckInputRegister();
-	return IOReg[ aChannel ];
+	return m_IOReg[ iInputCh ];
 }
 
-void IDaqV513::SetOutput( const int aChannel, const uint16_t aData ){
+void IDaqV513::SetOutput( const int iInputCh, const uint16_t uiInputRegVal ){
 	uint32_t addr;
-	uint16_t data( 0 );
-	IOReg[ aChannel ] = !!aData;
-	data = (uint16_t)IOReg.to_ulong();
+	uint16_t uiRegVal( 0 );
+	m_IOReg[ iInputCh ] = !!uiInputRegVal;
+	uiRegVal = (uint16_t)m_IOReg.to_ulong();
 	//cout << "Going to write 0x" << hex << data << dec << " into output register" << endl;
-	addr = ba + V513_OUTPUT_REGISTER;
-	vmeInt->Write( addr, data );
-	status = vmeInt->GetStatus();
+	addr = m_baseAddr + V513_OUTPUT_REGISTER;
+	m_vmeInt->Write( addr, uiRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+    
+    return;
 }
 
-void IDaqV513::SetChannelStatusReg( int aChannel, V513ChannelDirection aChDir, V513ChannelPolarity aChPol,
-				    V513ChannelInputMode aChInMode, V513ChannelTransferMode  aChTransMode ){
+void IDaqV513::SetChannelStatusReg( int iInputCh, V513ChannelDirection inputChDir,
+    V513ChannelPolarity inputChPol,
+    V513ChannelInputMode inputChInMode,
+    V513ChannelTransferMode  inputChTransMode ){
   uint32_t addr;
-  uint16_t data = this->GetChannelStatusReg( aChannel );
-  cout << hex << "data = " << data << dec << endl;
-  bitset<16> Reg = data;
+  uint16_t uiRegVal = this->GetChannelStatusReg( iInputCh );
+  cout << "data = " << showbase << hex << uiRegVal << dec << endl;
+  bitset<16> Reg = uiRegVal;
 
-  Reg[ 0 ] = !!aChDir;
-  Reg[ 1 ] = !!aChPol;
-  Reg[ 2 ] = !!aChInMode;
-  Reg[ 3 ] = !!aChTransMode;
+  Reg[ 0 ] = !!inputChDir;
+  Reg[ 1 ] = !!inputChPol;
+  Reg[ 2 ] = !!inputChInMode;
+  Reg[ 3 ] = !!inputChTransMode;
 
-  data = (uint16_t)Reg.to_ulong();
-  addr = ba + V513_CHANNEL_STATUS_REG_START + (2 * aChannel);
-  cout << "[V513] Setting reg @ addr " << hex << addr << " to " << data << dec << endl; 
+  uiRegVal = (uint16_t)Reg.to_ulong();
+  addr = m_baseAddr + V513_CHANNEL_STATUS_REG_START + (2 * iInputCh);
+  cout << "[V513] Setting reg @ addr " << showbase<< hex << addr << " to " << uiRegVal << dec << endl;
 
-  vmeInt->Write( addr, data );
-  status = vmeInt->GetStatus();	
-  cout << "Status = " << status << endl;
-  data = this->GetChannelStatusReg( aChannel );
-  cout << hex << "data = " << data << dec << endl;
+  m_vmeInt->Write( addr, uiRegVal );
+  m_vmeStatus = m_vmeInt->GetStatus();	
+  cout << "Status = " << m_vmeStatus << endl;
+  uiRegVal = this->GetChannelStatusReg( iInputCh );
+  cout << "data = " << showbase << hex << uiRegVal << dec << endl;
+    
+    return;
 }
 
-
-int IDaqV513::GetChannelStatusReg( int aChannel ){
-	uint32_t addr( ba + V513_CHANNEL_STATUS_REG_START + (2 * aChannel) );
-	uint16_t data( 0 );
-	cout << "[V513] Reading from address " << hex << addr << dec << endl;
-	vmeInt->Read( addr, data );
-	status = vmeInt->GetStatus();
-	return data;
+int IDaqV513::GetChannelStatusReg( int iInputCh ){
+	uint32_t addr( m_baseAddr + V513_CHANNEL_STATUS_REG_START + (2 * iInputCh) );
+	uint16_t uiRegVal( 0 );
+	cout << "[V513] Reading from address " << showbase << hex << addr << dec << endl;
+	m_vmeInt->Read( addr, uiRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+	return uiRegVal;
 }
 
 void IDaqV513::ClearStrobe(){
 	uint32_t addr;
-	uint16_t dummy( 1 );
-	addr = ba + V513_CLEAR_STROBE_BIT;
-	vmeInt->Write( addr, dummy );
-	status = vmeInt->GetStatus();
-	IOReg.reset();
+	uint16_t uiRegVal( 1 );
+	addr = m_baseAddr + V513_CLEAR_STROBE_BIT;
+	m_vmeInt->Write( addr, uiRegVal );
+	m_vmeStatus = m_vmeInt->GetStatus();
+	m_IOReg.reset();
 }
 

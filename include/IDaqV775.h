@@ -15,7 +15,7 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 {
 	public:
 		IDaqV775();
-		//virtual ~IDaqV775();
+		virtual ~IDaqV775();
 		
 		void DataReset();
   		void SoftwareReset();
@@ -26,8 +26,8 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
    		bool IsPurged();
   		bool IsFull();
   	
-  		uint16_t GetGeoAddress(){ return geoAddress; }
-		void SetGeoAddress( uint16_t aGeo );
+  		uint16_t GetGeoAddress(){ return m_geoAddr; }
+		void SetGeoAddress( uint16_t inputAddr );
 		void CheckGeoAddress();
   	
   		uint16_t GetEventCountLow();
@@ -41,68 +41,68 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		
 		
 		virtual void Initialize();
-		virtual void Initialize( V775AcqMode am, V775ReadoutMode rm, uint16_t ped, unsigned int th);
+		virtual void Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeReadout, uint16_t uiInputPed, unsigned int uiInputThresh);
 		
 		virtual void Arm();
-		virtual int Readout( FILE *fp, uint64_t &fs );
-        virtual int Readout( std::vector<uint32_t>& aData );
+		virtual uint16_t Readout( FILE *fp, uint64_t &fs );
+        virtual uint16_t Readout( std::vector<uint32_t>& vec_uiInputData );
 		
 		void CheckBitReg1();
+        void SetBitReg1( V775BitSet1Mask inputBitMask, IDaqSwitch inputSwitch );
   		uint16_t GetBitReg1();
-    		void SetBitReg1( V775BitSet1Mask bm, IDaqSwitch s );
 		
 		void CheckBitReg2();
+  		void SetBitReg2( V775BitSet2Mask inputBitMask, IDaqSwitch inputSwitch );
   		uint16_t GetBitReg2();
-  		void SetBitReg2( V775BitSet2Mask bm, IDaqSwitch s );
   	
-// 	void CheckPedestal(){ CheckRegister( V775_IPED, iPed ); }
-// 		void SetPedestal( uint16_t ped );
-//  	uint16_t GetPedestal(){return iPed;}
+        //void CheckPedestal(){ CheckRegister( V775_IPED, m_uiPed ); }
+        //void SetPedestal( uint16_t uiInputPed );
+        //uint16_t GetPedestal(){return m_uiPed;}
   	
   		void CheckThresholds();
-  		int16_t GetThresholdValue( unsigned int ch );
+  		int16_t GetThresholdValue( unsigned int uiInputCh );
   	
-  		IDaqSwitch GetChannelStatus( unsigned int ch);
-  		void SetThresholdValue( unsigned int ch, unsigned int th );
-  		void SetChannelStatus( unsigned int ch, IDaqSwitch s );
+  		IDaqSwitch GetChannelStatus( unsigned int uiInputCh);
+  		void SetThresholdValue( unsigned int uiInputCh, unsigned int uiInputThresh );
+  		void SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch );
   	
-  	int GetIterLimit(){ return iterLimit; }
-  	V775ReadoutMode GetReadoutMode(){ return readoutMode; }
-		void SetFullScaleRange( unsigned int aFullRange );
+        int GetIterLimit(){ return m_iIterLimit; }
+        V775ReadoutMode GetReadoutMode(){ return m_modeReadout; }
+		void SetFullScaleRange( unsigned int uiInputFSR );
 		unsigned int GetFullScaleRange();
   	
 	private:
-		V775AcqMode      acqMode;
-		V775ReadoutMode  readoutMode;
+		V775AcqMode      m_modeAcq;
+		V775ReadoutMode  m_modeReadout;
 		
-		uint16_t iPed;
-		uint16_t threshold[ 32 ];
-		uint16_t geoAddress;
+		uint16_t m_uiPed;
+		uint16_t m_uiThreshold[ 32 ];
+		uint16_t m_geoAddr;
 		
-		uint16_t controlReg;
-		uint16_t bitReg1;
-		uint16_t bitReg2;
-		uint16_t statusReg1;
-		uint16_t statusReg2;
+		uint16_t m_regCtrl;     //Control Reg
+		uint16_t m_regBit1;     //Bit Reg 1
+		uint16_t m_regBit2;     //Bit Reg 2
+		uint16_t m_regStatus1;  //Status Reg 1
+		uint16_t m_regStatus2;  //Status Reg 2
 		
 		
 		
-		uint16_t eventCountLow;
-		uint16_t eventCountHigh;
+		uint16_t m_uiEvtCountLow;
+		uint16_t m_uiEvtCountHigh;
 		
-		uint16_t fastClearWindowWidth;
-		uint16_t firmwareRevision;
+		uint16_t m_uiFastCLRWindowWidth;
+		uint16_t m_uifwRev;     //Firmware Revision
 		
-		uint16_t eventTrigger;
-		uint16_t interruptLevel;
-		uint16_t interruptVector;
+		uint16_t m_uiEvtTrig;
+		uint16_t m_uiInterruptLevel;
+		uint16_t m_uiInterruptVector;
 		
-		int iterLimit;
+		int m_iIterLimit;
 };
 
 class DataWordV775 : public DataWord< uint32_t > {
 
- public:
+public:
   
   DataWordV775( uint32_t d = 0 );
   ~DataWordV775(){}
