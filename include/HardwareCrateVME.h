@@ -40,8 +40,9 @@ namespace QualityControl {
             //Destructor
             //------------------------------------------------------------------------------------------------------------------------------------------
             ~HardwareCrateVME(){
-		releaseCrate();
-		m_vmeBridge.reset();
+                releaseCrate();
+                
+                m_vmeBridge.reset();
             	m_vmeIO.reset();
             
             	m_map_vmeTDC.clear();
@@ -57,8 +58,8 @@ namespace QualityControl {
             
             //Disconnect from Crate
             virtual void releaseCrate(){
-		m_vmeIO->SetOutput( 1, 0 ); //Drop busy
-		m_vmeIO->Clear();
+                m_vmeIO->SetOutput( 1, 0 ); //Drop busy
+                m_vmeIO->Clear();
 
                 m_vmeBridge->Disconnect();
                 
@@ -110,7 +111,6 @@ namespace QualityControl {
             
             //std::map<std::string, std::shared_ptr<IDaqV513> > m_map_vmeIO;
             std::map<std::string, std::shared_ptr<IDaqV775> > m_map_vmeTDC;
-            
         }; //End Class HardwareCrateVME
     } //End namespace Timing
 } //End namespace QualityControl

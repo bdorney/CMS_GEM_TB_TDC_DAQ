@@ -38,6 +38,12 @@ namespace QualityControl {
             //Constructors
             //------------------------------------------------------------------------------------------------------------------------------------------
             
+            //Destructors
+            //------------------------------------------------------------------------------------------------------------------------------------------
+            ~ManagerDAQ(){
+                daqRelease();
+            } //End Destructor
+            
             //Actions - Methods that Do Something
             //------------------------------------------------------------------------------------------------------------------------------------------            
             virtual void daqConfigure();	//Configure DAQ chain
@@ -60,9 +66,17 @@ namespace QualityControl {
 
             //Printers - Methods that Print Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-	    template<typename DataType>
-	    void printData(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex);
-
+            //Print Raw Data
+            template<typename DataType>
+            void printDataRAW(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex);
+            
+            //Print Built Events
+            void printEvents(std::vector<QualityControl::Timing::EventDigi> vec_InputGlobalEvtDigi);
+            void printEvents(std::vector<QualityControl::Timing::EventRaw> vec_InputGlobalEvtRaw);
+            
+            //Write Raw Events to Disk
+            virtual void write2DiskRAW(std::fstream &file_InputStream, std::vector<QualityControl::Timing::EventRaw> vec_InputGlobalEvtRaw);
+            
             //Setters - Methods that Set Something
             //------------------------------------------------------------------------------------------------------------------------------------------
             virtual void setRunSetup(Timing::RunSetup inputRunSetup){
@@ -94,8 +108,6 @@ namespace QualityControl {
 
             std::map<std::string, double > m_map_TDCTimeLSB; //Key -> Base Addr; Value -> timeLSB for each TDC            
             std::map<std::string, std::vector<uint32_t> > m_map_vecTDCData; //Key -> Base Addr; Value -> Vector of Data Words
-
-            
         }; //End Class ManagerDAQ
     } //End namespace Timing
 } //End namespace QualityControl

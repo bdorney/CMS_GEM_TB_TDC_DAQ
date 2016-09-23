@@ -237,6 +237,9 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
     std::vector<uint32_t> vec_DataWord;
     std::vector<unsigned int> vec_uiEvtsInReadout;
     
+    //Open Output File
+    std::fstream file_Output(m_rSetup.m_strFile_Output_Name.c_str(), std::ios:out);
+    
     //Event Loop
     int uiNEvt = 0;
     int iTrigCond = 0;
@@ -252,21 +255,17 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
             //Set the busy
             crate_VME.m_vmeIO->SetOutput( 1, 0 );
             
-            cout<<"============New Trigger============\n";
-            
             //Get Data from Each TDC
             for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard) { //Loop Over Defined TDC's
                 //Sleep if TDC is not ready
                 while ( !(*iterVMEBoard).second->DReady() || !(*iterVMEBoard).second->IsBusy() ) {
-		//while ( !(*iterVMEBoard).second->IsBusy() ) {
-                    //if ( nanosleep( &rt1, &at1 ) != 0 ) cout << "Nanosleep failed" << endl;
+                    //while ( !(*iterVMEBoard).second->IsBusy() ) {
                     nanosleep(&tspecSleepInterval, (struct timespec *)NULL);
                 } //End Loop While TDC Not Ready
                 
                 //Readout TDC
-                //(*iterVMEBoard).second->Readout( vec_DataWord );
-		vec_uiEvtsInReadout.push_back( (*iterVMEBoard).second->Readout( vec_DataWord ) );
-		m_map_vecTDCData[(*iterVMEBoard).first]=vec_DataWord;
+                vec_uiEvtsInReadout.push_back( (*iterVMEBoard).second->Readout( vec_DataWord ) );
+                m_map_vecTDCData[(*iterVMEBoard).first]=vec_DataWord;
                 
                 //Reset TDC for next trigger
                 (*iterVMEBoard).second->DataReset();
@@ -275,51 +274,30 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
                 //Reset vec_DataWord for next trigger/tdc
                 vec_DataWord.clear();
             } //End Loop Over Defined TDC's
-
-		//Check If All TDCs Stored Same Number of Events
-		auto pair_MinMaxEvts = std::minmax_element(vec_uiEvtsInReadout.begin(), vec_uiEvtsInReadout.end() );
-		if( (*pair_MinMaxEvts.first) != (*pair_MinMaxEvts.second) ){
-			cout<<"Boards Do Not Have Same Number of Events - Resetting!\n";
-			m_map_vecTDCData.clear();
-		}
-		else{
-			//Build Events Stored in Board Buffers
-			//vector<EventDigi> vec_GlobalEvtDigi = getEventsDIGI(m_map_vecTDCData);
-			vector<EventRaw> vec_GlobalEvtRaw = getEventsRAW(m_map_vecTDCData);
-			//cout<<"Global DIGI Events Made; vec_GlobalEvtDigi.size() = " << vec_GlobalEvtDigi.size() << endl;
-			//cout<<"Global RAW Events Made; vec_GlobalEvtRaw.size() = " << vec_GlobalEvtRaw.size() << endl;
-
-			//Update Number of Acquired Events
-			uiNEvt += vec_GlobalEvtRaw.size();
-
-			for(auto iterEvtRaw = vec_GlobalEvtRaw.begin(); iterEvtRaw != vec_GlobalEvtRaw.end(); ++iterEvtRaw){
-				cout<<"============New Global RAW Evt============\n";
-				cout<<"TDC\tData Word\n";
-				for(auto iterTDCRaw = (*iterEvtRaw).m_map_TDCData.begin(); iterTDCRaw != (*iterEvtRaw).m_map_TDCData.end(); ++iterTDCRaw){
-					for(auto iterDataWord = (*iterTDCRaw).second.m_vec_DataWord.begin(); iterDataWord != (*iterTDCRaw).second.m_vec_DataWord.end(); ++iterDataWord){
-						cout<<(*iterTDCRaw).first<<"\t"<<showbase<<hex<<(*iterDataWord)<<dec<<endl;
-					}
-				}
-			}
-
-			/*for(auto iterEvtDigi = vec_GlobalEvtDigi.begin(); iterEvtDigi != vec_GlobalEvtDigi.end(); ++iterEvtDigi){
-				cout<<"============New Global DIGI Evt============\n";
-				cout<<"TDC\tChan\tTime(ns)\n";
-				for(auto iterTDCDigi = (*iterEvtDigi).m_map_TDCData.begin(); iterTDCDigi != (*iterEvtDigi).m_map_TDCData.end(); ++iterTDCDigi){
-					for(auto iterTDCChan = (*iterTDCDigi).second.m_map_fTime.begin(); iterTDCChan != (*iterTDCDigi).second.m_map_fTime.end(); ++iterTDCChan){
-						cout<<(*iterTDCDigi).first<<"\t"<<(*iterTDCChan).first<<"\t"<<(*iterTDCChan).second<<endl;
-					}
-				}
-			}*/
-		}
-
-
+            
+            //Check If All TDCs Stored Same Number of Events
+            auto pair_MinMaxEvts = std::minmax_element(vec_uiEvtsInReadout.begin(), vec_uiEvtsInReadout.end() );
+            if( (*pair_MinMaxEvts.first) != (*pair_MinMaxEvts.second) ){ //Case: Clear, Boards Not Sync'd
+                //cout<<"Boards Do Not Have Same Number of Events - Resetting!\n";
+                m_map_vecTDCData.clear();
+            } //End Case: Clear, Boards Not Sync'd
+            else{ //Case: Record! Boards Sync'd!
+                //Build Events Stored in Board Buffers
+                vector<EventRaw> vec_GlobalEvtRaw = getEventsRAW(m_map_vecTDCData);
+                
+                //Update Number of Acquired Events
+                uiNEvt += vec_GlobalEvtRaw.size();
+                cout<<"============"<<uiNEvt <<" Events Acquired============\n";
+               
+                //Write Data
+                write2DiskRAW(file_Output, vec_GlobalEvtRaw)
+            } //End Case: Record! Boards Sync'd!
             //Drop the busy
             crate_VME.m_vmeIO->SetOutput( 1, 1 );
             crate_VME.m_vmeIO->Clear();
-
-		//Clear Stored Events 
-		vec_uiEvtsInReadout.clear();
+            
+            //Clear Stored Events
+            vec_uiEvtsInReadout.clear();
         } //End Case: Trigger!
     } //End Event Loop
     
@@ -359,7 +337,7 @@ bool QualityControl::Timing::ManagerDAQ::daqStopRun(unsigned int uiAcquiredEvt, 
 
 //Prints one column of data for each buffer source in an N-Column Matrix
 template<typename DataType>
-void QualityControl::Timing::ManagerDAQ::printData(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex){
+void QualityControl::Timing::ManagerDAQ::printRawData(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex){
 	//Get Map of Iterators
 	unsigned int uiMaxSize = 0;
 	vector<pair<typename vector<DataType>::iterator, typename vector<DataType>::iterator> > vec_pairIterNEnd; //first beginning; second ending
@@ -396,3 +374,53 @@ void QualityControl::Timing::ManagerDAQ::printData(std::map<std::string, std::ve
 
 	return;
 } //End QualityControl::Timing::ManagerDAQ::printData()
+
+//Print built events - DIGI
+void QualityControl::Timing::ManagerDAQ::printEvents(std::vector<QualityControl::Timing::EventDigi> vec_InputGlobalEvtDigi){
+    
+    for(auto iterEvtDigi = vec_InputGlobalEvtDigi.begin(); iterEvtDigi != vec_InputGlobalEvtDigi.end(); ++iterEvtDigi){ //End Loop Over Events
+        cout<<"============New Global DIGI Evt============\n";
+        cout<<"TDC\tChan\tTime(ns)\n";
+        for(auto iterTDCDigi = (*iterEvtDigi).m_map_TDCData.begin(); iterTDCDigi != (*iterEvtDigi).m_map_TDCData.end(); ++iterTDCDigi){ //End Loop Over TDCs
+            for(auto iterTDCChan = (*iterTDCDigi).second.m_map_fTime.begin(); iterTDCChan != (*iterTDCDigi).second.m_map_fTime.end(); ++iterTDCChan){ //End Loop Over Digis
+                cout<<(*iterTDCDigi).first<<"\t"<<(*iterTDCChan).first<<"\t"<<(*iterTDCChan).second<<endl;
+            } //End Loop Over Digis
+        } //End Loop Over TDCs
+    } //End Loop Over Events
+    
+    return;
+} //End QualityControl::Timing::ManagerDAQ::printEvents() - DIGI
+
+//Print built events - RAW
+void QualityControl::Timing::ManagerDAQ::printEvents(std::vector<QualityControl::Timing::EventRaw> vec_InputGlobalEvtRaw){
+    
+    for(auto iterEvtRaw = vec_InputGlobalEvtRaw.begin(); iterEvtRaw != vec_InputGlobalEvtRaw.end(); ++iterEvtRaw){ //Loop Over Events
+        cout<<"============New Global RAW Evt============\n";
+        cout<<"TDC\tData Word\n";
+        for(auto iterTDCRaw = (*iterEvtRaw).m_map_TDCData.begin(); iterTDCRaw != (*iterEvtRaw).m_map_TDCData.end(); ++iterTDCRaw){ //Loop Over TDCs
+            for(auto iterDataWord = (*iterTDCRaw).second.m_vec_DataWord.begin(); iterDataWord != (*iterTDCRaw).second.m_vec_DataWord.end(); ++iterDataWord){ //Loop Over Data Words
+                cout<<(*iterTDCRaw).first<<"\t"<<showbase<<hex<<(*iterDataWord)<<dec<<endl;
+            } //End Loop Over Data Words
+        } //End Loop Over TDCs
+    } //End Loop Over Events
+    
+    return;
+} //End QualityControl::Timing::ManagerDAQ::printEvents() - RAW
+
+void QualityControl::Timing::ManagerDAQ::write2DiskRAW(std::fstream &file_InputStream, std::vector<QualityControl::Timing::EventRaw> vec_InputGlobalEvtRaw){
+    
+    for (auto iterEvtRaw = vec_InputGlobalEvtRaw.begin(); iterEvtRaw != vec_InputGlobalEvtRaw.end(); ++iterEvtRaw) { //Loop over Raw Events
+        
+        file_InputStream<<"[BEGIN EVENT]\n";
+        for (auto iterTDCRaw = (*iterEvtRaw).m_map_TDCData.begin(); iterTDCRaw != (*iterEvtRaw).m_map_TDCData.end(); ++iterTDCRaw) { //Loop over TDC Boards in the Event
+            
+            for (auto iterDataWord = (*iterTDCRaw).m_vec_DataWord.begin(); iterDataWord != (*iterTDCRaw).m_vec_DataWord.end(); ++iterDataWord) { //Loop Over (*iterTDCRaw) Data Words
+                file_InputStream<< showbase << hex << (*iterTDCRaw).m_strBaseAddress << dec << "\t";
+                file_InputStream<< showbase << hex << (*iterDataWord) << dec << "\n";
+            } //End Loop Over (*iterTDCRaw) Data Words
+        } //End Loop over TDC Boards in the Event
+        file_InputStream<<"[END EVENT]\n";
+    } //End Loop over Raw Events
+    
+    return;
+} //End QualityControl::Timing::ManagerDAQ::write2DiskRAW()
