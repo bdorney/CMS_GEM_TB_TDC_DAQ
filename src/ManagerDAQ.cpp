@@ -238,7 +238,7 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
     std::vector<unsigned int> vec_uiEvtsInReadout;
     
     //Open Output File
-    std::fstream file_Output(m_rSetup.m_strFile_Output_Name.c_str(), std::ios:out);
+    std::fstream file_Output(m_rSetup.m_strFile_Output_Name.c_str(), std::ios::out);
     
     //Event Loop
     int uiNEvt = 0;
@@ -290,7 +290,7 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
                 cout<<"============"<<uiNEvt <<" Events Acquired============\n";
                
                 //Write Data
-                write2DiskRAW(file_Output, vec_GlobalEvtRaw)
+                write2DiskRAW(file_Output, vec_GlobalEvtRaw);
             } //End Case: Record! Boards Sync'd!
             //Drop the busy
             crate_VME.m_vmeIO->SetOutput( 1, 1 );
@@ -337,7 +337,7 @@ bool QualityControl::Timing::ManagerDAQ::daqStopRun(unsigned int uiAcquiredEvt, 
 
 //Prints one column of data for each buffer source in an N-Column Matrix
 template<typename DataType>
-void QualityControl::Timing::ManagerDAQ::printRawData(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex){
+void QualityControl::Timing::ManagerDAQ::printDataRAW(std::map<std::string, std::vector<DataType> > map_vecOfData, bool bIsHex){
 	//Get Map of Iterators
 	unsigned int uiMaxSize = 0;
 	vector<pair<typename vector<DataType>::iterator, typename vector<DataType>::iterator> > vec_pairIterNEnd; //first beginning; second ending
@@ -414,8 +414,8 @@ void QualityControl::Timing::ManagerDAQ::write2DiskRAW(std::fstream &file_InputS
         file_InputStream<<"[BEGIN EVENT]\n";
         for (auto iterTDCRaw = (*iterEvtRaw).m_map_TDCData.begin(); iterTDCRaw != (*iterEvtRaw).m_map_TDCData.end(); ++iterTDCRaw) { //Loop over TDC Boards in the Event
             
-            for (auto iterDataWord = (*iterTDCRaw).m_vec_DataWord.begin(); iterDataWord != (*iterTDCRaw).m_vec_DataWord.end(); ++iterDataWord) { //Loop Over (*iterTDCRaw) Data Words
-                file_InputStream<< showbase << hex << (*iterTDCRaw).m_strBaseAddress << dec << "\t";
+            for (auto iterDataWord = (*iterTDCRaw).second.m_vec_DataWord.begin(); iterDataWord != (*iterTDCRaw).second.m_vec_DataWord.end(); ++iterDataWord) { //Loop Over (*iterTDCRaw) Data Words
+                file_InputStream<< showbase << hex << (*iterTDCRaw).second.m_strBaseAddress << dec << "\t";
                 file_InputStream<< showbase << hex << (*iterDataWord) << dec << "\n";
             } //End Loop Over (*iterTDCRaw) Data Words
         } //End Loop over TDC Boards in the Event
