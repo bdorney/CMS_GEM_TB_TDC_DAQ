@@ -13,18 +13,23 @@
 #include "ManagerDAQ.h"
 
 using std::cout;
+using std::dec;
 using std::endl;
+using std::hex;
 using std::map;
 using std::pair;
+using std::showbase;
 using std::string;
 using std::vector;
 
 using QualityControl::convert2bool;
 
 using QualityControl::Timing::TDCDataDigi;
+using QualityControl::Timing::TDCDataRaw;
 using QualityControl::Timing::EventDigi;
+using QualityControl::Timing::EventRaw;
 
-vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(map<string, vector<uint32_t> > map_InputVecTDCData){
+vector<EventDigi> QualityControl::Timing::ManagerDAQ::getEventsDIGI(map<string, vector<uint32_t> > map_InputVecTDCData){
 	//Variable Declaration
 	//double dTimeStamp = -1.;
 
@@ -36,13 +41,13 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(m
 	TDCDataDigi tdcDigi;
 	vector<TDCDataDigi> vec_tdcDigiPerEvt;
 	
-	cout<<"QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI() - map_InputVecTDCData.size() = " << map_InputVecTDCData.size() << endl;
+	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDIGI() - map_InputVecTDCData.size() = " << map_InputVecTDCData.size() << endl;
 
 	for(auto iterTDCData = map_InputVecTDCData.begin(); iterTDCData != map_InputVecTDCData.end(); ++iterTDCData){ //Loop Over Input Buffers
-		for(auto iterWords = (*iterTDCData).second.begin(); iterWords != (*iterTDCData).second.end(); ++iterWords){ //Loop Over Words Stored in (*iterTDCData).second's buffer
-			//DataWordV775 dwTDCData( (*iterWords) );
+		for(auto iterDataWord = (*iterTDCData).second.begin(); iterDataWord != (*iterTDCData).second.end(); ++iterDataWord){ //Loop Over Words Stored in (*iterTDCData).second's buffer
+			//DataWordV775 dwTDCData( (*iterDataWord) );
 
-			dwTDCData.SetData( (*iterWords) );
+			dwTDCData.SetData( (*iterDataWord) );
 			if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
 				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventHeader) ){ //Case: Header
 
@@ -54,7 +59,7 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(m
 				tdcDigi.m_strBaseAddress = (*iterTDCData).first;
 				vec_tdcDigiPerEvt.push_back(tdcDigi);
 
-				cout<<"tdcDigi.m_map_fTime.size() = " << tdcDigi.m_map_fTime.size() << endl;
+				//cout<<"tdcDigi.m_map_fTime.size() = " << tdcDigi.m_map_fTime.size() << endl;
 				tdcDigi.clear();
 			} //End Case: End of Block
 			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
@@ -70,10 +75,14 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(m
 		} //End Loop Over Words Stored in (*iterTDCData).second's buffer
 
 		map_vecTDCDigiPerEvt[(*iterTDCData).first]=vec_tdcDigiPerEvt;
+
+		//Debugging
+		//cout<<"TDC " << showbase << hex << (*iterTDCData).first << dec << " vec_tdcDigiPerEvt.size() = " << vec_tdcDigiPerEvt.size() << endl;
+
 		vec_tdcDigiPerEvt.clear();
 	} //End Loop Over Input Buffers
 
-	//cout<<"QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI() - map_vecTDCDigiPerEvt.size() = " << map_vecTDCDigiPerEvt.size() << endl;
+	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDIGI() - map_vecTDCDigiPerEvt.size() = " << map_vecTDCDigiPerEvt.size() << endl;
 
 	//Get Map of Iterators
 	unsigned int uiMaxSize = 0;
@@ -86,7 +95,7 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(m
 		vec_pairIterNEnd.push_back(std::make_pair( (*iterTDCEvts).second.begin(), (*iterTDCEvts).second.end() ) );
 	} //End Loop Over Evts in Each TDC
 
-	//cout<<"QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI() - vec_pairIterNEnd.size() = " << vec_pairIterNEnd.size() << endl;
+	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - vec_pairIterNEnd.size() = " << vec_pairIterNEnd.size() << endl;
 
 	//Combine TDC events into a global event
 	EventDigi evtDigi;
@@ -98,7 +107,11 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(m
 				++vec_pairIterNEnd[j].first; //Advanced j^th TDC to the next digi event
 			} //End Check: Reached end of events for j^th TDC
 			else{ //Case: No more events for j^th TDC
-				cout<<"QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI() - Problem TDC Event Streams not Sync'd!";
+				cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - Problem TDC Event Streams not Sync'd!\n";
+				auto tempIter = vec_pairIterNEnd[j].first;
+				--tempIter;
+				cout<<"TDC = " << showbase << hex << (*tempIter).m_strBaseAddress << dec << endl;
+				cout<<i<<"\tuiMaxSize = "<<uiMaxSize<<endl;
 			} //End Case: No more events for j^th TDC
 		} //Loop Over TDCs
 		vec_evtDigi.push_back(evtDigi);
@@ -106,7 +119,92 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI(m
 	} //End Loop Over Expected Global Events
 
 	return vec_evtDigi;
-} //End QualityControl::Timing::ManagerDAQ::getConvertedDataRAW2DIGI()
+} //End QualityControl::Timing::ManagerDAQ::getEventsDigi()
+
+vector<EventRaw> QualityControl::Timing::ManagerDAQ::getEventsRAW(map<string, vector<uint32_t> > map_InputVecTDCData){
+	//Variable Declaration
+
+	//Translate Input Buffers into a vector of events per each TDC
+	DataWordV775 dwTDCData;
+	map<string, vector<TDCDataRaw> > map_vecTDCRawPerEvt;
+	TDCDataRaw tdcRaw;
+	vector<TDCDataRaw> vec_tdcRawPerEvt;
+	
+	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDIGI() - map_InputVecTDCData.size() = " << map_InputVecTDCData.size() << endl;
+
+	for(auto iterTDCData = map_InputVecTDCData.begin(); iterTDCData != map_InputVecTDCData.end(); ++iterTDCData){ //Loop Over Input Buffers
+		for(auto iterDataWord = (*iterTDCData).second.begin(); iterDataWord != (*iterTDCData).second.end(); ++iterDataWord){ //Loop Over Words Stored in (*iterTDCData).second's buffer
+			//DataWordV775 dwTDCData( (*iterDataWord) );
+
+			dwTDCData.SetData( (*iterDataWord) );
+			if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
+				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventHeader) ){ //Case: Header
+
+				//Placeholder
+				//cout<<"Header = " << showbase << hex << dwTDCData.GetRawData() << dec << endl;
+
+			} //End Case: Header
+			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
+				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventTrailer) ){ //Case: End of Block
+				tdcRaw.m_strBaseAddress = (*iterTDCData).first;
+				vec_tdcRawPerEvt.push_back(tdcRaw);
+
+				//cout<<"tdcDigi.m_map_fTime.size() = " << tdcDigi.m_map_fTime.size() << endl;
+				tdcRaw.clear();
+
+				//cout<<"Trailer = " << showbase << hex << dwTDCData.GetRawData() << dec << endl;
+			} //End Case: End of Block
+			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
+				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventDatum) ){ //Case: Datum
+				//dTimeStamp = dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
+				//iChan = dwTDCData.GetChannel();
+
+				//tdcDigi.m_map_fTime[iChan]=dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
+				tdcRaw.m_vec_DataWord.push_back( dwTDCData.GetRawData() );
+
+				//vecTDCDataConverted.push_back(std::make_pair<int,double>(iChan,dTimeStamp) );
+			} //End Case: Datum
+
+		} //End Loop Over Words Stored in (*iterTDCData).second's buffer
+
+		map_vecTDCRawPerEvt[(*iterTDCData).first]=vec_tdcRawPerEvt;
+		vec_tdcRawPerEvt.clear();
+	} //End Loop Over Input Buffers
+
+	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDIGI() - map_vecTDCDigiPerEvt.size() = " << map_vecTDCDigiPerEvt.size() << endl;
+
+	//Get Map of Iterators
+	unsigned int uiMaxSize = 0;
+	vector<pair<vector<TDCDataRaw>::iterator, vector<TDCDataRaw>::iterator> > vec_pairIterNEnd; //first beginning; second ending
+	for(auto iterTDCEvts = map_vecTDCRawPerEvt.begin(); iterTDCEvts != map_vecTDCRawPerEvt.end(); ++iterTDCEvts){ //Loop Over Evts in Each TDC
+		if( (*iterTDCEvts).second.size() > uiMaxSize ){ 
+			uiMaxSize = (*iterTDCEvts).second.size(); 
+		}
+
+		vec_pairIterNEnd.push_back(std::make_pair( (*iterTDCEvts).second.begin(), (*iterTDCEvts).second.end() ) );
+	} //End Loop Over Evts in Each TDC
+
+	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - vec_pairIterNEnd.size() = " << vec_pairIterNEnd.size() << endl;
+
+	//Combine TDC events into a global event
+	EventRaw evtRaw;
+	vector<EventRaw> vec_evtRaw;
+	for( unsigned int i=0; i < uiMaxSize; ++i ){ //Loop Over Expected Global Events
+		for(int j=0; j<vec_pairIterNEnd.size(); ++j){ //Loop Over TDC's
+			if( vec_pairIterNEnd[j].first != vec_pairIterNEnd[j].second ){ //Check: Reached end of events for j^th TDC?
+				evtRaw.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+				++vec_pairIterNEnd[j].first; //Advanced j^th TDC to the next digi event
+			} //End Check: Reached end of events for j^th TDC
+			else{ //Case: No more events for j^th TDC
+				cout<<"QualityControl::Timing::ManagerDAQ::getEventsRaw() - Problem TDC Event Streams not Sync'd!\n";
+			} //End Case: No more events for j^th TDC
+		} //Loop Over TDCs
+		vec_evtRaw.push_back(evtRaw);
+		evtRaw.clear();
+	} //End Loop Over Expected Global Events
+
+	return vec_evtRaw;
+} //End QualityControl::Timing::ManagerDAQ::getEventsRaw()
 
 void QualityControl::Timing::ManagerDAQ::daqInitialize(){
     crate_VME.setRunSetup(m_rSetup);
@@ -140,10 +238,7 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
     std::vector<unsigned int> vec_uiEvtsInReadout;
     
     //Event Loop
-    //unsigned int uiAcquiredEvt = 0;
-
-	int uiNEvt = 0;
-
+    int uiNEvt = 0;
     int iTrigCond = 0;
     tspecSleepInterval.tv_sec = 0;
     tspecSleepInterval.tv_nsec = 1;  //Artificial Dead time in ns
@@ -180,48 +275,42 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
                 //Reset vec_DataWord for next trigger/tdc
                 vec_DataWord.clear();
             } //End Loop Over Defined TDC's
-            
-            //Print Data for Each TDC - RAW
-            /*for (auto iterTDCData = m_map_vecTDCData.begin(); iterTDCData != m_map_vecTDCData.end(); ++iterTDCData) {
-                cout<<"------------New TDC------------\n";
-                cout<<"Base Address of TDC: "<< (*iterTDCData).first << endl;
-		cout<<"N_Data Words: " << (*iterTDCData).second.size() << endl;
-
-            }*/ //End Loop Over TDCs
 
 		//Check If All TDCs Stored Same Number of Events
 		auto pair_MinMaxEvts = std::minmax_element(vec_uiEvtsInReadout.begin(), vec_uiEvtsInReadout.end() );
 		if( (*pair_MinMaxEvts.first) != (*pair_MinMaxEvts.second) ){
 			cout<<"Boards Do Not Have Same Number of Events - Resetting!\n";
 			m_map_vecTDCData.clear();
-			/*for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard){
-				(*iterVMEBoard).second->Arm();
-			}*/
 		}
 		else{
+			//Build Events Stored in Board Buffers
+			//vector<EventDigi> vec_GlobalEvtDigi = getEventsDIGI(m_map_vecTDCData);
+			vector<EventRaw> vec_GlobalEvtRaw = getEventsRAW(m_map_vecTDCData);
+			//cout<<"Global DIGI Events Made; vec_GlobalEvtDigi.size() = " << vec_GlobalEvtDigi.size() << endl;
+			//cout<<"Global RAW Events Made; vec_GlobalEvtRaw.size() = " << vec_GlobalEvtRaw.size() << endl;
+
 			//Update Number of Acquired Events
-			//uiAcquiredEvt=uiAcquiredEvt+(*pair_MinMaxEvts.first);
+			uiNEvt += vec_GlobalEvtRaw.size();
 
-			//cout<<"Printing\n";
-			//printData<uint32_t>(m_map_vecTDCData, true);
+			for(auto iterEvtRaw = vec_GlobalEvtRaw.begin(); iterEvtRaw != vec_GlobalEvtRaw.end(); ++iterEvtRaw){
+				cout<<"============New Global RAW Evt============\n";
+				cout<<"TDC\tData Word\n";
+				for(auto iterTDCRaw = (*iterEvtRaw).m_map_TDCData.begin(); iterTDCRaw != (*iterEvtRaw).m_map_TDCData.end(); ++iterTDCRaw){
+					for(auto iterDataWord = (*iterTDCRaw).second.m_vec_DataWord.begin(); iterDataWord != (*iterTDCRaw).second.m_vec_DataWord.end(); ++iterDataWord){
+						cout<<(*iterTDCRaw).first<<"\t"<<showbase<<hex<<(*iterDataWord)<<dec<<endl;
+					}
+				}
+			}
 
-			vector<EventDigi> vec_GlobalEvt = getConvertedDataRAW2DIGI(m_map_vecTDCData);
-			//cout<<"Global Events Made; vec_GlobalEvt.size() = " << vec_GlobalEvt.size() << endl;
-
-			//cout<<"vec_GlobalEvt[0].m_map_TDCData.size() = " << vec_GlobalEvt[0].m_map_TDCData.size()<<endl;
-
-			uiNEvt = uiNEvt + vec_GlobalEvt.size();
-			//uiNEvt++;
-
-			for(auto iterEvt = vec_GlobalEvt.begin(); iterEvt != vec_GlobalEvt.end(); ++iterEvt){
-				cout<<"============New Global Evt============\n";
+			/*for(auto iterEvtDigi = vec_GlobalEvtDigi.begin(); iterEvtDigi != vec_GlobalEvtDigi.end(); ++iterEvtDigi){
+				cout<<"============New Global DIGI Evt============\n";
 				cout<<"TDC\tChan\tTime(ns)\n";
-				for(auto iterTDCDigi = (*iterEvt).m_map_TDCData.begin(); iterTDCDigi != (*iterEvt).m_map_TDCData.end(); ++iterTDCDigi){
+				for(auto iterTDCDigi = (*iterEvtDigi).m_map_TDCData.begin(); iterTDCDigi != (*iterEvtDigi).m_map_TDCData.end(); ++iterTDCDigi){
 					for(auto iterTDCChan = (*iterTDCDigi).second.m_map_fTime.begin(); iterTDCChan != (*iterTDCDigi).second.m_map_fTime.end(); ++iterTDCChan){
 						cout<<(*iterTDCDigi).first<<"\t"<<(*iterTDCChan).first<<"\t"<<(*iterTDCChan).second<<endl;
 					}
 				}
-			}
+			}*/
 		}
 
 

@@ -95,16 +95,16 @@ int main( int argc_, char * argv_[] ){
     QualityControl::Timing::RunSetup rSetup = loaderDAQ.getRunParameters(file_Config, bVerboseMode);
     
     //Check rSetup
-    cout<<"rSetup.m_bLoadSuccess = " << ( (rSetup.m_bLoadSuccess) ? "true" : "false" ) << endl;
-    cout<<"rSetup.m_uiEvtNum = " << rSetup.m_uiEvtNum << endl;
-    cout<<"rSetup.m_strFile_Output_Name = " << rSetup.m_strFile_Output_Name << endl;
-    cout<<"rSetup.m_strFile_Output_Option = " << rSetup.m_strFile_Output_Option << endl;
+    //cout<<"rSetup.m_bLoadSuccess = " << ( (rSetup.m_bLoadSuccess) ? "true" : "false" ) << endl;
+    //cout<<"rSetup.m_uiEvtNum = " << rSetup.m_uiEvtNum << endl;
+    //cout<<"rSetup.m_strFile_Output_Name = " << rSetup.m_strFile_Output_Name << endl;
+    //cout<<"rSetup.m_strFile_Output_Option = " << rSetup.m_strFile_Output_Option << endl;
     
-    for (auto iterVMEBoard = rSetup.m_map_vmeBoards.begin(); iterVMEBoard != rSetup.m_map_vmeBoards.end(); ++iterVMEBoard) { //Loop Over Defined VME Boards
+    /*for (auto iterVMEBoard = rSetup.m_map_vmeBoards.begin(); iterVMEBoard != rSetup.m_map_vmeBoards.end(); ++iterVMEBoard) { //Loop Over Defined VME Boards
         cout<<"New VME Board!\n";
         cout<<"Type = " << (*iterVMEBoard).second.m_vme_type << endl;
         cout<<"Address = " << (*iterVMEBoard).second.m_strBaseAddress.c_str() << endl;
-    } //End Loop Over Defined VME Boards
+    }*/ //End Loop Over Defined VME Boards
     
     //Start the DAQ Manager
     //------------------------------------------------------

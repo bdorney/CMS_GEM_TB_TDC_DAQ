@@ -130,4 +130,3 @@ std::ostream &operator<< ( std::ostream &s, DataWordV775 &dw );
 std::istream &operator>> ( std::istream &s, DataWordV775 &dw );
 
 #endif
-

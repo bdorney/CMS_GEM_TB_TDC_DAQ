@@ -27,7 +27,7 @@ void IDaqV513::Clear(){
 	//m_vmeInt->Write<uint16_t>( (m_baseAddr + V513_CLEAR_INPUT_REGISTER), uiRegVal );
 	//m_vmeInt->Write<uint16_t>( addr, uiRegVal );
 	m_vmeStatus = m_vmeInt->GetStatus();
-	cout << "IDaqV513::Clear() - Status = " << m_vmeStatus << endl;
+	//cout << "IDaqV513::Clear() - Status = " << m_vmeStatus << endl;
 	m_IOReg.reset();
     
     return;
@@ -45,10 +45,12 @@ void IDaqV513::Reset(){
 	std::this_thread::sleep_for (std::chrono::seconds(1));
 
 	if( m_vmeStatus == 0 ){
-		cout<< "IDaqV513::Reset() - Success\n";
+		//cout<< "IDaqV513::Reset() - Success\n";
+		cout<<"Reset Successful\n";
 	}
 	else{
-		cout<< "IDaqV513::Reset() - Problem w/Reset\n";
+		//cout<< "IDaqV513::Reset() - Problem w/Reset\n";
+		cout<<"Reset Failure\n";
 	}
     
     return;
@@ -89,7 +91,7 @@ void IDaqV513::SetChannelStatusReg( int iInputCh, V513ChannelDirection inputChDi
     V513ChannelTransferMode  inputChTransMode ){
   uint32_t addr;
   uint16_t uiRegVal = this->GetChannelStatusReg( iInputCh );
-  cout << "data = " << showbase << hex << uiRegVal << dec << endl;
+  //cout << "data = " << showbase << hex << uiRegVal << dec << endl;
   bitset<16> Reg = uiRegVal;
 
   Reg[ 0 ] = !!inputChDir;
@@ -99,14 +101,14 @@ void IDaqV513::SetChannelStatusReg( int iInputCh, V513ChannelDirection inputChDi
 
   uiRegVal = (uint16_t)Reg.to_ulong();
   addr = m_baseAddr + V513_CHANNEL_STATUS_REG_START + (2 * iInputCh);
-  cout << "[V513] Setting reg @ addr " << showbase<< hex << addr << " to " << uiRegVal << dec << endl;
+  //cout << "[V513] Setting reg @ addr " << showbase<< hex << addr << " to " << uiRegVal << dec << endl;
 
   m_vmeInt->Write( addr, uiRegVal );
   //m_vmeInt->Write<uint16_t>( addr, uiRegVal );
   m_vmeStatus = m_vmeInt->GetStatus();	
-  cout << "Status = " << m_vmeStatus << endl;
+  //cout << "Status = " << m_vmeStatus << endl;
   uiRegVal = this->GetChannelStatusReg( iInputCh );
-  cout << "data = " << showbase << hex << uiRegVal << dec << endl;
+  //cout << "data = " << showbase << hex << uiRegVal << dec << endl;
     
     return;
 }
@@ -114,7 +116,7 @@ void IDaqV513::SetChannelStatusReg( int iInputCh, V513ChannelDirection inputChDi
 int IDaqV513::GetChannelStatusReg( int iInputCh ){
 	uint32_t addr( m_baseAddr + V513_CHANNEL_STATUS_REG_START + (2 * iInputCh) );
 	uint16_t uiRegVal( 0 );
-	cout << "[V513] Reading from address " << showbase << hex << addr << dec << endl;
+	//cout << "[V513] Reading from address " << showbase << hex << addr << dec << endl;
 	m_vmeInt->Read( addr, uiRegVal );
 	//m_vmeInt->Read<uint16_t>( addr, uiRegVal );
 	m_vmeStatus = m_vmeInt->GetStatus();

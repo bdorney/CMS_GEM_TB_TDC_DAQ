@@ -50,8 +50,13 @@ namespace QualityControl {
             
             //Getters - Methods that Get (i.e. Return) Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-            //Converts Data Words to time stamps
-            virtual std::vector<QualityControl::Timing::EventDigi> getConvertedDataRAW2DIGI(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
+            //Given a map of output Buffers from all defined TDCs builds all events found in the buffers
+            //Event output is at the DIGI level (e.g. time stamps)
+            virtual std::vector<QualityControl::Timing::EventDigi> getEventsDIGI(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
+
+            //Given a map of output Buffers from all defined TDCs builds all events found in the buffers
+            //Event output is at the Raw level (e.g. hex words)
+            virtual std::vector<QualityControl::Timing::EventRaw> getEventsRAW(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
 
             //Printers - Methods that Print Something
             //------------------------------------------------------------------------------------------------------------------------------------------

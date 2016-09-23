@@ -47,7 +47,7 @@ void IDaqV775::SetGeoAddress( uint16_t inputAddr ){
 void IDaqV775::CheckGeoAddress(){
 	uint16_t geoAddr = 0;
 	CheckRegister( 0x1002, geoAddr );
-	cout << "geo = " << showbase << hex << geoAddr << dec << endl;
+	cout << "[V775] Geographic Address = " << showbase << hex << geoAddr << dec << endl;
 	m_geoAddr = geoAddr & 0x1F;
     
     return;
@@ -56,11 +56,13 @@ void IDaqV775::CheckGeoAddress(){
 void IDaqV775::DataReset(){
     SetBitReg2( V775_BS2_ClearData, IDaqEnable);
     CheckBitReg2();
-	cout<<"IDaqV775::DataReset() - m_regBit2 = " << showbase << hex << m_regBit2 << dec << endl;
-	cout<<"IDaqV775::DataReset() - V775_BS2_ClearData = " << showbase << hex << V775_BS2_ClearData << dec << endl;
-	cout<<"IDaqV775::DataReset() - ( m_regBit2 & V775_BS2_ClearData ) = " << showbase << hex << ( m_regBit2 & V775_BS2_ClearData ) << dec << endl;
-	cout<<"IDaqV775::DataReset() - IDaqSuccess = " << showbase << hex << IDaqSuccess << dec << endl;
-	cout<<"IDaqV775::DataReset() - m_vmeStatus = " << showbase << hex << m_vmeStatus << dec << endl;
+
+	//Debugging
+	//cout<<"IDaqV775::DataReset() - m_regBit2 = " << showbase << hex << m_regBit2 << dec << endl;
+	//cout<<"IDaqV775::DataReset() - V775_BS2_ClearData = " << showbase << hex << V775_BS2_ClearData << dec << endl;
+	//cout<<"IDaqV775::DataReset() - ( m_regBit2 & V775_BS2_ClearData ) = " << showbase << hex << ( m_regBit2 & V775_BS2_ClearData ) << dec << endl;
+	//cout<<"IDaqV775::DataReset() - IDaqSuccess = " << showbase << hex << IDaqSuccess << dec << endl;
+	//cout<<"IDaqV775::DataReset() - m_vmeStatus = " << showbase << hex << m_vmeStatus << dec << endl;
 
     if ( !( m_regBit2 & V775_BS2_ClearData ) || ( m_vmeStatus != IDaqSuccess) ){
         cout << "[V775] Problem with Data Reset " << endl;
@@ -68,15 +70,18 @@ void IDaqV775::DataReset(){
 
   SetBitReg2( V775_BS2_ClearData, IDaqDisable);
 
-	cout<<"IDaqV775::DataReset() - m_regBit2 = " << showbase << hex << m_regBit2 << dec << endl;
+	//Debugging
+	//cout<<"IDaqV775::DataReset() - m_regBit2 = " << showbase << hex << m_regBit2 << dec << endl;
 
   int iter( 0 );
   while( IsBusy() ){
 	if( iter == 0 ){
-		cout<<"IsBusy() = " << IsBusy() << endl;;
+		//cout<<"IsBusy() = " << IsBusy() << endl;
+		cout<<"[V775] Module " << showbase << hex << m_baseAddr << dec << " is busy\n";
 	}
 	else if( iter % 1000 ) {
-		cout<<"Still Busy" << endl;
+		//cout<<"Still Busy" << endl;
+		cout<<"[V775] Module " << showbase << hex << m_baseAddr << dec << " is still busy\n";
 	}
 
     /*if ( iter > m_iIterLimit){
@@ -195,7 +200,7 @@ void IDaqV775::Initialize(){
 }
 
 void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeReadout, uint16_t ped, unsigned int th){
-    cout << "[V775] Start initialization (be patient) ..." << flush;
+    cout << "[V775] Start initialization for TDC " << showbase << hex << m_baseAddr << dec << " (be patient) ...\n";
     // Reset Module
     SoftwareReset();
     std::this_thread::sleep_for (std::chrono::seconds(1));
@@ -204,7 +209,7 @@ void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeRe
     
     //Initialize Channel Status : All Enable
     SetChannelStatus( 32, IDaqEnable );
-    cout << "."<< flush;
+    //cout << "."<< flush;
     
     //Disable auto increase
     SetBitReg2( V775_BS2_AutoIncr, IDaqDisable );
@@ -236,7 +241,7 @@ void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeRe
             break;
             
         default:
-            cout << " V775 Acquisition Mode not implemented " << endl;
+            cout << "[V775] Acquisition Mode not implemented " << endl;
             break;
     }
     
@@ -252,7 +257,7 @@ void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeRe
             SetRegister( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
             //SetRegister<uint16_t>( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
             
-            cout << "Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
+            cout << "[V775] Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
             break;
             
         case V775_D32_EVTCOUNT:
@@ -265,36 +270,36 @@ void IDaqV775::Initialize( V775AcqMode inputModeAcq, V775ReadoutMode inputModeRe
             SetRegister( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
             //SetRegister<uint16_t>( V775_CONTROL_REGISTER1, uiRegData, m_regCtrl );
             
-            cout << "Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
+            cout << "[V775] Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
             break;
             
         case V775_D32:
             SetBitReg2( V775_BS2_AutoIncr, IDaqEnable );
             
-            cout << "Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
+            cout << "[V775] Readout Mode Set, Control Register = " << showbase << hex << m_regCtrl << dec << endl;
             break;
             
         default:
-            cout << " V775 Readout Mode not implemented " << endl;
+            cout << "[V775] Readout Mode not implemented " << endl;
             break;
     }
     
     //Verification
-    cout<<"Begin Verification\n";
+    //cout<<"Begin Verification\n";
     CheckBitReg2();
-    cout << " Bit Register 2 : " << GetBitReg2() << endl ;
+    //cout << " Bit Register 2 : " << GetBitReg2() << endl ;
     CheckThresholds();
-    cout << " Thresholds : " << endl;
+    /*cout << " Thresholds : " << endl;
     for ( int iChIdx = 0; iChIdx < 32; ++iChIdx ){
         if ( iChIdx % 8 == 0 ) cout << endl;
         cout << GetThresholdValue( iChIdx ) << " ";
-    }
+    }*/
     
     if ( m_vmeStatus == IDaqSuccess) {
-        cout << " Done" << endl;
+        cout << "[V775] Initialization Successful" << endl;
         m_bInitStatus = true;
     } else { 
-        cout << " Not successful." << endl;
+        cout << "[V775] Initialization Failure" << endl;
         m_bInitStatus = false;
         m_vmeStatus = IDaqGenericError; 
     }
@@ -404,7 +409,8 @@ void IDaqV775::SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch 
             }
             else{
                 m_vmeStatus = IDaqInvalidParam;
-                cout << "Invalid SetChannelStatus parameter: " << (int)inputSwitch << endl;
+                //cout << "IDaqV775::SetChannelStatus() - Invalid SetChannelStatus parameter: " << (int)inputSwitch << endl;
+                cout << "[V775] Invalid SetChannelStatus parameter: " << (int)inputSwitch << endl;
                 return;
             }
         }
@@ -412,15 +418,15 @@ void IDaqV775::SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch 
 			addr = m_baseAddr + V775_THRESHOLDS + 2 * uiInputCh;
 			if( inputSwitch == IDaqEnable ){
 				 uiRegValThresh = ( (m_uiThreshold.get())[ uiInputCh ] & 0x00FF );
-				 cout << "Enabled channel " << uiInputCh;
+				 cout << "[V775] Enabled channel " << uiInputCh;
 			}
 			else if ( inputSwitch == IDaqDisable ){							
 				uiRegValThresh = ( (m_uiThreshold.get())[ uiInputCh ] | 0x0100 );
-				cout << "Disabled channel " << uiInputCh;
+				cout << "[V775] Disabled channel " << uiInputCh;
 			}
             else {
 				m_vmeStatus = IDaqInvalidParam;
-				cout << "Invalid SetChannelStatus parameter: " << (int)inputSwitch << endl;
+				cout << "[V775] Invalid SetChannelStatus parameter: " << (int)inputSwitch << endl;
 				return;
 			}
 			m_vmeInt->Write( addr, uiRegValThresh );
@@ -430,11 +436,12 @@ void IDaqV775::SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch 
             if ( m_vmeStatus == IDaqSuccess){
                 (m_uiThreshold.get())[ uiInputCh ] = uiRegValThresh;
             }
-			cout << " Done." << endl;
+			cout << "[V775] Set Channel " << uiInputCh << " Status Successful" << endl;
 		} 
 		else{
 			m_vmeStatus = IDaqInvalidParam;		
-			cout << "IDaqV775::SetChannelStatus: Invalid Channel Number: " << uiInputCh << endl;
+			//cout << "IDaqV775::SetChannelStatus: Invalid Channel Number: " << uiInputCh << endl;
+			cout << "[V775] Set Channel " << uiInputCh << " Status Failure; Invalid Channel Number\n";
 		}	
 	}
     
@@ -453,20 +460,20 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
 	int iter( 0 );
 
 	while ( IsBusy() ){
-		cout << " [V775] TDC in conversion... " << endl; 
+		cout << "[V775] TDC in conversion... " << endl; 
 		if ( IsFull() ) {
-			cout << " [V775] Buffer is full! Possible data loss." << endl;
+			cout << "[V775] Buffer is full! Possible data loss." << endl;
 			break;
 		}
         
         iter++;
 		if ( iter > GetIterLimit() ){ 
-			cerr << " *** [V775] Module looks dead ...Stopping run *** " << endl;
+			cerr << " *** [V775] Module looks dead ...Stopping Readout *** " << endl;
 			m_bIsDead = true;
 			break;
 		} 
 	}
-	cout << "Readout mode = " << GetReadoutMode()  << endl;
+	//cout << "Readout mode = " << GetReadoutMode()  << endl;
 	switch( GetReadoutMode() ){
 		case V775_D32:{
 			uint32_t addr = m_baseAddr;
@@ -478,7 +485,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
             }
             
 			nAdcGate = GetEventCountLow() + 1;
-			cout << nAdcGate << " particle events to read in TDC" << endl;
+			cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl;
             
 			int evCount = 0;
 			while( evCount < nAdcGate ){
@@ -506,7 +513,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
 			if( m_vmeInt->GetStatus() != IDaqSuccess ) return -1;
 			
 			nAdcGate = GetEventCountLow() + 1;
-			cout << nAdcGate << " particle events to read in TDC" << endl;
+			cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl;
 			if( nAdcGate > 0 ) {
 				for ( int iNEvt = 0; iNEvt < nAdcGate; ++iNEvt ){
 					ReadAndWriteOutputBuffer( vec_uiInputData, 34 );
@@ -520,7 +527,8 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
 		}
 		case V775_BLT32_BERR:
 		default:
-			cerr << " V775 readout mode not implemented " << endl;
+			//cerr << " V775 readout mode not implemented " << endl;
+	            	cerr << "[V775] Readout Mode not implemented " << endl;
 			break;
 	}
   
@@ -534,15 +542,15 @@ uint16_t IDaqV775::Readout( FILE *fp, uint64_t &fs ){
     int iter( 0 );
 
     while ( IsBusy() ){
-        cout << " [V775] TDC in conversion... " << endl;
+        cout << "[V775] TDC in conversion... " << endl;
         if ( IsFull() ) {
-            cout << " [V775] Buffer is full! Possible data loss." << endl;
+            cout << "[V775] Buffer is full! Possible data loss." << endl;
             break;
         }
 
         iter++;
         if ( iter > GetIterLimit() ){ 
-            cerr << " *** [V775] Module looks dead ...Stopping run *** " << endl;
+            cerr << " *** [V775] Module looks dead ...Stopping Readout *** " << endl;
 	    m_bIsDead = true;
             break;
         }
@@ -557,7 +565,7 @@ uint16_t IDaqV775::Readout( FILE *fp, uint64_t &fs ){
             }
             
             nAdcGate = GetEventCountLow() + 1;
-            cout << nAdcGate << " particle events to read in adc" << endl;
+	    cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl;
             if (nAdcGate>0) {
                 for (int iNEvt=0; iNEvt< nAdcGate; iNEvt++){
                     ReadAndWriteOutputBuffer( fp, 34 );
@@ -573,7 +581,8 @@ uint16_t IDaqV775::Readout( FILE *fp, uint64_t &fs ){
     
         case V775_BLT32_BERR:
         default:
-            cerr << " V775 readout mode not implemented " << endl;
+            //cerr << " V775 readout mode not implemented " << endl;
+	    cerr << "[V775] Readout Mode not implemented " << endl;
             break;
     }
   
