@@ -45,7 +45,6 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getEventsDIGI(map<string, 
 
 	for(auto iterTDCData = map_InputVecTDCData.begin(); iterTDCData != map_InputVecTDCData.end(); ++iterTDCData){ //Loop Over Input Buffers
 		for(auto iterDataWord = (*iterTDCData).second.begin(); iterDataWord != (*iterTDCData).second.end(); ++iterDataWord){ //Loop Over Words Stored in (*iterTDCData).second's buffer
-			//DataWordV775 dwTDCData( (*iterDataWord) );
 
 			dwTDCData.SetData( (*iterDataWord) );
 			if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
@@ -57,6 +56,8 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getEventsDIGI(map<string, 
 			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
 				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventTrailer) ){ //Case: End of Block
 				tdcDigi.m_strBaseAddress = (*iterTDCData).first;
+                tdcDigi.m_uiEvtCount = dwTDCData.GetEventCount();
+                
 				vec_tdcDigiPerEvt.push_back(tdcDigi);
 
 				//cout<<"tdcDigi.m_map_fTime.size() = " << tdcDigi.m_map_fTime.size() << endl;
@@ -64,12 +65,9 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getEventsDIGI(map<string, 
 			} //End Case: End of Block
 			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
 				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventDatum) ){ //Case: Datum
-				//dTimeStamp = dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
 				iChan = dwTDCData.GetChannel();
 
 				tdcDigi.m_map_fTime[iChan]=dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
-
-				//vecTDCDataConverted.push_back(std::make_pair<int,double>(iChan,dTimeStamp) );
 			} //End Case: Datum
 
 		} //End Loop Over Words Stored in (*iterTDCData).second's buffer
@@ -98,23 +96,46 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getEventsDIGI(map<string, 
 	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - vec_pairIterNEnd.size() = " << vec_pairIterNEnd.size() << endl;
 
 	//Combine TDC events into a global event
+    bool bEvtAligned = true;
 	EventDigi evtDigi;
 	vector<EventDigi> vec_evtDigi;
 	for( unsigned int i=0; i < uiMaxSize; ++i ){ //Loop Over Expected Global Events
 		for(int j=0; j<vec_pairIterNEnd.size(); ++j){ //Loop Over TDC's
 			if( vec_pairIterNEnd[j].first != vec_pairIterNEnd[j].second ){ //Check: Reached end of events for j^th TDC?
-				evtDigi.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+                
+                if (j==0) { //Case: First TDC, Evt number not yet set
+                    evtDigi.m_uiEvtCount = (*vec_pairIterNEnd[j].first).m_uiEvtCount;
+                    evtDigi.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+                } //End Case: First TDC, Evt number not yet set
+                else{ //Case: j^th TDC, Evt number already set
+                    //Check to make sure j^th TDC has same evt number as evtDigi
+                    if (evtDigi.m_uiEvtCount == (*vec_pairIterNEnd[j].first).m_uiEvtCount ) { //Case: Event numbers match, record!
+                        evtDigi.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+                    } //End Case: Event numbers match, record!
+                    else{ //Case: Event numbers do NOT match, do not record, flag!
+                        bEvtAligned = false;
+                    } //End Case: Event numbers do NOT match, do not record, flag!
+                } //End Case: j^th TDC, Evt bumber already set
+                
 				++vec_pairIterNEnd[j].first; //Advanced j^th TDC to the next digi event
 			} //End Check: Reached end of events for j^th TDC
 			else{ //Case: No more events for j^th TDC
 				cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - Problem TDC Event Streams not Sync'd!\n";
-				auto tempIter = vec_pairIterNEnd[j].first;
-				--tempIter;
-				cout<<"TDC = " << showbase << hex << (*tempIter).m_strBaseAddress << dec << endl;
-				cout<<i<<"\tuiMaxSize = "<<uiMaxSize<<endl;
+				//auto tempIter = vec_pairIterNEnd[j].first;
+				//--tempIter;
+				//cout<<"TDC = " << showbase << hex << (*tempIter).m_strBaseAddress << dec << endl;
+				//cout<<i<<"\tuiMaxSize = "<<uiMaxSize<<endl;
 			} //End Case: No more events for j^th TDC
 		} //Loop Over TDCs
-		vec_evtDigi.push_back(evtDigi);
+		
+        //Check to make sure TDC's were all aligned (basd on Event Counter)
+        if (bEvtAligned) { //Case: TDC's algined, record
+            vec_evtDigi.push_back(evtDigi);
+        } //End Case: TDC's aligned, record
+        else { //Case: TDC's NOT aligned, do not record!
+            bEvtAligned = true; //Reset flag for next Evt!
+        } //End Case: TDC's NOT aligned, do not record!
+        
 		evtDigi.clear();
 	} //End Loop Over Expected Global Events
 
@@ -147,24 +168,17 @@ vector<EventRaw> QualityControl::Timing::ManagerDAQ::getEventsRAW(map<string, ve
 			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
 				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventTrailer) ){ //Case: End of Block
 				tdcRaw.m_strBaseAddress = (*iterTDCData).first;
+                tdcRaw.m_uiEvtCount = dwTDCData.GetEventCount();
+                
 				vec_tdcRawPerEvt.push_back(tdcRaw);
 
-				//cout<<"tdcDigi.m_map_fTime.size() = " << tdcDigi.m_map_fTime.size() << endl;
 				tdcRaw.clear();
-
 				//cout<<"Trailer = " << showbase << hex << dwTDCData.GetRawData() << dec << endl;
 			} //End Case: End of Block
 			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
 				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventDatum) ){ //Case: Datum
-				//dTimeStamp = dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
-				//iChan = dwTDCData.GetChannel();
-
-				//tdcDigi.m_map_fTime[iChan]=dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
 				tdcRaw.m_vec_DataWord.push_back( dwTDCData.GetRawData() );
-
-				//vecTDCDataConverted.push_back(std::make_pair<int,double>(iChan,dTimeStamp) );
 			} //End Case: Datum
-
 		} //End Loop Over Words Stored in (*iterTDCData).second's buffer
 
 		map_vecTDCRawPerEvt[(*iterTDCData).first]=vec_tdcRawPerEvt;
@@ -187,19 +201,41 @@ vector<EventRaw> QualityControl::Timing::ManagerDAQ::getEventsRAW(map<string, ve
 	//cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - vec_pairIterNEnd.size() = " << vec_pairIterNEnd.size() << endl;
 
 	//Combine TDC events into a global event
+    bool bEvtAligned = true;
 	EventRaw evtRaw;
 	vector<EventRaw> vec_evtRaw;
 	for( unsigned int i=0; i < uiMaxSize; ++i ){ //Loop Over Expected Global Events
 		for(int j=0; j<vec_pairIterNEnd.size(); ++j){ //Loop Over TDC's
 			if( vec_pairIterNEnd[j].first != vec_pairIterNEnd[j].second ){ //Check: Reached end of events for j^th TDC?
-				evtRaw.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+                if (j==0) { //Case: First TDC, Evt number not yet set
+                    evtRaw.m_uiEvtCount = (*vec_pairIterNEnd[j].first).m_uiEvtCount;
+                    evtRaw.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+                } //End Case: First TDC, Evt number not yet set
+                else{ //Case: j^th TDC, Evt number already set
+                    //Check to make sure j^th TDC has same evt number as evtRaw
+                    if ( evtRaw.m_uiEvtCount == (*vec_pairIterNEnd[j].first).m_uiEvtCount ) { //Case: Event numbers match, record!
+                        evtRaw.m_map_TDCData[(*vec_pairIterNEnd[j].first).m_strBaseAddress]=(*vec_pairIterNEnd[j].first);
+                    } //End Case: Event numbers match, record!
+                    else{ //Case: Event numbers do NOT match, do not record, flag!
+                        bEvtAligned = false;
+                    } //End Case: Event numbers do NOT match, do not record, flag!
+                } //End Case: j^th TDC, Evt number already set
+                
 				++vec_pairIterNEnd[j].first; //Advanced j^th TDC to the next digi event
 			} //End Check: Reached end of events for j^th TDC
 			else{ //Case: No more events for j^th TDC
 				cout<<"QualityControl::Timing::ManagerDAQ::getEventsRaw() - Problem TDC Event Streams not Sync'd!\n";
 			} //End Case: No more events for j^th TDC
 		} //Loop Over TDCs
-		vec_evtRaw.push_back(evtRaw);
+        
+        //Check to make sure TDC's were all aligned (based on Event Counter)
+        if (bEvtAligned) { //Case: TDC's aligned, record
+            vec_evtRaw.push_back(evtRaw);
+        } //End Case: TDC's aligned, record
+        else{ //Case: TDC's NOT aligned, do not record, reset flag!
+            bEvtAligned = true; //Reset flag for next Evt!
+        } //End Case: TDC's NOT aligned, do not record, reset flag!
+        
 		evtRaw.clear();
 	} //End Loop Over Expected Global Events
 
@@ -218,7 +254,7 @@ void QualityControl::Timing::ManagerDAQ::daqConfigure(){
     
     //Determine T_LSB for each TDC
     for(auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard){
-	m_map_TDCTimeLSB[(*iterVMEBoard).first] = 8.9 / (*iterVMEBoard).second->GetFullScaleRange();
+        m_map_TDCTimeLSB[(*iterVMEBoard).first] = 8.9 / (*iterVMEBoard).second->GetFullScaleRange();
     } //End Loop Over TDC's
 
     return;
@@ -257,9 +293,9 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
             
             //Get Data from Each TDC
             for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard) { //Loop Over Defined TDC's
-                //Sleep if TDC is not ready
-                while ( !(*iterVMEBoard).second->DReady() || !(*iterVMEBoard).second->IsBusy() ) {
-                    //while ( !(*iterVMEBoard).second->IsBusy() ) {
+                //Sleep if TDC is Not ready
+                //while ( !(*iterVMEBoard).second->DReady() || !(*iterVMEBoard).second->IsBusy() ) {
+                while ( !(*iterVMEBoard).second->IsBusy() ) {
                     nanosleep(&tspecSleepInterval, (struct timespec *)NULL);
                 } //End Loop While TDC Not Ready
                 
@@ -269,14 +305,14 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
                 
                 //Reset TDC for next trigger
                 (*iterVMEBoard).second->DataReset();
-                (*iterVMEBoard).second->ClearEventCount();
+                //(*iterVMEBoard).second->ClearEventCount();
                 
                 //Reset vec_DataWord for next trigger/tdc
                 vec_DataWord.clear();
             } //End Loop Over Defined TDC's
             
             //Check If All TDCs Stored Same Number of Events
-            auto pair_MinMaxEvts = std::minmax_element(vec_uiEvtsInReadout.begin(), vec_uiEvtsInReadout.end() );
+            /*auto pair_MinMaxEvts = std::minmax_element(vec_uiEvtsInReadout.begin(), vec_uiEvtsInReadout.end() );
             if( (*pair_MinMaxEvts.first) != (*pair_MinMaxEvts.second) ){ //Case: Clear, Boards Not Sync'd
                 //cout<<"Boards Do Not Have Same Number of Events - Resetting!\n";
                 m_map_vecTDCData.clear();
@@ -290,8 +326,8 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
                 cout<<"============"<<uiNEvt <<" Events Acquired============\n";
                
                 //Write Data
-                write2DiskRAW(file_Output, vec_GlobalEvtRaw)
-            } //End Case: Record! Boards Sync'd!
+                write2DiskRAW(file_Output, vec_GlobalEvtRaw);
+            }*/ //End Case: Record! Boards Sync'd!
             //Drop the busy
             crate_VME.m_vmeIO->SetOutput( 1, 1 );
             crate_VME.m_vmeIO->Clear();

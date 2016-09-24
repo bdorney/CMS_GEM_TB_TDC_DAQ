@@ -55,25 +55,28 @@ void QualityControl::Timing::HardwareCrateVME::configureCrate(){
     for (auto iterVMEBoard = m_map_vmeTDC.begin(); iterVMEBoard != m_map_vmeTDC.end(); ++iterVMEBoard) {
 	//cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Initializing Board\n";
         (*iterVMEBoard).second->Initialize();
-	(*iterVMEBoard).second->SetIterLimit(10);
+        (*iterVMEBoard).second->SetIterLimit(10);
         
         //Set Common Stop Mode
-	//cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Configuring TDC Mode\n";
+        //cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Configuring TDC Mode\n";
         (*iterVMEBoard).second->SetBitReg2( V775_BS2_StartStop, IDaqEnable );
         
-	//Set All Trig Mode
-        //(*iterVMEBoard).second->SetBitReg2( V775_BS2_AllTrg, IDaqEnable );
-
+        //Set Empty Prog Mode
+        (*iterVMEBoard).second->SetBitReg2( V775_BS2_EmptyProg, IDaqEnable );
+        
+        //Set All Trig Mode
+        (*iterVMEBoard).second->SetBitReg2( V775_BS2_AllTrg, IDaqEnable );
+        
         //Set Full Scale Range
 	    //int FullScaleSet = 0x5A;
-	//cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Setting Full Scale Range\n";
+        //cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Setting Full Scale Range\n";
         (*iterVMEBoard).second->SetFullScaleRange( std::stol( m_rSetup.m_map_vmeBoards[(*iterVMEBoard).first].m_strFullScaleRange, nullptr, 0 ) ); //400ns window
         
 
-	//cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Performing Data Reset\n";
+        //cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Performing Data Reset\n";
         (*iterVMEBoard).second->DataReset();
 
-	//cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Clearing Event Content\n";
+        //cout<<"QualityControl::Timing::HardwareCrateVME::configureCrate() - TDC: Clearing Event Content\n";
         (*iterVMEBoard).second->ClearEventCount();
     }
 
