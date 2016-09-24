@@ -36,6 +36,7 @@ scripts/setupCosmicDAQ_local.sh
 
 # ROOT Files #
 ##############
+*.raw
 *.root
 data/
 data/*

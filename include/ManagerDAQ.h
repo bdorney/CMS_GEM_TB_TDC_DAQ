@@ -51,6 +51,9 @@ namespace QualityControl {
             virtual void daqRelease();		//Release DAQ chain
             virtual void daqStartRun();		//start taking Data
 
+            //checks to see if run should be paused
+            virtual void daqPauseRunCheck(unsigned int uiAcquiredEvt);
+            
             //stop taking data
             virtual bool daqStopRun(unsigned int uiAcquiredEvt, unsigned int uiRequestedEvt);
             
