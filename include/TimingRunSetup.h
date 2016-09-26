@@ -73,7 +73,7 @@ namespace QualityControl {
             
             unsigned int m_uiEvtNum;    //Acquire this many events
             
-            std::string m_strFile_Output_Name;      //Name of output TFile
+            std::string m_strFile_Output_Name;      //Name of output file
             std::string m_strFile_Output_Option;    //Option for TFile: CREATE, RECREATE, UPDATE, etc...
             
             std::map<std::string, Timing::HwVMEBoard> m_map_vmeBoards;

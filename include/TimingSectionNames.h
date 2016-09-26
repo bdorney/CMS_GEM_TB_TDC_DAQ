@@ -69,6 +69,19 @@ namespace QualityControl {
                 m_strSecEnd_InfoRun.clear();
             }*/ //End Destructor
         }; //End SecNamesDAQ
+        
+        struct SecNamesReco{
+            std::string m_strSecBegin_Evt;
+            
+            std::string m_strSecEnd_Evt;
+            
+            //Default Constructor
+            SecNamesReco(){
+                m_strSecBegin_Evt = "[BEGIN EVENT]";
+                
+                m_strSecEnd_Evt = "[END EVENT]";
+            } //End Constructor
+        }; //End SecNamesReco
     } //End namespace Timing
 } //End namespace QualityControl
 

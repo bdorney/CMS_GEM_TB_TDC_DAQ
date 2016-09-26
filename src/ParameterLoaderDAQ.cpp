@@ -34,7 +34,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParameters(ifstream &file_I
     //Variable Declaration
     string strLine = "";
     
-    ////Loop Over data Input File
+    //Loop Over data Input File
     //------------------------------------------------------
     //Read the file via std::getline().  Obey good coding practice rules:
     //  -first the I/O operation, then error check, then data processing
@@ -86,7 +86,7 @@ void QualityControl::Timing::ParameterLoaderDAQ::loadParametersRun(std::ifstream
     
     std::pair<string,string> pair_strParam;
 
-    std::streampos spos_Previous; //previous stream position    
+    std::streampos spos_Previous; //previous stream position
 
     string strLine = "";
     

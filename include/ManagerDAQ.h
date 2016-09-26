@@ -38,7 +38,7 @@ namespace QualityControl {
             //Constructors
             //------------------------------------------------------------------------------------------------------------------------------------------
             ManagerDAQ(){
-		m_bVerboseMode = false;
+                m_bVerboseMode = false;
             } //End Constructor
 
             //Destructors
@@ -70,6 +70,21 @@ namespace QualityControl {
             //Event output is at the Raw level (e.g. hex words)
             virtual std::vector<QualityControl::Timing::EventRaw> getEventsRAW(std::map<std::string, std::vector<uint32_t> > map_InputVecTDCData);
 
+            //Return the TDC Resolution (e.g. TimeLSB) for a specific TDC
+            double getTDCResolution(std::string strInputBaseAddr){
+                if (m_map_TDCTimeLSB.count(strInputBaseAddr) > 0 ) {
+                    return m_map_TDCTimeLSB[strInputBaseAddr];
+                }
+                else{
+                    return 0;
+                }
+            } //End getTDCResolution()
+            
+            //Return the TDC Resolution (e.g. TimeLSB) for all TDC's
+            std::map<std::string, double> getTDCResolutionMap(){
+                return m_map_TDCTimeLSB;
+            } //End getTDCResolution()
+            
             //Printers - Methods that Print Something
             //------------------------------------------------------------------------------------------------------------------------------------------
             //Print Raw Data
