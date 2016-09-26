@@ -22,8 +22,10 @@
 # Compiled source #
 ###################
 cosmicStandTDCDAQ
+cosmicReco
 *.o
 *.so
+include/AutoDict_*
 
 # Misc #
 ########

@@ -6,35 +6,27 @@ ROOTCONFIG = $(ROOTSYS)/bin/root-config
 
 # Define any compile-time flags
 #CFLAGS = -Dlong32="int" -Dlong64="long long"
-#CFLAGS = -g3 -O0 `$(ROOTCONFIG) --cflags --glibs --libs` -std=c++11
-CFLAGS = -gdwarf-2 -O0 `$(ROOTCONFIG) --cflags --glibs --libs` -std=c++11
-#CFLAGS = -g3 -O0 `$(ROOTCONFIG) --cflags --glibs --libs` -std=c++0x
+CFLAGS = -g3 -O0 `$(ROOTCONFIG) --cflags --glibs --libs` -std=c++11
 
 # Define any directories containing header files other than "/usr/include"
-#INC_CAEN = include/CAEN/
-#INCLUDES = -I include/ -I$(ROOTSYS)/include/ -I $(INC_CAEN)
 INCLUDES = -I include/ -I$(ROOTSYS)/include/
 
 # Define any library paths in addition to "/usr/lib"
 LPATHS = -L $(ROOTSYS)/lib/
+#LPATHS = -L $(ROOTSYS)/lib/ /Users/dorney/Desktop/MyResearch/GitRepos/CMS_GEM_TB_TDC_DAQ/lib/
 
 # Define any libraries to link into executable
 #LIBS = -lSpectrum
-LIBS = -lCAENVME
+#LIBS = -lCAENVME
 
 # Define source files
 SOURCES =   src/QualityControlUtilityFunctions.cpp \
             src/ParameterLoader.cpp \
             src/ParameterLoaderDAQ.cpp \
+            src/DataWordV775.cpp \
             src/Reconstructor.cpp \
             src/ReconstructorDigi.cpp \
-            src/IDaqVmeInterface.cpp \
-            src/IDaqVmeModule.cpp \
-            src/IDaqV513.cpp \
-            src/IDaqV775.cpp \
-            src/HardwareCrateVME.cpp \
-            src/ManagerDAQ.cpp \
-            src/cosmicStandTDCDAQ.cpp
+            src/cosmicReco.cpp
 
 # Define object files
 #	We use Suffix Replacement
@@ -44,7 +36,7 @@ SOURCES =   src/QualityControlUtilityFunctions.cpp \
 OBJECTS = $(SOURCES:.cpp=.o)
 
 # Define the executable
-EXEC = cosmicStandTDCDAQ
+EXEC = cosmicReco
 
 # Define default behavior
 #default: $(EXEC)

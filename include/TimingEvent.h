@@ -24,8 +24,10 @@ namespace QualityControl {
     namespace Timing {
         struct TDCDataRaw {
             uint32_t m_uiEvtCount;
+            //unsigned int m_uiEvtCount;
             
             std::vector<uint32_t> m_vec_DataWord;
+            //std::vector<unsigned int> m_vec_DataWord;
             std::string m_strBaseAddress;   	//Base Address of originating module
             
             //Default Constructor
@@ -50,6 +52,7 @@ namespace QualityControl {
             
         struct TDCDataDigi {
             uint32_t m_uiEvtCount;
+            //unsigned int m_uiEvtCount;
             
             std::map<int, double> m_map_fTime;  //Key -> Chan #; Val -> Time
             std::string m_strBaseAddress;   	//Base Address of originating module
@@ -81,6 +84,7 @@ namespace QualityControl {
             
         struct EventRaw{
             uint32_t m_uiEvtCount;
+            //unsigned int m_uiEvtCount;
             
             std::map<std::string, Timing::TDCDataRaw> m_map_TDCData; //Key -> Hex Board Address; Val -> Data
             
@@ -103,6 +107,7 @@ namespace QualityControl {
         
         struct EventDigi{
             uint32_t m_uiEvtCount;
+            //unsigned int m_uiEvtCount;
             
             std::map<std::string, Timing::TDCDataDigi> m_map_TDCData; //Key -> Hex Board Address; Val -> Data
             

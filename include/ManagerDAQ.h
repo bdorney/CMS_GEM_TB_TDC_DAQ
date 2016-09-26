@@ -20,6 +20,7 @@
 #include <utility>
 
 //Framework Includes
+#include "DataWordV775.h"
 #include "HardwareCrateVME.h"
 #include "IDaqVmeTypes.h"
 #include "IDaqV775.h"

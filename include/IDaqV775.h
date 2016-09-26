@@ -7,6 +7,7 @@
 #include <thread>
 
 //Framework Includes
+#include <DataWordV775.h>
 #include <IDaqVmeTypes.h>
 #include <IDaqVmeModule.h>
 
@@ -69,7 +70,7 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
   		void SetChannelStatus( unsigned int uiInputCh, IDaqSwitch inputSwitch );
   	
         int GetIterLimit(){ return m_iIterLimit; }
-	virtual void SetIterLimit(int iInputLim){ m_iIterLimit = iInputLim; return; };
+        virtual void SetIterLimit(int iInputLim){ m_iIterLimit = iInputLim; return; };
 
         V775ReadoutMode GetReadoutMode(){ return m_modeReadout; }
 		void SetFullScaleRange( unsigned int uiInputFSR );
@@ -80,7 +81,6 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		V775ReadoutMode  m_modeReadout;
 		
 		uint16_t m_uiPed;
-		//uint16_t m_uiThreshold[ 32 ];
 		std::shared_ptr<uint16_t> m_uiThreshold;
 		uint16_t m_geoAddr;
 		
@@ -103,30 +103,5 @@ class IDaqV775 : public IDaqVmeModule< uint32_t, uint32_t >
 		bool m_bIsDead;
 		int m_iIterLimit;
 };
-
-class DataWordV775 : public DataWord< uint32_t > {
-
-public:
-  
-  DataWordV775( uint32_t d = 0 );
-  ~DataWordV775(){}
-  uint32_t GetDataType();
-	uint32_t GetRawData(){ return data; };
-  uint32_t GetData();
-  uint32_t GetDataStatus();
-
-  uint32_t GetChannel();
-  uint32_t GetNChannel();
-  uint32_t GetCrateNumber();
-  
-  uint32_t GetEventCount();
-  uint32_t GetGeo();
-
-  static  void WriteDataBlockLimit( FILE *fp );
-
-};
-
-std::ostream &operator<< ( std::ostream &s, DataWordV775 &dw );
-std::istream &operator>> ( std::istream &s, DataWordV775 &dw );
 
 #endif

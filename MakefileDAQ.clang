@@ -23,6 +23,7 @@ LPATHS = -L $(ROOTSYS)/lib/
 SOURCES =   src/QualityControlUtilityFunctions.cpp \
             src/ParameterLoader.cpp \
             src/ParameterLoaderDAQ.cpp \
+            src/DataWordV775.cpp \
             src/Reconstructor.cpp \
             src/ReconstructorDigi.cpp \
             src/IDaqVmeInterface.cpp \

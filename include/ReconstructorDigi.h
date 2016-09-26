@@ -10,14 +10,19 @@
 #define ____ReconstructorDigi__
 
 //C++ Includes
+#include <map>
+#include <memory>
 #include <stdio.h>
 #include <string>
+#include <utility>
+#include <vector>
 
 //Framework Includes
-#include "IDaqV775.h"
+#include "DataWordV775.h"
 #include "QualityControlUtilityFunctions.h"
 #include "Reconstructor.h"
 #include "TimingEvent.h"
+#include "TimingRunSetup.h"
 
 //ROOT Includes
 #include "TBranch.h"
@@ -27,10 +32,13 @@
 
 //For working with stl containers and TTree
 #ifdef __MAKECINT__
+//#pragma link C++ class vector<pair<int,double> >+;
 #pragma link C++ class vector<double>+;
-#pragma link C++ class map<int,double>+;
+//#pragma link C++ class map<int,double>+;
+#pragma ling C++ class map<string, vector<double> >+;
 #endif
 
+using namespace ROOT;
 
 namespace QualityControl {
     namespace Timing {
@@ -38,15 +46,15 @@ namespace QualityControl {
         public:
             //Constructors
             //------------------------------------------------------------------------------------------------------------------------------------------
-            ReconstructorDigi(){
+            ReconstructorDigi() : m_tree_Output(new TTree) {
                 m_bVerboseMode_IO = false;
             } //End Constructor
             
-            //Destructors
+            //Destructor
             //------------------------------------------------------------------------------------------------------------------------------------------
-            /*~Reconstructor(){
-             
-             }*/ //End Destructor
+            ~ReconstructorDigi(){
+                m_tree_Output.reset();
+            } //End Destructor
             
             //Actions - Methods that Do Something
             //------------------------------------------------------------------------------------------------------------------------------------------
@@ -69,7 +77,12 @@ namespace QualityControl {
             
             //Actions - Methods that Do Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-            //virtual void initTree();
+            //Fills a TTree
+            virtual void fillTree(QualityControl::Timing::EventDigi & inputEvtDIGI);
+            
+            //Initializes a TTree and it's branches
+            virtual void initTree();
+            virtual void writeTree();
             
             //Getters - Methods that Get (i.e. Return) Something
             //------------------------------------------------------------------------------------------------------------------------------------------
@@ -84,7 +97,9 @@ namespace QualityControl {
             
             //Attributes - Methods that Set Something
             //------------------------------------------------------------------------------------------------------------------------------------------
-            
+            std::unique_ptr<TTree> m_tree_Output;
+            //std::map<std::string, std::vector<std::pair<int, double> > m_map_vecOfTDCChan;
+            std::map<std::string, std::vector<double> > m_map_vecOfTDCChan;
         }; //End class ReconstructorDigi
     } //End namespace Timing
 } //End namespace QualityControl
