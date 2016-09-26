@@ -121,7 +121,10 @@ vector<EventDigi> QualityControl::Timing::ManagerDAQ::getEventsDIGI(map<string, 
 				++vec_pairIterNEnd[j].first; //Advanced j^th TDC to the next digi event
 			} //End Check: Reached end of events for j^th TDC
 			else{ //Case: No more events for j^th TDC
-				cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - Problem TDC Event Streams not Sync'd!\n";
+				if( m_bVerboseMode ){
+					cout<<"QualityControl::Timing::ManagerDAQ::getEventsDigi() - Problem TDC Event Streams not Sync'd!\n";
+				}
+
 				//auto tempIter = vec_pairIterNEnd[j].first;
 				//--tempIter;
 				//cout<<"TDC = " << showbase << hex << (*tempIter).m_strBaseAddress << dec << endl;
@@ -169,7 +172,10 @@ vector<EventRaw> QualityControl::Timing::ManagerDAQ::getEventsRAW(map<string, ve
 			else if( !( dwTDCData.GetDataType() == (uint32_t)DWV775_DataFiller ) 
 				&& (dwTDCData.GetDataType() == (uint32_t)DWV775_EventTrailer) ){ //Case: End of Block
 				tdcRaw.m_strBaseAddress = (*iterTDCData).first;
-                tdcRaw.m_uiEvtCount = dwTDCData.GetEventCount();
+                		tdcRaw.m_uiEvtCount = dwTDCData.GetEventCount();
+
+				//Debugging
+				//cout<<"TDC = " << tdcRaw.m_strBaseAddress << " Evt Count = " << tdcRaw.m_uiEvtCount << endl;
                 
 				vec_tdcRawPerEvt.push_back(tdcRaw);
 
@@ -225,7 +231,10 @@ vector<EventRaw> QualityControl::Timing::ManagerDAQ::getEventsRAW(map<string, ve
 				++vec_pairIterNEnd[j].first; //Advanced j^th TDC to the next digi event
 			} //End Check: Reached end of events for j^th TDC
 			else{ //Case: No more events for j^th TDC
-				cout<<"QualityControl::Timing::ManagerDAQ::getEventsRaw() - Problem TDC Event Streams not Sync'd!\n";
+				if( m_bVerboseMode ){
+					cout<<"QualityControl::Timing::ManagerDAQ::getEventsRaw() - Problem TDC Event Streams not Sync'd!\n";
+				}
+	
 			} //End Case: No more events for j^th TDC
 		} //Loop Over TDCs
         
@@ -277,8 +286,18 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
     //Open Output File
     std::fstream file_Output(m_rSetup.m_strFile_Output_Name.c_str(), std::ios::out);
     
+	//Reset the Event Count For each board
+	//Set the busy
+	crate_VME.m_vmeIO->SetOutput( 1, 0 );
+	for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard) {
+		(*iterVMEBoard).second->ClearEventCount();
+	}
+
     //Event Loop
+    bool bResetEvtCounter = false;
     int uiNEvt = 0;
+    unsigned int uiNEvt_Max = 0, uiNEvt_Min = 0;
+    //int uiNEvtTillReset = 0;
     int iTrigCond = 0;
     tspecSleepInterval.tv_sec = 0;
     tspecSleepInterval.tv_nsec = 1;  //Artificial Dead time in ns
@@ -307,32 +326,30 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
                 //Reset TDC for next trigger
                 (*iterVMEBoard).second->DataReset();
                 //(*iterVMEBoard).second->ClearEventCount();
-                
+
                 //Reset vec_DataWord for next trigger/tdc
                 vec_DataWord.clear();
             } //End Loop Over Defined TDC's
             
-            //Check If All TDCs Stored Same Number of Events
-            /*auto pair_MinMaxEvts = std::minmax_element(vec_uiEvtsInReadout.begin(), vec_uiEvtsInReadout.end() );
-            if( (*pair_MinMaxEvts.first) != (*pair_MinMaxEvts.second) ){ //Case: Clear, Boards Not Sync'd
-                //cout<<"Boards Do Not Have Same Number of Events - Resetting!\n";
-                m_map_vecTDCData.clear();
-            } //End Case: Clear, Boards Not Sync'd
-            else{ //Case: Record! Boards Sync'd!
-                //Build Events Stored in Board Buffers
-                vector<EventRaw> vec_GlobalEvtRaw = getEventsRAW(m_map_vecTDCData);
-                
-                //Update Number of Acquired Events
-                uiNEvt += vec_GlobalEvtRaw.size();
-                cout<<"============"<<uiNEvt <<" Events Acquired============\n";
-               
-                //Write Data
-                write2DiskRAW(file_Output, vec_GlobalEvtRaw);
-            }*/ //End Case: Record! Boards Sync'd!
-
             //Build Events Stored in Board Buffers
             vector<EventRaw> vec_GlobalEvtRaw = getEventsRAW(m_map_vecTDCData);
-            
+		
+		//Debugging
+		//cout<<"QualityControl::Timing::ManagerDAQ::daqStartRun() - vec_GlobalEvtRaw.size() = " << vec_GlobalEvtRaw.size() << endl;
+		//printEvents(vec_GlobalEvtRaw);
+		
+		//Check if boards still in sync, if not clear their event contents
+		if( crate_VME.m_map_vmeTDC.size() > 1){
+			uiNEvt_Min = (*std::min_element(vec_uiEvtsInReadout.begin(),vec_uiEvtsInReadout.end() ) );
+			uiNEvt_Max = (*std::max_element(vec_uiEvtsInReadout.begin(),vec_uiEvtsInReadout.end() ) );
+			if(uiNEvt_Min != uiNEvt_Max){
+				cout<<"QualityControl::Timing::ManagerDAQ::daqStartRun() - Issuing TDC Resync\n";
+				for (auto iterVMEBoard = crate_VME.m_map_vmeTDC.begin(); iterVMEBoard != crate_VME.m_map_vmeTDC.end(); ++iterVMEBoard) { //Loop Over Defined TDC's
+					(*iterVMEBoard).second->ClearEventCount();
+		        	} //End Loop Over Defined TDC's			
+			}
+		}
+
             //Update Number of Acquired Events
             uiNEvt += vec_GlobalEvtRaw.size();
             cout<<"============"<<uiNEvt <<" Events Acquired============\n";
@@ -349,7 +366,7 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
         } //End Case: Trigger!
         
         //Pause the run?
-        daqPauseRunCheck(unsigned int uiAcquiredEvt);
+        daqPauseRunCheck(uiNEvt);
     } //End Event Loop
     
     return;
@@ -357,7 +374,8 @@ void QualityControl::Timing::ManagerDAQ::daqStartRun(){
 
 void QualityControl::Timing::ManagerDAQ::daqPauseRunCheck(unsigned int uiAcquiredEvt){
     
-    if ( uiAcquiredEvt % 1000 == 0 ){ //Case: Check File Flag
+    //if ( uiAcquiredEvt % 1000 == 0 ){ //Case: Check File Flag
+    if ( (uiAcquiredEvt % 1000) < 100 ){ //Case: Check File Flag
         //Open the Stop File
         std::ifstream file_Pause;
         
@@ -368,7 +386,7 @@ void QualityControl::Timing::ManagerDAQ::daqPauseRunCheck(unsigned int uiAcquire
         do {
             file_Pause.open("config/pauseDAQ.cfg" );
             
-            getlineNoSpaces(file_Stop,strLine);
+            getlineNoSpaces(file_Pause,strLine);
             
             //Stop Requested?
             bPause = convert2bool(strLine, bExitSuccess);
@@ -378,14 +396,22 @@ void QualityControl::Timing::ManagerDAQ::daqPauseRunCheck(unsigned int uiAcquire
             
             //Sleep if Pause Requested
             if (bPause) {
+	        //Set the busy
+	        crate_VME.m_vmeIO->SetOutput( 1, 0 );
+
+		cout<<"QualityControl::Timing::ManagerDAQ::daqPauseRunCheck() - DAQ PAUSED\n";
                 std::this_thread::sleep_for (std::chrono::seconds(60));
+
+	        //Drop the busy
+        	crate_VME.m_vmeIO->SetOutput( 1, 1 );
+	        crate_VME.m_vmeIO->Clear();
             }
             
             file_Pause.close();
         } while (bPause);
     } //End Case: Check File Flag
     
-    return bRetStopCond;
+    return;
 } //End QualityControl::Timing::ManagerDAQ::daqPauseRunCheck()
 
 bool QualityControl::Timing::ManagerDAQ::daqStopRun(unsigned int uiAcquiredEvt, unsigned int uiRequestedEvt){
@@ -395,7 +421,8 @@ bool QualityControl::Timing::ManagerDAQ::daqStopRun(unsigned int uiAcquiredEvt, 
     if ( uiAcquiredEvt >= uiRequestedEvt){ //Case: Acquired All Events
         bRetStopCond = true ;
     } //End Case: Acquired All Events
-    else if ( uiAcquiredEvt % 1000 == 0 ){ //Case: Check File Flag
+    //else if ( uiAcquiredEvt % 1000 == 0 ){ //Case: Check File Flag
+    else if ( (uiAcquiredEvt % 1000) < 100 ){ //Case: Check File Flag
         //Open the Stop File
         std::ifstream file_Stop("config/stopDAQ.cfg" );
         

@@ -37,7 +37,10 @@ namespace QualityControl {
         public:
             //Constructors
             //------------------------------------------------------------------------------------------------------------------------------------------
-            
+            ManagerDAQ(){
+		m_bVerboseMode = false;
+            } //End Constructor
+
             //Destructors
             //------------------------------------------------------------------------------------------------------------------------------------------
             ~ManagerDAQ(){
@@ -86,6 +89,11 @@ namespace QualityControl {
                 m_rSetup = inputRunSetup;
                 return;
             }
+
+            virtual void setVerboseMode(bool bInput){
+                m_bVerboseMode = bInput;
+                return;
+            }
             
         private:
             //Constructors
@@ -105,6 +113,8 @@ namespace QualityControl {
             
             //Attributes - Methods that Set Something
             //------------------------------------------------------------------------------------------------------------------------------------------
+	    bool m_bVerboseMode;
+
             QualityControl::Timing::RunSetup m_rSetup;
             
             QualityControl::Timing::HardwareCrateVME crate_VME;

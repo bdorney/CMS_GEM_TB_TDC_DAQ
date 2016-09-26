@@ -23,6 +23,7 @@ IDaqV775::IDaqV775() : m_uiThreshold(new uint16_t[32]) {
     //data = new uint32_t[ bufferSize / sizeof( uint32_t ) ];
 	m_modeAcq = V775_ALL;
 	m_modeReadout = V775_D32;
+	m_bVerboseMode = false;
 }
 
 IDaqV775::~IDaqV775(){
@@ -460,9 +461,9 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
 	int iter( 0 );
 
 	while ( IsBusy() ){
-		cout << "[V775] TDC in conversion... " << endl; 
+		if(m_bVerboseMode){ cout << "[V775] TDC in conversion... " << endl; }
 		if ( IsFull() ) {
-			cout << "[V775] Buffer is full! Possible data loss." << endl;
+			if(m_bVerboseMode){ cout << "[V775] Buffer is full! Possible data loss." << endl; }
 			break;
 		}
         
@@ -485,7 +486,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
             }
             
 			nAdcGate = GetEventCountLow() + 1;
-			cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl;
+			if(m_bVerboseMode){ cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl; }
             
 			int evCount = 0;
 			while( evCount < nAdcGate ){
@@ -513,7 +514,7 @@ uint16_t IDaqV775::Readout( vector<uint32_t>& vec_uiInputData ){
 			if( m_vmeInt->GetStatus() != IDaqSuccess ) return -1;
 			
 			nAdcGate = GetEventCountLow() + 1;
-			cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl;
+			if(m_bVerboseMode){ cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl; }
 			if( nAdcGate > 0 ) {
 				for ( int iNEvt = 0; iNEvt < nAdcGate; ++iNEvt ){
 					ReadAndWriteOutputBuffer( vec_uiInputData, 34 );
@@ -542,9 +543,9 @@ uint16_t IDaqV775::Readout( FILE *fp, uint64_t &fs ){
     int iter( 0 );
 
     while ( IsBusy() ){
-        cout << "[V775] TDC in conversion... " << endl;
+        if(m_bVerboseMode){ cout << "[V775] TDC in conversion... " << endl; }
         if ( IsFull() ) {
-            cout << "[V775] Buffer is full! Possible data loss." << endl;
+            if(m_bVerboseMode){ cout << "[V775] Buffer is full! Possible data loss." << endl; }
             break;
         }
 
@@ -565,7 +566,7 @@ uint16_t IDaqV775::Readout( FILE *fp, uint64_t &fs ){
             }
             
             nAdcGate = GetEventCountLow() + 1;
-	    cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl;
+	    if(m_bVerboseMode){ cout << "[V775] " << nAdcGate << " particle events to read in TDC " << showbase << hex << m_baseAddr << dec << endl; }
             if (nAdcGate>0) {
                 for (int iNEvt=0; iNEvt< nAdcGate; iNEvt++){
                     ReadAndWriteOutputBuffer( fp, 34 );

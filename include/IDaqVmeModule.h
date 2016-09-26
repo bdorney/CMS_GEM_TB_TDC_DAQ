@@ -25,9 +25,7 @@ public:
     
     virtual void Initialize(){ m_vmeStatus = IDaqGenericError; return; }
     virtual void Arm(){ m_vmeStatus = IDaqGenericError; return; };
-    //virtual int Readout(FILE *fp, uint64_t &fs){ return 0; }
     virtual uint16_t Readout(FILE *fp, uint64_t &fs){ return 0; }
-    //virtual int Readout( std::vector<uint32_t>& vec_uiInputData ){ return 0; };
     virtual uint16_t Readout( std::vector<uint32_t>& vec_uiInputData ){ return 0; };
     virtual bool IsInitialized(){ return m_bInitStatus; }
 
@@ -43,6 +41,8 @@ public:
 
     virtual bool IsConnected();
 
+    virtual void SetVerboseMode(bool bInput){ m_bVerboseMode = bInput; return; }
+
 protected:
     IDaqVmeCode m_vmeStatus;
     IDaqVmeModuleKind m_vmeKind;
@@ -51,6 +51,7 @@ protected:
     std::string m_strName;
     bool m_bConnectStatus;
     bool m_bInitStatus;
+    bool m_bVerboseMode;
 }; //End class IDaqVmeVirtualModule
 
 template <typename AddressType, typename DataType >
@@ -65,6 +66,7 @@ public:
 
 	m_bConnectStatus = false;
 	m_bInitStatus = false; 
+	m_bVerboseMode = false;
     };
     
     virtual ~IDaqVmeModule(){

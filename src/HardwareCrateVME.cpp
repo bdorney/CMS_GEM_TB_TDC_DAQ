@@ -148,7 +148,7 @@ void QualityControl::Timing::HardwareCrateVME::addVMEIO( Timing::HwVMEBoard &inp
 void QualityControl::Timing::HardwareCrateVME::addVMETDC( Timing::HwVMEBoard &inputBoard ){
     //Declare Board
     IDaqV775 vmeBoard;
-    
+
     //Set Base Address
     vmeBoard.SetBaseAddress( std::stol( inputBoard.m_strBaseAddress, nullptr, 0 ) );
     
@@ -161,6 +161,9 @@ void QualityControl::Timing::HardwareCrateVME::addVMETDC( Timing::HwVMEBoard &in
     //Set Full Scale Range
     //vmeBoard.SetFullScaleRange( std::stoi(inputBoard.m_strFullScaleRange, nullptr, 0 ) );
     
+    //Set Verbose Mode
+    vmeBoard.SetVerboseMode(false);
+
     m_map_vmeTDC[inputBoard.m_strBaseAddress] = std::make_shared<IDaqV775>( vmeBoard );
     
     return;

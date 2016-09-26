@@ -9,6 +9,7 @@ IDaqVmeVirtualModule::IDaqVmeVirtualModule() : m_vmeInt(new IDaqVmeInterface){
 
 	m_bConnectStatus = false;
 	m_bInitStatus = false; 
+	m_bVerboseMode = false;
 }
 
 void IDaqVmeVirtualModule::Connect( std::shared_ptr<IDaqVmeInterface> inputVmeInt ){
