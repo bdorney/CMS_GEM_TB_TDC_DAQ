@@ -9,6 +9,8 @@
 #include "ReconstructorDigi.h"
 
 //std namespace objects
+using std::cout;
+using std::endl;
 using std::string;
 
 //QualityControl::Timing namespace objects
@@ -19,7 +21,7 @@ void QualityControl::Timing::ReconstructorDigi::recoEvents(){
     //Get Input Data File
     //------------------------------------------------------
     ifstream file_Input;
-    setFileStream(m_rSetup.m_strFile_Output_Name, file_Input);
+    setFileStream(m_rSetup.m_strFile_Output_Name, file_Input, m_bVerboseMode_IO);
     
     //Loop Over Input Data File
     //------------------------------------------------------
@@ -40,11 +42,11 @@ void QualityControl::Timing::ReconstructorDigi::recoEvents(){
             evtRaw  = getEventRAW(file_Input);
             evtDigi = getEventDIGI(evtRaw);
             
-            for (auto iterTDC = evtDigi.m_map_TDCData.begin(); iterTDC != evtDigi.m_map_TDCData.end(); ++iterTDC) { //Loop Over TDC's
+            /*for (auto iterTDC = evtDigi.m_map_TDCData.begin(); iterTDC != evtDigi.m_map_TDCData.end(); ++iterTDC) { //Loop Over TDC's
                 for (auto iterTDCChan = (*iterTDC).second.m_map_fTime.begin(); iterTDCChan != (*iterTDC).second.m_map_fTime.end(); ++iterTDCChan) { //Loop Over iterTDC's Channels
-                    cout<<(*iterTDC).first<<"\t"<<(*iterTDCChan).first<<"\t"<<(*iterTDCChan).second;
+                    cout<<(*iterTDC).first<<"\t"<<(*iterTDCChan).first<<"\t"<<(*iterTDCChan).second<<endl;
                 } //End Loop Over iterTDC's Channels
-            } //End Loop Over TDC's
+            }*/ //End Loop Over TDC's
             
         } //End Case: Run Info Header
         else { //Case: Unsorted Parameters
@@ -55,7 +57,7 @@ void QualityControl::Timing::ReconstructorDigi::recoEvents(){
     } //End Loop over input file
     
     //Check to see if we had problems while reading the file
-    if (file_Input.bad() && bVerboseMode) {
+    if (file_Input.bad() && m_bVerboseMode_IO) {
         //perror( ("Uniformity::QualityControl::Timing::ParameterLoaderDAQ::loadParameters(): error while reading file: " + strInputSetupFile).c_str() );
         perror( "Timing::QualityControl::Timing::ReconstructorDigi::recoEvents(): error while reading file" );
         printStreamStatus(file_Input);
@@ -83,7 +85,7 @@ EventDigi QualityControl::Timing::ReconstructorDigi::getEventDIGI(EventRaw & inp
         for (auto iterDataWord = (*iterTDC).second.m_vec_DataWord.begin(); iterDataWord != (*iterTDC).second.m_vec_DataWord.end(); ++iterDataWord) { //Loop Over iterTDC's data words
             
             dwTDCData.SetData( (*iterDataWord) );
-            tdcDigi.m_map_fTime[dwTDCData.GetChannel()] = dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDCData).first];
+            tdcDigi.m_map_fTime[dwTDCData.GetChannel()] = dwTDCData.GetData() * m_map_TDCTimeLSB[(*iterTDC).first];
         } //End Loop Over iterTDC's data words
         
         //Add to event

@@ -35,6 +35,7 @@ using QualityControl::printStreamStatus;
 //QualityControl::Timing namespace objects
 using QualityControl::Timing::ManagerDAQ;
 using QualityControl::Timing::ParameterLoaderDAQ;
+using QualityControl::Timing::ReconstructorDigi;
 
 int main( int argc_, char * argv_[] ){
     //Transfer Input Arguments into vec_strInputArgs
@@ -126,6 +127,7 @@ int main( int argc_, char * argv_[] ){
     ReconstructorDigi recoDigi;
     
     recoDigi.setRunSetup(rSetup);
+    recoDigi.setTDCResolution( daqManager.getTDCResolutionMap() );
     recoDigi.recoEvents();
     
     return 0;

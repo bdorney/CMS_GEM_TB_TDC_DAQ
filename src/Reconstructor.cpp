@@ -33,27 +33,29 @@ EventRaw QualityControl::Timing::Reconstructor::getEventRAW(std::ifstream &file_
     //Variable Declaration
     EventRaw retEvtRAW;
     
-    cout<<"QualityControl::Timing::Reconstructor::getEventRAW() - Start of Event Reached!\n";
+    //cout<<"QualityControl::Timing::Reconstructor::getEventRAW() - Start of Event Reached!\n";
     
     //Get the Event from the file_Input
     std::streampos spos_Previous; //previous stream position
     string strLine;
     string strBaseAddr, strDataWord;
-    stringstream sstream;
+    //stringstream sstream;
     while ( getline(file_Input, strLine) ) {
         //Do we reach the end of the event?
         if (0 == strLine.compare( m_headers_RECO.m_strSecEnd_Evt ) ) {
             
-            cout<<"QualityControl::Timing::Reconstructor::getEventRAW() - End of Event Reached!\n";
+            //cout<<"QualityControl::Timing::Reconstructor::getEventRAW() - End of Event Reached!\n";
             
             file_Input.seekg(spos_Previous);
             break;
         }
-        
-        sstream.str(strLine);
+
+        stringstream sstream(strLine);
         sstream>>strBaseAddr>>strDataWord;
         
-        retEvtRAW.m_map_TDCData[strBaseAddr].m_vec_DataWord( std::stol( strDataWord, nullptr, 0 ) );
+	//cout<<strBaseAddr<<"\t"<<strDataWord<<endl;
+
+        retEvtRAW.m_map_TDCData[strBaseAddr].m_vec_DataWord.push_back( std::stoul( strDataWord, nullptr, 0 ) );
         
         //Store previous stream position so main loop over file exits correctly
         //After finding the end header we will return file_Input to the previous stream position so recoEvents() loop in inherited classes will exit properly
