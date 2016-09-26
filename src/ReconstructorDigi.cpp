@@ -64,9 +64,13 @@ void QualityControl::Timing::ReconstructorDigi::recoEvents(){
             
             //Check for Max Evt?
             ++uiNEvtProcessed;
-            if (uiNEvtProcessed > m_rSetup.m_uiEvtNum) {
+
+	    if( (uiNEvtProcessed % 1000) == 0){
+		cout<<"QualityControl::Timing::ReconstructorDigi::recoEvents() - Processed " << uiNEvtProcessed << " Events\n";
+	    }
+            /*if (uiNEvtProcessed > m_rSetup.m_uiEvtNum) {
                 break;
-            }
+            }*/
         } //End Case: Run Info Header
     } //End Loop over input file
     

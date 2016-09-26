@@ -25,7 +25,9 @@ cosmicStandTDCDAQ
 cosmicReco
 *.o
 *.so
+AutoDict_*
 include/AutoDict_*
+include/*_h.d
 
 # Misc #
 ########
