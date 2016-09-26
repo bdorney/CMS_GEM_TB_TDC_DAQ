@@ -16,6 +16,7 @@
 //Framework Includes
 #include "ManagerDAQ.h"
 #include "ParameterLoaderDAQ.h"
+#include "ReconstructorDigi.h"
 #include "TimingRunSetup.h"
 
 //ROOT Includes
@@ -118,8 +119,14 @@ int main( int argc_, char * argv_[] ){
     //------------------------------------------------------
 	cout<<"Starting DAQ LOOP"<<endl;
     daqManager.daqStartRun();
-
-	cout<<"DAQ LOOP ENDED"<<endl;
+    cout<<"DAQ LOOP ENDED"<<endl;
+    
+    //Perform the Reconstruction
+    //------------------------------------------------------
+    ReconstructorDigi recoDigi;
+    
+    recoDigi.setRunSetup(rSetup);
+    recoDigi.recoEvents();
     
     return 0;
 } //End main()
