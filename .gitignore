@@ -38,6 +38,16 @@ scripts/setupCosmicDAQ_local.sh
 #############
 *.pdf
 
+# IMAGE FILES #
+###############
+*.png
+*.tif
+*.gif
+*.jpg
+*.jpeg
+plots/
+plots/*
+
 # ROOT Files #
 ##############
 *.raw
